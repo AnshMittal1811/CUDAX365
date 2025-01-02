@@ -50,6 +50,17 @@ Day 2:
 Explore simple CUDA samples (deviceQuery, bandwidthTest) and run them.
 Familiarize yourself with the structure of a basic CUDA kernel.
 Reference: CUDA Samples on GitHub
+```bash
+sudo apt-get install build-essential cmake
+
+# Download and run samples
+git clone https://github.com/NVIDIA/cuda-samples.git
+cd cuda-samples
+make -j8
+# Then run, e.g.:
+./bin/x86_64/linux/release/deviceQuery
+./bin/x86_64/linux/release/bandwidthTest
+```
 
 Day 3:
 Write a minimal CUDA vector addition program from scratch (C/C++).
