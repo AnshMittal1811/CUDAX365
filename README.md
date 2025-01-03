@@ -67,13 +67,150 @@ Write a minimal CUDA vector addition program from scratch (C/C++).
 Practice with nvcc compiler and cmake.
 Reference: CUDA C Programming Guide
 
+```cpp
+#include <iostream>
+#include <cuda_runtime.h>
+
+__global__ void vectorAdd(const float* A, const float* B, float* C, int N) {
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx < N) {
+        C[idx] = A[idx] + B[idx];
+    }
+}
+
+int main() {
+    int N = 1 << 20; // 1 million elements
+    size_t size = N * sizeof(float);
+
+    // Host allocations
+    float *hA = (float*)malloc(size);
+    float *hB = (float*)malloc(size);
+    float *hC = (float*)malloc(size);
+
+    // Initialize input data
+    for(int i=0; i<N; i++){
+        hA[i] = 1.0f;
+        hB[i] = 2.0f;
+    }
+
+    // Device allocations
+    float *dA, *dB, *dC;
+    cudaMalloc((void**)&dA, size);
+    cudaMalloc((void**)&dB, size);
+    cudaMalloc((void**)&dC, size);
+
+    // Copy data to device
+    cudaMemcpy(dA, hA, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(dB, hB, size, cudaMemcpyHostToDevice);
+
+    // Launch kernel
+    int threadsPerBlock = 256;
+    int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+    vectorAdd<<<blocks, threadsPerBlock>>>(dA, dB, dC, N);
+    cudaDeviceSynchronize();
+
+    // Copy results back to host
+    cudaMemcpy(hC, dC, size, cudaMemcpyDeviceToHost);
+
+    // Check correctness (simple check)
+    std::cout << "hC[0] = " << hC[0] << " (should be 3.0)" << std::endl;
+
+    // Free device
+    cudaFree(dA);
+    cudaFree(dB);
+    cudaFree(dC);
+
+    // Free host
+    free(hA);
+    free(hB);
+    free(hC);
+
+    return 0;
+}
+```
+
+```bash
+nvcc -o vector_add vector_add.cu
+./vector_add
+```
+
 Day 4:
 Dive into HPC libraries: install and test cuBLAS and cuRAND with small matrix multiply and random number generation examples.
 Reference: cuBLAS Documentation, cuRAND Documentation
+```cpp
+#include <iostream>
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
+#include <curand.h>
+
+int main() {
+    // 1) cuBLAS Example: Simple matrix multiply
+    cublasHandle_t handle;
+    cublasCreate(&handle);
+
+    const int N = 2;
+    float hA[N*N] = {1, 2, 3, 4};
+    float hB[N*N] = {5, 6, 7, 8};
+    float hC[N*N] = {0, 0, 0, 0};
+
+    float *dA, *dB, *dC;
+    cudaMalloc(&dA, N*N*sizeof(float));
+    cudaMalloc(&dB, N*N*sizeof(float));
+    cudaMalloc(&dC, N*N*sizeof(float));
+
+    cudaMemcpy(dA, hA, N*N*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(dB, hB, N*N*sizeof(float), cudaMemcpyHostToDevice);
+
+    float alpha = 1.0f, beta = 0.0f;
+
+    // C = alpha * A * B + beta * C
+    cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N,
+                N, N, N,
+                &alpha,
+                dA, N,
+                dB, N,
+                &beta,
+                dC, N);
+
+    cudaMemcpy(hC, dC, N*N*sizeof(float), cudaMemcpyDeviceToHost);
+    std::cout << "Result C[0] = " << hC[0] << std::endl; // Expect 19 (1*5 + 2*7)
+
+    cublasDestroy(handle);
+
+    // 2) cuRAND Example: generate random numbers on GPU
+    curandGenerator_t gen;
+    curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(gen, 123ULL);
+
+    float* dRand;
+    cudaMalloc(&dRand, N*N*sizeof(float));
+
+    // Generate uniform random numbers in [0, 1)
+    curandGenerateUniform(gen, dRand, N*N);
+
+    float hRand[N*N];
+    cudaMemcpy(hRand, dRand, N*N*sizeof(float), cudaMemcpyDeviceToHost);
+    std::cout << "Random number sample: " << hRand[0] << std::endl;
+
+    curandDestroyGenerator(gen);
+    cudaFree(dRand);
+    cudaFree(dA);
+    cudaFree(dB);
+    cudaFree(dC);
+
+    return 0;
+}
+```
+```bash
+nvcc -lcublas -lcurand -o cublas_curand_example cublas_curand_example.cu
+./cublas_curand_example
+```
 
 Day 5:
 Basic GitHub project structure for your HPC experiments.
 Reference: Git Book - Best Practices
+
+-- Created a Poetry environment for my HPC experiments
 
 ----
 Block 2 (Days 6–10)
