@@ -248,13 +248,6 @@ Here, the following description helped me understand what is happening under the
 
 For SASS understanding, I did the following:
 ```bash
-# From: /mnt/c/Users/anshm/250DaysStraight
-ROOT="/mnt/c/Users/anshm/250DaysStraight/002_Basic_CUDA_Samples/cuda-samples-12.8"
-SRC="$ROOT/Samples/0_Introduction/vectorAdd/vectorAdd.cu"
-INC="$ROOT/Common"
-OUTDIR="/mnt/c/Users/anshm/250DaysStraight/003_vector_add_ptx"
-OUT="$OUTDIR/vectorAdd.ptx"
-
 mkdir -p "$OUTDIR"
 nvcc -std=c++11 -I "$INC" \
      -arch=compute_89 -code=compute_89 \
@@ -278,6 +271,13 @@ cuobjdump --dump-sass "$OUTDIR/vectorAdd_cg" > "$OUTDIR/cg.sass"
 ```
 
 Day 4:
+
+
+Day 5:
+Basic GitHub project structure for your HPC experiments.
+Reference: Git Book - Best Practices
+
+-- Created a Poetry environment for my HPC experiments
 Dive into HPC libraries: install and test cuBLAS and cuRAND with small matrix multiply and random number generation examples.
 Reference: cuBLAS Documentation, cuRAND Documentation
 ```cpp
@@ -349,11 +349,6 @@ nvcc -lcublas -lcurand -o cublas_curand_example cublas_curand_example.cu
 ./cublas_curand_example
 ```
 
-Day 5:
-Basic GitHub project structure for your HPC experiments.
-Reference: Git Book - Best Practices
-
--- Created a Poetry environment for my HPC experiments
 
 ----
 Block 2 (Days 6–10)
