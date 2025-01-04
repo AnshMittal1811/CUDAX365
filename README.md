@@ -271,6 +271,58 @@ cuobjdump --dump-sass "$OUTDIR/vectorAdd_cg" > "$OUTDIR/cg.sass"
 ```
 
 Day 4:
+Add inline PTX FMAD in the kernel; use Nsight Compute to diff performance
+```bash
+# Baseline build: keep add separate
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v --fmad=false \
+     vec_fma.cu -o vec_add_baseline
+
+# FMA build: allow FMA (and we have inline PTX anyway)
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v \
+     vec_fma.cu -o vec_add_fma
+```
+
+Reponse: 
+```bash
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z18add_inline_ptx_fmaPKfS0_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z18add_inline_ptx_fmaPKfS0_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 380 bytes cmem[0]
+ptxas info    : Compile time = 1.150 ms
+ptxas info    : Compiling entry function '_Z12add_baselinePKfS0_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z12add_baselinePKfS0_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 380 bytes cmem[0]
+ptxas info    : Compile time = 0.716 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z18add_inline_ptx_fmaPKfS0_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z18add_inline_ptx_fmaPKfS0_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 380 bytes cmem[0]
+ptxas info    : Compile time = 1.111 ms
+ptxas info    : Compiling entry function '_Z12add_baselinePKfS0_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z12add_baselinePKfS0_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 380 bytes cmem[0]
+ptxas info    : Compile time = 0.673 ms
+```
+
+From the compiled code, I get the difference in time for basic FMA:
+```bash
+(base) anmittal@AnshPredator:/mnt/c/Users/anshm/250DaysStraight/004_fma$ ./vec_add_baseline
+./vec_add_fma
+baseline_add: 248.818695 ms for 100 iters  (~323.65 GB/s)
+inline_ptx_fma: 231.200546 ms for 100 iters  (~348.32 GB/s)
+C[0]=3.000000 (expect 3.0)
+baseline_add: 275.315765 ms for 100 iters  (~292.50 GB/s)
+inline_ptx_fma: 252.080032 ms for 100 iters  (~319.46 GB/s)
+C[0]=3.000000 (expect 3.0)
+
+
+>> cuobjdump --dump-sass vec_add_fma > vec_add_fma_ca.sass
+>> cuobjdump --dump-sass vec_add_baseline > vec_add_baseline_ca.sass
+```
 
 
 Day 5:
