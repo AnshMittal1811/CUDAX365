@@ -187,7 +187,6 @@ less vectorAdd.ptx
 ```
 
 ```less
-//
 
 .version 8.7                      // PTX ISA version
 .target sm_89                     // target GPU architecture (Ada, RTX 4090 laptop)               
@@ -326,6 +325,110 @@ C[0]=3.000000 (expect 3.0)
 
 
 Day 5:
+```bash
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v --extended-lambda \
+     ./005_reduction_warpshuffle_sm/reduction.cu -o ./005_reduction_warpshuffle_sm/reduction
+
+# PTX output (note: -ptx is a top-level flag)
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v --extended-lambda -ptx \
+     ./005_reduction_warpshuffle_sm/reduction.cu -o ./005_reduction_warpshuffle_sm/reduction.ptx
+
+# SASS dump
+>> cuobjdump --dump-sass ./005_reduction_warpshuffle_sm/reduction > ./005_reduction_warpshuffle_sm/reduction.sass
+./005_reduction_warpshuffle_sm/reduction.cu(131): warning #550-D: variable "K_shared" was set but never used
+      auto K_shared = [] __attribute__((device)) (const float*, size_t, float*) {};
+           ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+./005_reduction_warpshuffle_sm/reduction.cu(132): warning #550-D: variable "K_shuffle" was set but never used
+      auto K_shuffle = [] __attribute__((device)) (const float*, size_t, float*) {};
+           ^
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z21reduce_shuffle_kernelILj256EEvPKfmPf' for 'sm_89'
+ptxas info    : Function properties for _Z21reduce_shuffle_kernelILj256EEvPKfmPf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 1 barriers, 32 bytes smem, 376 bytes cmem[0]
+ptxas info    : Compile time = 23.759 ms
+ptxas info    : Compiling entry function '_Z13reduce_sharedILj256EEvPKfmPf' for 'sm_89'
+ptxas info    : Function properties for _Z13reduce_sharedILj256EEvPKfmPf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 1 barriers, 1024 bytes smem, 376 bytes cmem[0]
+ptxas info    : Compile time = 1.974 ms
+./005_reduction_warpshuffle_sm/reduction.cu(131): warning #550-D: variable "K_shared" was set but never used
+      auto K_shared = [] __attribute__((device)) (const float*, size_t, float*) {};
+           ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+./005_reduction_warpshuffle_sm/reduction.cu(132): warning #550-D: variable "K_shuffle" was set but never used
+      auto K_shuffle = [] __attribute__((device)) (const float*, size_t, float*) {};
+
+>> ./005_reduction_warpshuffle_sm/reduction
+reduce_shared: 166.450 ms for 200 iters, ~322.54 GB/s
+reduce_shuffle: 149.106 ms for 200 iters, ~360.06 GB/s
+Check: sum=8589934592.0 (expected 67108864.0)
+
+>> cuobjdump --dump-sass ./005_reduction_warpshuffle_sm/reduction > ./005_reduction_warpshuffle_sm/reduction.sass
+
+>> sed -n '1,200p' ./005_reduction_warpshuffle_sm/reduction.ptx | grep -n -i 'shfl\|bar\.sync\|ld\.global\|st\.global'
+52:     ld.global.nc.f32        %f6, [%rd2];
+61:     ld.global.nc.f32        %f7, [%rd2+1024];
+71:     bar.sync        0;
+82:     bar.sync        0;
+93:     bar.sync        0;
+180:    ld.global.nc.f32        %f11, [%rd2];
+189:    ld.global.nc.f32        %f12, [%rd2+1024];
+
+>> sudo env "PATH=$PATH" ncu --set full --kernel-name regex:reduce_shared --target-processes all ./005_reduction_warpshuffle_sm/reduction # Need to look at this
+```
+
+Day 6:
+Quick introduction to Magnetohydrodynamics (MHD) in Python. Learn the standard PDE forms used in MHD.
+Reference: Any basic MHD overview, e.g., “Introduction to MHD” (MIT OCW).
+
+Day 7:
+Explore GPU-based PDE solvers for fluid or MHD. See how one might store and update 2D or 3D grids on GPU.
+Reference: NVIDIA HPC SDK Code Samples (for PDE/Fluid solvers)
+
+Day 8:
+Implement a simple 2D “shallow-water” or MHD-like solver on the GPU.
+Reference: [PyTorch PDE Tutorials or custom CUDA PDE codes on GitHub]
+
+Day 9:
+Familiarize yourself with the concept of Dynamic Parallelism in CUDA.
+Reference: CUDA Dynamic Parallelism
+
+Day 10:
+Try extending your PDE solver with a small dynamic parallel kernel call.
+Reference: NVIDIA Developer Blog - Dynamic Parallelism
+
+---
+Block 3 (Days 11–15)
+
+Day 11:
+Introduction to Neural Radiance Fields (NeRFs) in the context of fluid or volumetric data.
+Reference: NeRF original paper (Mildenhall et al.)
+
+Day 12:
+Look into existing 3D volume rendering examples in PyTorch or JAX.
+Reference: Nerfstudio GitHub
+
+Day 13:
+Start coding a minimal “voxel-based” NeRF-like approach to represent MHD fields.
+Reference: TinyNeRF Implementation
+
+Day 14:
+Explore cuFFT and practice a 2D/3D FFT for potential wave-based fluid analysis.
+Reference: cuFFT Documentation
+
+Day 15:
+Integrate cuFFT in your PDE solver or in a separate experiment (e.g., measure energy spectrum in MHD).
+Reference: Fluid simulation FFT-based examples on GitHub (e.g., Jax-CFD, GPU-based PDE code)
+
+
+Extras: 
 Basic GitHub project structure for your HPC experiments.
 Reference: Git Book - Best Practices
 
@@ -400,53 +503,6 @@ int main() {
 nvcc -lcublas -lcurand -o cublas_curand_example cublas_curand_example.cu
 ./cublas_curand_example
 ```
-
-
-----
-Block 2 (Days 6–10)
-
-Day 6:
-Quick introduction to Magnetohydrodynamics (MHD) in Python. Learn the standard PDE forms used in MHD.
-Reference: Any basic MHD overview, e.g., “Introduction to MHD” (MIT OCW).
-
-Day 7:
-Explore GPU-based PDE solvers for fluid or MHD. See how one might store and update 2D or 3D grids on GPU.
-Reference: NVIDIA HPC SDK Code Samples (for PDE/Fluid solvers)
-
-Day 8:
-Implement a simple 2D “shallow-water” or MHD-like solver on the GPU.
-Reference: [PyTorch PDE Tutorials or custom CUDA PDE codes on GitHub]
-
-Day 9:
-Familiarize yourself with the concept of Dynamic Parallelism in CUDA.
-Reference: CUDA Dynamic Parallelism
-
-Day 10:
-Try extending your PDE solver with a small dynamic parallel kernel call.
-Reference: NVIDIA Developer Blog - Dynamic Parallelism
-
----
-Block 3 (Days 11–15)
-
-Day 11:
-Introduction to Neural Radiance Fields (NeRFs) in the context of fluid or volumetric data.
-Reference: NeRF original paper (Mildenhall et al.)
-
-Day 12:
-Look into existing 3D volume rendering examples in PyTorch or JAX.
-Reference: Nerfstudio GitHub
-
-Day 13:
-Start coding a minimal “voxel-based” NeRF-like approach to represent MHD fields.
-Reference: TinyNeRF Implementation
-
-Day 14:
-Explore cuFFT and practice a 2D/3D FFT for potential wave-based fluid analysis.
-Reference: cuFFT Documentation
-
-Day 15:
-Integrate cuFFT in your PDE solver or in a separate experiment (e.g., measure energy spectrum in MHD).
-Reference: Fluid simulation FFT-based examples on GitHub (e.g., Jax-CFD, GPU-based PDE code)
 
 ---
 Block 4 (Days 16–20)
