@@ -385,20 +385,70 @@ Check: sum=8589934592.0 (expected 67108864.0)
 ```
 
 Day 6:
-Quick introduction to Magnetohydrodynamics (MHD) in Python. Learn the standard PDE forms used in MHD.
-Reference: Any basic MHD overview, e.g., “Introduction to MHD” (MIT OCW).
+Wrap the shuffle reduction in the CUDA Graph and replay it
+```bash
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v ./006_graph_shuffle/graph_shuffle.cu -o graph_shuffle
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z21reduce_shuffle_kernelILj256EEvPKfmPf' for 'sm_89'
+ptxas info    : Function properties for _Z21reduce_shuffle_kernelILj256EEvPKfmPf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 1 barriers, 32 bytes smem, 376 bytes cmem[0]
+ptxas info    : Compile time = 38.408 ms
+ptxas info    : Compiling entry function '_Z11fill_kernelPfmf' for 'sm_89'
+ptxas info    : Function properties for _Z11fill_kernelPfmf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 1.005 ms
+
+>> ./graph_shuffle 
+[Direct]   time=398.836 ms, loops=20000, sum=8589934592.0 (expect 4194304.0)
+[Graph]    time=313.553 ms, replays=400, kernels/replay=50, total kernels=20000
+           sum=8589934592.0 (expect 1677721600.0)
+Throughput lower-bound: Direct ~841.31 GB/s  |  Graph ~1070.14 GB/s
+
+>> nvcc -arch=sm_89 -ptx graph_shuffle.cu -o ./graph_shuffle.ptx
+>> grep -n "shfl\.sync.down" graph_shuffle.ptx
+94:     shfl.sync.down.b32      %r10|%p3, %r5, %r8, %r7, %r9;
+99:     shfl.sync.down.b32      %r13|%p4, %r11, %r12, %r7, %r9;
+104:    shfl.sync.down.b32      %r16|%p5, %r14, %r15, %r7, %r9;
+108:    shfl.sync.down.b32      %r18|%p6, %r17, %r6, %r7, %r9;
+113:    shfl.sync.down.b32      %r21|%p7, %r19, %r20, %r7, %r9;
+146:    shfl.sync.down.b32      %r35|%p11, %r30, %r33, %r32, %r34;
+151:    shfl.sync.down.b32      %r38|%p12, %r36, %r37, %r32, %r34;
+156:    shfl.sync.down.b32      %r41|%p13, %r39, %r40, %r32, %r34;
+160:    shfl.sync.down.b32      %r43|%p14, %r42, %r31, %r32, %r34;
+165:    shfl.sync.down.b32      %r46|%p15, %r44, %r45, %r32, %r34;
+>> nsys profile -t cuda,nvtx -o graph_profile ./graph_shuffle
+Collecting data...
+[Direct]   time=400.533 ms, loops=20000, sum=8589934592.0 (expect 4194304.0)
+[Graph]    time=335.940 ms, replays=400, kernels/replay=50, total kernels=20000
+           sum=8589934592.0 (expect 1677721600.0)
+Throughput lower-bound: Direct ~837.74 GB/s  |  Graph ~998.82 GB/s
+Generating '/tmp/nsys-report-f92d.qdstrm'
+[1/1] [========================100%] graph_profile.nsys-rep
+Generated:
+    /mnt/c/Users/anshm/250DaysStraight/006_graph_shuffle/graph_profile.nsys-rep
+>> nsys stats --report cudaapisum,gpukernsum --format text graph_profile.nsys-rep
+>> nsys export --sqlite true -o graph_profile_sql graph_profile.nsys-rep 
+>> nsys profile -t cuda,nvtx,osrt -o graph_profile --force-overwrite=true ./graph_shuffle
+Collecting data...
+[Direct]   time=466.657 ms, loops=20000, sum=8589934592.0 (expect 4194304.0)
+[Graph]    time=348.407 ms, replays=400, kernels/replay=50, total kernels=20000
+           sum=8589934592.0 (expect 1677721600.0)
+Throughput lower-bound: Direct ~719.04 GB/s  |  Graph ~963.08 GB/s
+Generating '/tmp/nsys-report-83f0.qdstrm'
+[1/1] [========================100%] graph_profile.nsys-rep
+Generated:
+    /mnt/c/Users/anshm/250DaysStraight/006_graph_shuffle/graph_profile.nsys-rep
+```
 
 Day 7:
-Explore GPU-based PDE solvers for fluid or MHD. See how one might store and update 2D or 3D grids on GPU.
-Reference: NVIDIA HPC SDK Code Samples (for PDE/Fluid solvers)
+
 
 Day 8:
-Implement a simple 2D “shallow-water” or MHD-like solver on the GPU.
-Reference: [PyTorch PDE Tutorials or custom CUDA PDE codes on GitHub]
+
 
 Day 9:
-Familiarize yourself with the concept of Dynamic Parallelism in CUDA.
-Reference: CUDA Dynamic Parallelism
 
 Day 10:
 Try extending your PDE solver with a small dynamic parallel kernel call.
