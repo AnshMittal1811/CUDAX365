@@ -551,7 +551,65 @@ ptxasOptions =
 ```
 
 Day 8:
+Warped Matrix Multiplication Accumulate
+```bash
+>> nvcc -O3 -std=c++17 -arch=sm_89 -Xptxas -v -lineinfo wmma_ptx.cu -o wmma_ptx
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z20wmma_inline_ptx_stubPfi' for 'sm_89'
+ptxas info    : Function properties for _Z20wmma_inline_ptx_stubPfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 364 bytes cmem[0]
+ptxas info    : Compile time = 29.796 ms
+ptxas info    : Compiling entry function '_Z15wmma_cxx_kernelPK6__halfS1_Pfiii' for 'sm_89'
+ptxas info    : Function properties for _Z15wmma_cxx_kernelPK6__halfS1_Pfiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 40 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 6.309 ms
+>> ./wmma_ptx
+[WMMA C++] C[0,0]=79.000000
+[PTX stub] C[0,0]=0.000000 (expect 0 after stub overwrite of first row)
+>> cuobjdump --dump-sass ./wmma_ptx | grep -n -E "HMMA|MMA|LDMATRIX|LDSM"
+33:        /*0050*/                   HMMA.16816.F32 R4, R4, R8, RZ ;                /* 0x000000080404723c */
+278:        /*05d0*/                   HMMA.16816.F32 R20, R8, R24, R20 ;             /* 0x000000180814723c */
+286:        /*0610*/                   HMMA.16816.F32 R16, R8, R6, R16 ;              /* 0x000000060810723c */
+312:        /*06e0*/                   HMMA.16816.F32 R20, R12, R26, R20 ;            /* 0x0000001a0c14723c */
+316:        /*0700*/                   HMMA.16816.F32 R12, R12, R4, R16 ;             /* 0x000000040c0c723c */
+344:        /*07e0*/                   HMMA.16816.F32 R20, R8.reuse, R24, R20 ;       /* 0x000000180814723c */
+346:        /*07f0*/                   HMMA.16816.F32 R12, R8, R6, R12 ;              /* 0x00000006080c723c */
+350:        /*0810*/                   HMMA.16816.F32 R20, R16.reuse, R26, R20 ;      /* 0x0000001a1014723c */
+352:        /*0820*/                   HMMA.16816.F32 R16, R16, R4, R12 ;             /* 0x000000041010723c */
+444:        /*0b00*/                   HMMA.16816.F32 R20, R4.reuse, R26, R20 ;       /* 0x0000001a0414723c */
+446:        /*0b10*/                   HMMA.16816.F32 R16, R4, R28, R16 ;             /* 0x0000001c0410723c */
+>> nvcc -O3 -std=c++17 -arch=sm_89 -lineinfo -ptx wmma_ptx.cu -o wmma_ptx.ptx
+>> grep -n "mma.sync" wmma_ptx.ptx | sed -n '1,5p'
+98:     wmma.mma.sync.aligned.row.col.m16n16k16.f32.f32 {%f82, %f83, %f84, %f85, %f86, %f87, %f88, %f89}, {%r29, %r30, %r31, %r32, %r33, %r34, %r35, %r36}, {%r37, %r38, %r39, %r40, %r41, %r42, %r43, %r44}, {%f145, %f144, %f143, %f142, %f141, %f140, %f139, %f138};
+109:    wmma.mma.sync.aligned.row.col.m16n16k16.f32.f32 {%f90, %f91, %f92, %f93, %f94, %f95, %f96, %f97}, {%r46, %r47, %r48, %r49, %r50, %r51, %r52, %r53}, {%r54, %r55, %r56, %r57, %r58, %r59, %r60, %r61}, {%f82, %f83, %f84, %f85, %f86, %f87, %f88, %f89};
+120:    wmma.mma.sync.aligned.row.col.m16n16k16.f32.f32 {%f98, %f99, %f100, %f101, %f102, %f103, %f104, %f105}, {%r63, %r64, %r65, %r66, %r67, %r68, %r69, %r70}, {%r71, %r72, %r73, %r74, %r75, %r76, %r77, %r78}, {%f90, %f91, %f92, %f93, %f94, %f95, %f96, %f97};
+131:    wmma.mma.sync.aligned.row.col.m16n16k16.f32.f32 {%f145, %f144, %f143, %f142, %f141, %f140, %f139, %f138}, {%r80, %r81, %r82, %r83, %r84, %r85, %r86, %r87}, {%r88, %r89, %r90, %r91, %r92, %r93, %r94, %r95}, {%f98, %f99, %f100, %f101, %f102, %f103, %f104, %f105};
+161:    wmma.mma.sync.aligned.row.col.m16n16k16.f32.f32 {%f145, %f144, %f143, %f142, %f141, %f140, %f139, %f138}, {%r99, %r100, %r101, %r102, %r103, %r104, %r105, %r106}, {%r107, %r108, %r109, %r110, %r111, %r112, %r113, %r114}, {%f145, %f144, %f143, %f142, %f141, %f140, %f139, %f138};
+>> ncu --set full --kernel-name ::wmma_cxx_kernel ./wmma_ptx
+==PROF== Connected to process 664418 (/mnt/c/Users/anshm/250DaysStraight/008_wmma_ptx/wmma_ptx)
+[WMMA C++] C[0,0]=79.000000
+[PTX stub] C[0,0]=0.000000 (expect 0 after stub overwrite of first row)
+==PROF== Disconnected from process 664418
+==WARNING== No kernels were profiled.
+Available Kernels:
+1. wmma_cxx_kernel
+2. wmma_inline_ptx_stub
+>> ncu --set full --kernel-name ::wmma_inline_ptx_stub ./wmma_ptx
+==PROF== Connected to process 664554 (/mnt/c/Users/anshm/250DaysStraight/008_wmma_ptx/wmma_ptx)
+[WMMA C++] C[0,0]=79.000000
+[PTX stub] C[0,0]=0.000000 (expect 0 after stub overwrite of first row)
+==PROF== Disconnected from process 664554
+==WARNING== No kernels were profiled.
+Available Kernels:
+1. wmma_cxx_kernel
+2. wmma_inline_ptx_stub
+```
 
+Pre-Work GEMM Kernels (How to write them? Code Along)
+```bash
+```
 
 Day 9:
 
