@@ -443,12 +443,118 @@ Generated:
 ```
 
 Day 7:
+PTX Cache and changing streaming editor
+```bash
+>>> nvcc -std=c++14 -O3 -arch=compute_89 -ptx vec_kernel.cu -o vec_kernel.ptx
+>>> grep -n "ld\.global" vec_kernel.ptx | head
+44:     ld.global.nc.f32        %f1, [%rd8];
+45:     ld.global.nc.f32        %f2, [%rd6];
+>>> nvcc -O3 -arch=sm_89 main_vec.cu vec_kernel.ptx -o run_vec_baseline
+nvcc fatal   : .ptx input files are only allowed with '--cubin (-cubin)', '--fatbin (-fatbin)', '--device-c (-dc)', '--device-link (-dlink)', '--cubin (-cubin) --device-link (-dlink)', or '--fatbin (-fatbin) --device-link (-dlink)'
+>>> ptxas -arch=sm_89 -v vec_kernel.ptx -o vec_kernel_sm89.cubin
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function 'vec_add_kernel' for 'sm_89'
+ptxas info    : Function properties for vec_add_kernel
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 380 bytes cmem[0]
+ptxas info    : Compile time = 32.098 ms
+>>> nvcc -O3 -arch=sm_89 main_vec.cu vec_kernel_sm89.cubin -o run_vec_baseline
+nvcc fatal   : .cubin input files are only allowed with '--fatbin (-fatbin)', '--device-c (-dc)', '--device-link (-dlink)', '--cubin (-cubin) --device-link (-dlink)', or '--fatbin (-fatbin) --device-link (-dlink)'
+>>> nvcc -O3 -arch=sm_89 --cubin main_vec.cu vec_kernel_sm89.cubin -o run_vec_baseline
+nvcc fatal   : .cubin input files are only allowed with '--fatbin (-fatbin)', '--device-c (-dc)', '--device-link (-dlink)', '--cubin (-cubin) --device-link (-dlink)', or '--fatbin (-fatbin) --device-link (-dlink)'
+>>> nvcc -O3 -arch=sm_89 main_vec.cu --cubin vec_kernel_sm89.cubin -o run_vec_baseline
+nvcc fatal   : .cubin input files are only allowed with '--fatbin (-fatbin)', '--device-c (-dc)', '--device-link (-dlink)', '--cubin (-cubin) --device-link (-dlink)', or '--fatbin (-fatbin) --device-link (-dlink)'
+>>> nvcc -O3 -arch=sm_89 main_vec.cu vec_kernel.ptx -o run_vec_baseline
+nvcc fatal   : .ptx input files are only allowed with '--cubin (-cubin)', '--fatbin (-fatbin)', '--device-c (-dc)', '--device-link (-dlink)', '--cubin (-cubin) --device-link (-dlink)', or '--fatbin (-fatbin) --device-link (-dlink)'
+>>> nvcc -O3 -arch=sm_89 main_vec.cu -lcuda -o run_vec
+/usr/bin/ld: /tmp/tmpxft_000a061a_00000000-11_main_vec.o: in function 'run_once(int, float*, float*, float*)':
+tmpxft_000a061a_00000000-6_main_vec.cudafe1.cpp:(.text+0xaa): undefined reference to `vec_add_kernel'
+/usr/bin/ld: tmpxft_000a061a_00000000-6_main_vec.cudafe1.cpp:(.text+0x132): undefined reference to 'vec_add_kernel'
+collect2: error: ld returned 1 exit status
+>>> ptxas -arch=sm_89 -v vec_kernel.ptx -o vec_kernel_sm89.cubin
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function 'vec_add_kernel' for 'sm_89'
+ptxas info    : Function properties for vec_add_kernel
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 380 bytes cmem[0]
+ptxas info    : Compile time = 2.334 ms
+>>> cp vec_kernel.ptx vec_kernel_ca.ptx
+>>> sed -i 's/ld\.global\.nc/ld.global.ca/g' vec_kernel_ca.ptx
+>>> ptxas -arch=sm_89 -v vec_kernel_ca.ptx -o vec_kernel_ca_sm89.cubin
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function 'vec_add_kernel' for 'sm_89'
+ptxas info    : Function properties for vec_add_kernel
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 380 bytes cmem[0]
+ptxas info    : Compile time = 1.593 ms
+>>> grep -n "ld\.global\." vec_kernel.ptx      | head
+44:     ld.global.nc.f32        %f1, [%rd8];
+45:     ld.global.nc.f32        %f2, [%rd6];
+>>> grep -n "ld\.global\." vec_kernel_ca.ptx   | head
+44:     ld.global.ca.f32        %f1, [%rd8];
+45:     ld.global.ca.f32        %f2, [%rd6];
+>>> nvcc -O3 -std=c++17 -arch=sm_89 host_driver.cu -o run_vec_driver -lcuda
+>>> ./run_vec_driver vec_kernel_sm89.cubin
+C[0]=3.000000 (expect 3.0)
+vec_kernel_sm89.cubin : 268.418 ms / 100 iters  (~300.02 GB/s)
+>>> ./run_vec_driver vec_kernel_ca_sm89.cubin
+C[0]=3.000000 (expect 3.0)
+vec_kernel_ca_sm89.cubin : 224.126 ms / 100 iters  (~359.31 GB/s)
+>>> cuobjdump --dump-sass vec_kernel_sm89.cubin > sass_base.txt
+>>> cuobjdump --dump-sass vec_kernel_ca_sm89.cubin > sass_ca.txt
+>>> diff -u sass_base.txt sass_ca.txt | sed -n '1,200p'
+--- sass_base.txt       2025-10-21 16:29:14.276404500 -0700
++++ sass_ca.txt 2025-10-21 16:29:14.472837000 -0700
+@@ -22,10 +22,10 @@
+                                                                                       /* 0x000fc800078e0207 */
+         /*0090*/                   IMAD.WIDE R2, R6.reuse, R7.reuse, c[0x0][0x160] ;  /* 0x0000580006027625 */
+                                                                                       /* 0x0c0fe400078e0207 */
+-        /*00a0*/                   LDG.E.CONSTANT R4, [R4.64] ;                       /* 0x0000000404047981 */
+-                                                                                      /* 0x000ea8000c1e9900 */
+-        /*00b0*/                   LDG.E.CONSTANT R3, [R2.64] ;                       /* 0x0000000402037981 */
+-                                                                                      /* 0x000ea2000c1e9900 */
++        /*00a0*/                   LDG.E.STRONG.SM R4, [R4.64] ;                      /* 0x0000000404047981 */
++                                                                                      /* 0x000ea8000c1eb900 */
++        /*00b0*/                   LDG.E.STRONG.SM R3, [R2.64] ;                      /* 0x0000000402037981 */
++                                                                                      /* 0x000ea2000c1eb900 */
+         /*00c0*/                   IMAD.WIDE R6, R6, R7, c[0x0][0x170] ;              /* 0x00005c0006067625 */
+                                                                                       /* 0x000fe200078e0207 */
+         /*00d0*/                   FADD R9, R4, R3 ;                                  /* 0x0000000304097221 */
+>> cuobjdump --dump-sass ./run_vec_driver | sed -n '1,200p'
 
+Fatbin elf code:
+================
+arch = sm_89
+code version = [1,7]
+host = linux
+compile_size = 64bit
+
+        code for sm_89
+
+Fatbin elf code:
+================
+arch = sm_89
+code version = [1,7]
+host = linux
+compile_size = 64bit
+
+        code for sm_89
+
+Fatbin ptx code:
+================
+arch = sm_89
+code version = [8,7]
+host = linux
+compile_size = 64bit
+compressed
+ptxasOptions = 
+```
 
 Day 8:
 
 
 Day 9:
+
 
 Day 10:
 Try extending your PDE solver with a small dynamic parallel kernel call.
