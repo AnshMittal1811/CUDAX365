@@ -615,7 +615,7 @@ Day 9:
 Side-by-side cuBLAS vs WMMA benchmark comparison on tiny GEMMs, then profile regs & SM occupancy
 
 ```bash 
-> nvcc -O3 -std=c++17 -arch=sm_89 -lineinfo -Xptxas -v gemm_compare.cu -lcublas -o gemm_compare
+>> nvcc -O3 -std=c++17 -arch=sm_89 -lineinfo -Xptxas -v gemm_compare.cu -lcublas -o gemm_compare
 ptxas info    : 0 bytes gmem
 ptxas info    : Compiling entry function '_Z16wmma_gemm_kernelPK6__halfS1_Pfiii' for 'sm_89'
 ptxas info    : Function properties for _Z16wmma_gemm_kernelPK6__halfS1_Pfiii
@@ -623,22 +623,22 @@ ptxas info    : Function properties for _Z16wmma_gemm_kernelPK6__halfS1_Pfiii
 ptxas info    : Used 40 registers, used 0 barriers, 388 bytes cmem[0]
 ptxas info    : Compile time = 85.172 ms
 
-> ./gemm_compare
+>> ./gemm_compare
 [WMMA] 128x128x128: 1.908736 ms (200 iters)  ~ 0.439 TFLOP/s
 [cuBLAS] 128x128x128: 1.753088 ms (200 iters)  ~ 0.479 TFLOP/s
 Samples  Cwmma[0]=89.125   Ccublas[0]=94.125
 
-> ./gemm_compare 64 64 64
+>> ./gemm_compare 64 64 64
 [WMMA] 64x64x64: 1.650688 ms (200 iters)  ~ 0.064 TFLOP/s
 [cuBLAS] 64x64x64: 5.917600 ms (200 iters)  ~ 0.018 TFLOP/s
 Samples  Cwmma[0]=46.250   Ccublas[0]=46.875
 
-> ./gemm_compare 32 32 32
+>> ./gemm_compare 32 32 32
 [WMMA] 32x32x32: 0.994304 ms (200 iters)  ~ 0.013 TFLOP/s
 [cuBLAS] 32x32x32: 1.332160 ms (200 iters)  ~ 0.010 TFLOP/s
 Samples  Cwmma[0]=24.750   Ccublas[0]=23.375
 
-> ncu --set full --kernel-name ::wmma_gemm_kernel ./gemm_compare 128 128 128
+>> ncu --set full --kernel-name ::wmma_gemm_kernel ./gemm_compare 128 128 128
 ==PROF== Connected to process 780960 (/mnt/c/Users/anshm/250DaysStraight/009_gemm_compare/gemm_compare)
 [WMMA] 128x128x128: 5.109024 ms (200 iters)  ~ 0.164 TFLOP/s
 [cuBLAS] 128x128x128: 5.468256 ms (200 iters)  ~ 0.153 TFLOP/s
@@ -649,7 +649,7 @@ Available Kernels:
 1. Kernel2
 2. wmma_gemm_kernel
 
-> ncu --set full \
+>> ncu --set full \
     --target-processes all \
     --kernel-name ::wmma_gemm_kernel \
     --launch-skip 20 --launch-count 5 \
