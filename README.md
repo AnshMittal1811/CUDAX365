@@ -699,10 +699,278 @@ Available Kernels:
 Day 10:
 Start a 2-D explicit Magneto-Hydrodynamics (MHD) solver (ρ, u, B fields) in CUDA C
 
+#### Finite Volume + Rusanov Flux in MagnetoHydroDynamics (MHD)
 
+This is a common numerical scheme used to solve the ideal MHD equations. Let's break it down.
+
+##### 1. The Finite Volume (FV) Method
+
+The Finite Volume method is a numerical technique for solving partial differential equations (PDEs), especially **conservation laws**. The ideal MHD equations are a system of conservation laws.
+
+* **Core Idea:** Divide the simulation domain (e.g., a 2D or 3D space) into many small "finite volumes" or "cells".
+* **What it Solves:** Instead of tracking the solution at every *point*, the FV method tracks the **cell-average** of the conserved quantities within each cell.
+* **How it Updates:** The change in a cell's average value over time is determined by the **flux** of those quantities across the cell's boundaries (or "faces").
+
+The discrete form of the conservation law for a cell $i$ is:
+
+$$
+\frac{d\mathbf{U}_i}{dt} = -\frac{1}{V_i} \sum_{j} \mathbf{F}_{ij}^* A_{ij} + \mathbf{S}_i
+$$
+
+* $\mathbf{U}_i$: The vector of cell-averaged **conserved variables** in cell $i$.
+* $V_i$: The volume of cell $i$.
+* $A_{ij}$: The area of the face between cell $i$ and cell $j$.
+* $\mathbf{S}_i$: Source terms (e.g., gravity, resistivity).
+* $\mathbf{F}_{ij}^*$: This is the **numerical flux**. It's an approximation of the *true* physical flux across the interface.
+
+The entire challenge of the FV method boils down to finding a good, stable formula for this numerical flux, $\mathbf{F}_{ij}^*$. This is where the **Rusanov flux** comes in.
+
+##### 2. The MHD Equations
+
+In MHD, the vector of conserved variables $\mathbf{U}$ (in 3D) is typically:
+
+$$
+\mathbf{U} = \begin{pmatrix}
+\rho \\
+\rho v_x \\
+\rho v_y \\
+\rho v_z \\
+E \\
+B_x \\
+B_y \\
+B_z
+\end{pmatrix}
+$$
+
+* $\rho$: Mass density
+* $\rho \mathbf{v}$: Momentum (3 components)
+* $E$: Total energy density
+* $\mathbf{B}$: Magnetic field (3 components)
+
+The flux tensor $\mathbf{F}$ is much more complex, involving fluid pressure $p$, magnetic pressure $B^2/2$, and Maxwell's stress tensor. Solving the "Riemann problem" (what happens when two different states $\mathbf{U}_L$ and $\mathbf{U}_R$ meet at an interface) for MHD is very difficult because it involves 7 or 8 different waves (fast/slow magnetosonic, Alfvén, entropy, and contact waves).
+
+##### 3. The Rusanov (or Lax-Friedrichs) Flux
+
+The Rusanov flux (also known as the local Lax-Friedrichs flux) is a simple, robust, but very **dissipative** (or "diffusive") way to calculate the numerical flux $\mathbf{F}_{ij}^*$. It avoids solving the full, complex MHD Riemann problem.
+
+The formula for the Rusanov flux $\mathbf{F}^*$ between a "Left" state ($\mathbf{U}_L$) and a "Right" state ($\mathbf{U}_R$) at an interface is:
+
+$$
+\mathbf{F}^*(\mathbf{U}_L, \mathbf{U}_R) = \frac{1}{2} \left[ \mathbf{F}(\mathbf{U}_L) + \mathbf{F}(\mathbf{U}_R) \right] - \frac{S_{\text{max}}}{2} \left[ \mathbf{U}_R - \mathbf{U}_L \right]
+$$
+
+Let's analyze the two parts:
+
+1.  **$\frac{1}{2} \left[ \mathbf{F}(\mathbf{U}_L) + \mathbf{F}(\mathbf{U}_R) \right]$**: This is the "central flux" or the simple average of the physical fluxes from both sides. On its own, this is **unstable** for hyperbolic problems.
+
+2.  **$\frac{S_{\text{max}}}{2} \left[ \mathbf{U}_R - \mathbf{U}_L \right]$**: This is the **numerical dissipation** or "artificial viscosity" term. It's what makes the scheme stable. It "smears" the solution at the interface, preventing non-physical oscillations.
+
+###### The Key Parameter: $S_{\text{max}}$
+
+The crucial part of the Rusanov flux is $S_{\text{max}}$.
+
+* $S_{\text{max}}$ is the **maximum local wave speed** (or maximum eigenvalue of the system) at the interface. It's the fastest speed at which information can travel from either the Left or Right state.
+* In MHD, this maximum speed is the **fast magnetosonic wave speed** ($c_f$) plus the normal fluid velocity ($|v_n|$).
+* So, $S_{\text{max}}$ is calculated as:
+    $$
+    S_{\text{max}} = \max \left( |v_{n,L}| + c_{f,L}, |v_{n,R}| + c_{f,R} \right)
+    $$
+* The fast magnetosonic speed $c_f$ is itself a function of the sound speed $c_s$ and the Alfvén speed $c_A$.
 
 ---
-Block 3 (Days 11–15)
+
+##### Summary: Pros and Cons
+
+* **Pro:**
+    * **Simple:** Extremely easy to implement. You only need to calculate the physical fluxes $\mathbf{F}(\mathbf{U})$ and the single fastest wave speed $c_f$.
+    * **Robust:** Very stable and can handle strong shocks and complex problems without crashing.
+
+* **Con:**
+    * **Dissipative:** This is its main drawback. The large amount of numerical diffusion (controlled by $S_{\text{max}}$) smears out sharp features. Shocks, contact discontinuities, and shear waves will look "blurry" compared to solutions from more advanced (and complex) solvers like HLLD, HLL, or Roe.
+
+
+```bash
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d.cu -o mhd2d
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 38.529 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.490 ms
+ptxas info    : Compiling entry function '_Z8step_mhdPKfPfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z8step_mhdPKfPfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 23.984 ms
+
+>./mhd2d
+Step 0/200 (dt=4.121e-04)
+Step 50/200 (dt=4.051e-04)
+Step 100/200 (dt=3.735e-04)
+Step 150/200 (dt=3.411e-04)
+Center (rho,mx,my,Bx,By,E): 0.815766 0.010215 -0.001882 -0.006862 0.034297 1.917913
+
+> ./mhd2d 128 128 200
+Step 0/200 (dt=8.245e-04)
+Step 50/200 (dt=7.565e-04)
+Step 100/200 (dt=6.320e-04)
+Step 150/200 (dt=2.445e-04)
+Center (rho,mx,my,Bx,By,E): 0.565025 0.019125 0.004931 -0.043550 0.093441 1.196366
+
+> ./mhd2d 256 256 2000
+Step 0/2000 (dt=4.121e-04)
+Step 50/2000 (dt=4.051e-04)
+Step 100/2000 (dt=3.735e-04)
+Step 150/2000 (dt=3.411e-04)
+Step 200/2000 (dt=2.390e-04)
+Step 250/2000 (dt=7.677e-05)
+Step 300/2000 (dt=3.651e-05)
+Step 350/2000 (dt=2.413e-05)
+Step 400/2000 (dt=1.888e-05)
+Step 450/2000 (dt=1.542e-05)
+Step 500/2000 (dt=1.268e-05)
+Step 550/2000 (dt=1.311e-05)
+Step 600/2000 (dt=1.372e-05)
+Step 650/2000 (dt=1.521e-05)
+Step 700/2000 (dt=1.562e-05)
+Step 750/2000 (dt=1.569e-05)
+Step 800/2000 (dt=1.428e-05)
+Step 850/2000 (dt=1.231e-05)
+Step 900/2000 (dt=1.364e-05)
+Step 950/2000 (dt=1.259e-05)
+Step 1000/2000 (dt=1.179e-05)
+Step 1050/2000 (dt=1.097e-05)
+Step 1100/2000 (dt=1.064e-05)
+Step 1150/2000 (dt=1.011e-05)
+Step 1200/2000 (dt=9.864e-06)
+Step 1250/2000 (dt=9.545e-06)
+Step 1300/2000 (dt=9.115e-06)
+Step 1350/2000 (dt=8.400e-06)
+Step 1400/2000 (dt=8.228e-06)
+Step 1450/2000 (dt=7.944e-06)
+Step 1500/2000 (dt=7.975e-06)
+Step 1550/2000 (dt=7.812e-06)
+Step 1600/2000 (dt=7.415e-06)
+Step 1650/2000 (dt=7.514e-06)
+Step 1700/2000 (dt=7.829e-06)
+Step 1750/2000 (dt=7.656e-06)
+Step 1800/2000 (dt=8.111e-06)
+Step 1850/2000 (dt=8.435e-06)
+Step 1900/2000 (dt=9.224e-06)
+Step 1950/2000 (dt=1.008e-05)
+Center (rho,mx,my,Bx,By,E): 0.600461 0.009297 0.001848 -0.018487 0.041579 1.260809
+```
+
+The advanced code explanation: 
+**Analysis of Advanced 2D MHD Solver (mhd2d_adv.cu)**
+
+This CUDA code implements an advanced 2D magnetohydrodynamics (MHD) solver. It builds upon the Finite Volume (FV) method with a Rusanov flux, but adds several critical features to improve accuracy, stability, and performance.
+
+The state vector `U` is a Structure of Arrays (SoA) for 6 components:
+`U = [rho, mx, my, Bx, By, E]`
+(mass, x-momentum, y-momentum, x-magnetic-field, y-magnetic-field, total energy)
+
+Here are the key advanced features explained:
+
+**1. 2nd-Order MUSCL Reconstruction**
+
+The standard FV method with a Rusanov flux is only **1st-order accurate**. This means it assumes the data in each cell is a flat, constant value. This is numerically very "diffusive" or "blurry," smearing out sharp features like shocks and contact waves.
+
+This code implements a **2nd-order MUSCL** (Monotonic Upstream-centered Scheme for Conservation Laws) scheme to fix this.
+
+* **Core Idea:** Instead of assuming data is constant in a cell, we reconstruct a *linear slope* within each cell. This gives a much better guess for the values at the cell's left and right faces.
+* **Primitive Variables:** The reconstruction is done on the **primitive variables** ($\mathbf{P} = [\rho, v_x, v_y, B_x, B_y, p]$) rather than the conserved variables ($\mathbf{U}$). This is more stable and physically accurate, as the conserved variables (like momentum $\rho v_x$) can have sharp jumps even when the primitive velocity $v_x$ is smooth. The code uses `cons_to_prim()` and `prim_to_cons()` to switch between these.
+* **Limiter (`minmod`):** A simple linear reconstruction would be 2nd-order but would create new, non-physical oscillations (wiggles) near shocks. A **limiter** is used to "flatten" the slope back to 0 (making it 1st-order) in regions where oscillations might appear. This code uses the `minmod` limiter:
+    $$
+    s = \text{minmod}(\Delta_L, \Delta_R, \theta \cdot \Delta_C)
+    $$
+    where $\Delta_L, \Delta_R, \Delta_C$ are the backward, forward, and central differences. The `minmod` function returns the smallest value in magnitude if all arguments have the same sign, and 0 otherwise. This is a very robust (though diffusive) limiter.
+* **Implementation:** The main kernel `step_mhd_muscl_powell` gathers a 3-cell stencil (e.g., `PL`, `PC`, `PR`), calls `recon_face_1D_prim()` to compute the limited slopes, and then extrapolates to find the states at both sides of the cell face (e.g., `P_LR_xR` and `P_LR_xL`). These are converted back to `U` and fed into the `rusanov_flux` solver.
+
+
+**2. Powell 8-Wave Divergence Cleaning**
+
+A fundamental law of physics (one of Maxwell's equations) is that the magnetic field must be divergence-free: $\nabla \cdot \mathbf{B} = 0$. This implies there are no "magnetic monopoles."
+
+In numerical simulations, floating-point errors can cause a small, non-zero $\nabla \cdot \mathbf{B}$ to appear. This error can grow exponentially and make the entire simulation unstable, leading to a crash.
+
+* **Core Idea:** Powell's method adds a non-conservative **source term** to the right-hand-side of the MHD equations. This source term is proportional to the numerically computed $\nabla \cdot \mathbf{B}$.
+* **The Source Term:** The term $S_P$ is added to the update:
+    $$
+    \frac{\partial \mathbf{U}}{\partial t} + \nabla \cdot \mathbf{F} = S_P = -(\nabla \cdot \mathbf{B}) \begin{pmatrix} 0 \\ B_x \\ B_y \\ 0 \\ v_x \\ v_y \\ 0 \\ \mathbf{v} \cdot \mathbf{B} \end{pmatrix}
+    $$
+    (The code uses the 2D version, so $B_z=v_z=0$). This term is designed to advect and damp the $\nabla \cdot \mathbf{B}$ error, preventing it from growing.
+* **Implementation:** Inside the `step_mhd_muscl_powell` kernel, after the main FV update (and enabled by `#if USE_POWELL`):
+    1.  `divB` is calculated using a simple, 2nd-order central difference.
+    2.  The source term is added directly to the updated state `Un`:
+        `Un[1] += -dt * divB * Un[3]; // mx -= dt * divB * Bx`
+        ...and so on for `my`, `Bx`, `By`, and `E`.
+
+**3. CFL Timestep Calculation from GPU**
+
+The stability of the explicit FV scheme is limited by the **CFL condition**, which states that the timestep `dt` must be small enough that the fastest wave doesn't travel more than one cell width.
+$$
+dt \le C_{\text{num}} \frac{\Delta x}{S_{\text{max}}}
+$$
+To calculate `dt`, we must find the **global maximum wave speed** ($S_{\text{max}}$) across the *entire* simulation grid at *every* step.
+
+* **Core Idea:** Instead of copying the entire $N \times N$ grid from the GPU to the CPU to find this one number (which is extremely slow), we perform a **parallel reduction** entirely on the GPU.
+* **Implementation:**
+    1.  `kernel_maxspeed`: A kernel is launched where each thread (for each cell) computes its *local* max speed: `smax = fmaxf(fabsf(vx)+cf, fabsf(vy)+cf)`.
+    2.  `atomicMaxFloatPos(smax)`: Each thread then uses a GPU **atomic operation** (`atomicMax`) to update a *single* global variable `d_max_speed_bits`. This is a "race" where only the largest value seen by any thread will "win" and remain in `d_max_speed_bits`.
+    3.  `compute_dt_gpu`: The host function launches the kernel, waits for it to finish (`cudaDeviceSynchronize`), copies the *single* resulting max value back, and computes `dt`. This is much, much faster than a full `cudaMemcpy`.
+    4.  The `__float_as_uint` trick (`atomicMaxFloatPos`) is used because atomic operations on floating-point numbers can be tricky, but for positive floats, their integer representation preserves ordering.
+
+
+**4. Tracking Conservative Invariants**
+
+For a closed (periodic) system with no sources or sinks, the **total mass** ($\sum \rho$) and **total energy** ($\sum E$) in the box must be conserved. Tracking these values is a critical sanity check to ensure the simulation is physically correct and numerically stable.
+
+* **Core Idea:** This is another **parallel reduction** problem, just like the CFL calculation. We need to compute $\sum \mathbf{U}[0]$ and $\sum \mathbf{U}[5]$ over all cells.
+* **Implementation:**
+    1.  `reduce_mass_energy`: A kernel is launched to sum these values.
+    2.  **Shared Memory:** This kernel uses `extern __shared__ double sm[]` as a high-speed, on-chip cache. Threads within a block first sum their partial results into this shared memory array.
+    3.  **Block-level Reduction:** The threads in the block perform a fast reduction *within* shared memory.
+    4.  **Global Atomics:** The one "master" thread in each block (`threadIdx.x==0`) atomically adds its block's sub-total (`s_mass[0]`) to the global `double* out_mass`.
+* **In `main()`:** The initial `M0` and `E0` are stored. At each logging step, `compute_invariants_gpu` is called, and the relative error `(M-M0)/M0` is printed, which should remain very small (e.g., $10^{-10}$).
+
+```bash
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_adv.cu -o mhd2d_adv
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z18reduce_mass_energyPKfiPdS1_' for 'sm_89'
+ptxas info    : Function properties for _Z18reduce_mass_energyPKfiPdS1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 22 registers, used 1 barriers, 384 bytes cmem[0]
+ptxas info    : Compile time = 3.200 ms
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 5.504 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.306 ms
+ptxas info    : Compiling entry function '_Z21step_mhd_muscl_powellPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z21step_mhd_muscl_powellPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 95 registers, used 0 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 57.066 ms
+
+> ./mhd2d_adv 128 128 200
+Init invariants: Mass=1.63840000e+04  Energy=5.73440039e+04
+Step   50/ 200  dt=7.639e-09  Mass=1.63852378e+04  dM=7.555e-05  Energy=5.70173830e+05  dE=8.943e+00
+Step  100/ 200  dt=7.203e-09  Mass=1.63852359e+04  dM=7.543e-05  Energy=6.64728658e+05  dE=1.059e+01
+Step  150/ 200  dt=6.413e-09  Mass=1.63852344e+04  dM=7.534e-05  Energy=7.59321389e+05  dE=1.224e+01
+Step  200/ 200  dt=5.274e-09  Mass=1.63852334e+04  dM=7.528e-05  Energy=8.70095850e+05  dE=1.417e+01
+Center (rho,mx,my,Bx,By,E): 0.982538 0.034419 -0.008991 0.012728 0.064614 2.407878
+```
 
 Day 11:
 Introduction to Neural Radiance Fields (NeRFs) in the context of fluid or volumetric data.
