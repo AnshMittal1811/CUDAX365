@@ -1119,6 +1119,142 @@ TODO: Need to resolve problems with NaNs coming up as the smoothing continues wh
 Day 12:
 Add cuFFT for a 2-D Poisson solve step; verify energy spectrum stays consistent
 
+Current issue (why energy/spectrum blew up to inf):
+- dt collapses (1e-9 --> 1e-15) once density/pressure approach zero, so max wavespeed spikes and updates inject huge energy.
+- FFT spectrum reads inf because fields are already non-finite.
+- Likely causes: CFL too aggressive, weak density/pressure floors, sharp rho discontinuities feeding back through the Poisson correction.
+- Mitigations to try: lower CFL (e.g., 0.05–0.1), abort if dt < 1e-12 or any field is not finite, tighten rho/pressure floors, use more diffusive flux (HLL) or smaller limiter theta, and log min/max rho/p/E each step to catch the first divergence.
+```bash
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -c step_tiled_poisson.cu -o step_tiled_poisson.o
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z19power_spectrum_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19power_spectrum_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 2.371 ms
+ptxas info    : Compiling entry function '_Z13make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z13make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 17 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 3.488 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 6.133 ms
+ptxas info    : Compiling entry function '_Z19complexToRealScaledPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z19complexToRealScaledPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.546 ms
+ptxas info    : Compiling entry function '_Z17copyRealToComplexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z17copyRealToComplexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.497 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.453 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 2.770 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.825 ms
+
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_adv.cu -lcufft -o mhd_poisson_tiled
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z18reduce_mass_energyPKfiPdS1_' for 'sm_89'
+ptxas info    : Function properties for _Z18reduce_mass_energyPKfiPdS1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 22 registers, used 1 barriers, 384 bytes cmem[0]
+ptxas info    : Compile time = 2.128 ms
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 4.999 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.263 ms
+ptxas info    : Compiling entry function '_Z21step_mhd_muscl_powellPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z21step_mhd_muscl_powellPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 95 registers, used 0 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 45.649 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 2.053 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 17 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 3.316 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.606 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.535 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 5.037 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.460 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 16 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 2.870 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.700 ms
+
+>  ./mhd_poisson_tiled 256 256 200
+Init invariants: Mass=6.55360000e+04  Energy=2.29376016e+05
+Step   50/ 200  dt=9.870e-10  Mass=6.55360140e+04  dM=2.131e-07  Energy=1.84444453e+06  dE=7.041e+00  spectrum[0..7]: 7.934e+10 6.135e+10 6.300e+10 6.141e+10 6.141e+10 6.135e+10 6.123e+10 6.111e+10
+Step  100/ 200  dt=9.158e-10  Mass=6.55360127e+04  dM=1.936e-07  Energy=4.33319315e+06  dE=1.789e+01  spectrum[0..7]: 6.788e+10 5.133e+10 5.285e+10 5.139e+10 5.140e+10 5.135e+10 5.126e+10 5.116e+10
+Step  150/ 200  dt=2.441e-11  Mass=6.55360117e+04  dM=1.792e-07  Energy=3.96417799e+10  dE=1.728e+05  spectrum[0..7]: 1.571e+21 1.571e+21 1.571e+21 1.571e+21 1.571e+21 1.571e+21 1.571e+21 1.571e+21
+Step  200/ 200  dt=1.292e-15  Mass=9.30251829e+04  dM=4.195e-01  Energy=2.28094355e+21  dE=9.944e+15  spectrum[0..7]: inf inf inf inf inf inf inf inf
+Center (rho,mx,my,Bx,By,E): 0.996392 0.015229 -0.008865 0.009325 0.028031 2.479517
+
+# convert dumped frames (frames/*.bin) to .npy and animate
+python - <<'PY'
+import numpy as np, glob
+NX=256; NY=256
+for f in glob.glob("frames/*.bin"):
+    arr = np.fromfile(f, dtype=np.float32).reshape(NY, NX)
+    np.save(f.replace(".bin", ".npy"), arr)
+PY
+
+python animate_poisson.py --pattern "frames/rho_*.npy" --mode heatmap --title "rho"
+python animate_poisson.py --pattern "frames/phi_*.npy" --mode surface --title "phi"
+
+```
+After using `-c` flag, we get an object file and instead may need to relink using `nvcc mhd_poisson_tiled -lcufft -o mhd_poisson_tiled.exe` or use `nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_adv.cu -lcufft -o mhd_poisson_tiled` to relink.
+
+
 
 Day 13:
 Write a 32×32 butterfly FFT kernel in PTX; compare its runtime with cuFFT 

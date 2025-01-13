@@ -60,14 +60,23 @@ __global__ void apply_grad_phi(float* __restrict__ mx, float* __restrict__ my,
     int ix = blockIdx.x*blockDim.x + threadIdx.x;
     int iy = blockIdx.y*blockDim.y + threadIdx.y;
     if(ix>=NX || iy>=NY) return;
-    auto at = [&](int x,int y)->float{
-        x = (x+NX)%NX; y=(y+NY)%NY; return phi[y*NX + x];
-    };
-    float dphix = (at(ix+1,iy) - at(ix-1,iy)) / (2.0f*dx);
-    float dphiy = (at(ix,iy+1) - at(ix,iy-1)) / (2.0f*dy);
+    int xm1 = (ix+NX-1)%NX, xp1 = (ix+1)%NX;
+    int ym1 = (iy+NY-1)%NY, yp1 = (iy+1)%NY;
+    float dphix = (phi[iy*NX + xp1] - phi[iy*NX + xm1]) / (2.0f*dx);
+    float dphiy = (phi[yp1*NX + ix] - phi[ym1*NX + ix]) / (2.0f*dy);
     int idx=iy*NX+ix;
     mx[idx] -= dt * dphix;
     my[idx] -= dt * dphiy;
+}
+
+// copy helpers (real<->complex) to avoid device lambdas / nested kernels
+__global__ void real_to_complex(cufftComplex* dst, const float* src, int N){
+    int i=blockIdx.x*blockDim.x+threadIdx.x;
+    if(i<N) dst[i]=make_cuFloatComplex(src[i],0.0f);
+}
+__global__ void complex_to_real(float* out, const cufftComplex* in, int N, float invN){
+    int i=blockIdx.x*blockDim.x+threadIdx.x;
+    if(i<N) out[i] = in[i].x * invN;
 }
 
 // Simple real-to-complex path using full complex grid (C2C forward/back)
@@ -116,14 +125,7 @@ struct Poisson2D {
         CHECK_CUDA(cudaDeviceSynchronize());
 
         // (2) real->complex buffer: copy into d_tmp.x, set .y=0
-        // reuse a tiny kernel
-        auto toComplex = [] __device__ (float r){ return make_cuFloatComplex(r,0.0f); };
-        // simple 1D kernel:
-        struct K { static __global__ void run(cufftComplex* dst, const float* src, int N){
-            int i=blockIdx.x*blockDim.x+threadIdx.x;
-            if(i<N) dst[i]=make_cuFloatComplex(src[i],0.0f);
-        }}; 
-        K::run<<<gb,tb>>>(d_tmp, phi_real, (int)N);
+        real_to_complex<<<gb,tb>>>(d_tmp, phi_real, (int)N);
         CHECK_CUDA(cudaDeviceSynchronize());
 
         // FFT forward
@@ -138,22 +140,49 @@ struct Poisson2D {
         CHECK_CUFFT(cufftExecC2C(planI, d_tmp, d_tmp, CUFFT_INVERSE));
 
         // copy back real part and apply normalization (1/N)
-        struct K2{ static __global__ void run(float* out, const cufftComplex* in, int N, float invN){
-            int i=blockIdx.x*blockDim.x+threadIdx.x;
-            if(i<N) out[i] = in[i].x * invN; // imag ~ 0
-        }};
         float invN = 1.0f / float(NX*NY);
-        K2::run<<<gb,tb>>>(phi_real, d_tmp, (int)N, invN);
+        complex_to_real<<<gb,tb>>>(phi_real, d_tmp, (int)N, invN);
         CHECK_CUDA(cudaDeviceSynchronize());
     }
 };
+
+// Spectrum helper kernels
+__global__ void spectrum_make_ke_field(cufftComplex* dst,
+                                       const float* rho, const float* mx, const float* my,
+                                       int N)
+{
+    int i=blockIdx.x*blockDim.x+threadIdx.x;
+    if(i<N){
+        float r=fmaxf(rho[i],1e-6f);
+        float vx=mx[i]/r, vy=my[i]/r;
+        float Ek=0.5f*r*(vx*vx+vy*vy);
+        dst[i]=make_cuFloatComplex(Ek,0.0f);
+    }
+}
+
+__global__ void spectrum_power_bins(const cufftComplex* F, int NX,int NY,
+                                    float* bins, unsigned* counts, int nbins)
+{
+    int ix=blockIdx.x*blockDim.x+threadIdx.x;
+    int iy=blockIdx.y*blockDim.y+threadIdx.y;
+    if(ix>=NX||iy>=NY) return;
+    int nx = (ix<=NX/2)? ix : ix-NX;
+    int ny = (iy<=NY/2)? iy : iy-NY;
+    float k = sqrtf(float(nx*nx + ny*ny));
+    int b = min(nbins-1, int(k+0.5f)); // ~1 pixel per radial bin
+    int idx=iy*NX+ix;
+    float re=F[idx].x, im=F[idx].y;
+    float p = re*re + im*im;
+    atomicAdd(&bins[b], p);
+    atomicAdd(&counts[b], 1u);
+}
 
 // ---- ENERGY SPECTRUM (kinetic) --------------------------------------------
 // Compute E_k(x)=0.5*rho*(vx^2+vy^2), FFT it (C2C), make |Ekhat|^2, radial-bin.
 struct Spectrum2D {
     int NX, NY;
     cufftHandle planF{};
-    cufftComplex* d_c{};   // NX*NY complex buffer
+    cufftComplex* d_c{};
     bool ready{false};
 
     void init(int NX_, int NY_){
@@ -164,40 +193,10 @@ struct Spectrum2D {
     }
     void destroy(){ if(!ready) return; cufftDestroy(planF); cudaFree(d_c); ready=false; }
 
-    static __global__ void make_ke_field(cufftComplex* dst,
-                                         const float* rho, const float* mx, const float* my,
-                                         int N)
-    {
-        int i=blockIdx.x*blockDim.x+threadIdx.x;
-        if(i<N){
-            float r=fmaxf(rho[i],1e-6f);
-            float vx=mx[i]/r, vy=my[i]/r;
-            float Ek=0.5f*r*(vx*vx+vy*vy);
-            dst[i]=make_cuFloatComplex(Ek,0.0f);
-        }
-    }
-    static __global__ void power_spectrum_bins(const cufftComplex* F, int NX,int NY,
-                                               float* bins, unsigned* counts, int nbins)
-    {
-        int ix=blockIdx.x*blockDim.x+threadIdx.x;
-        int iy=blockIdx.y*blockDim.y+threadIdx.y;
-        if(ix>=NX||iy>=NY) return;
-        int nx = (ix<=NX/2)? ix : ix-NX;
-        int ny = (iy<=NY/2)? iy : iy-NY;
-        float k = sqrtf(float(nx*nx + ny*ny));
-        int b = min(nbins-1, int(k+0.5f)); // 1 bin ≈ 1 “pixel” in radius
-        int idx=iy*NX+ix;
-        float re=F[idx].x, im=F[idx].y;
-        float p = re*re + im*im;
-        atomicAdd(&bins[b], p);
-        atomicAdd(&counts[b], 1u);
-    }
-
-    // returns host vector with nbins entries
     std::vector<float> compute(const float* d_rho, const float* d_mx, const float* d_my, int nbins){
         size_t N = (size_t)NX*NY;
         int tb=256, gb=(N+tb-1)/tb;
-        make_ke_field<<<gb,tb>>>(d_c, d_rho, d_mx, d_my, (int)N);
+        spectrum_make_ke_field<<<gb,tb>>>(d_c, d_rho, d_mx, d_my, (int)N);
         CHECK_CUDA(cudaDeviceSynchronize());
 
         CHECK_CUFFT(cufftExecC2C(planF, d_c, d_c, CUFFT_FORWARD));
@@ -209,7 +208,7 @@ struct Spectrum2D {
         CHECK_CUDA(cudaMemset(d_cnt ,0, nbins*sizeof(unsigned)));
 
         dim3 b(16,16), g((NX+15)/16,(NY+15)/16);
-        power_spectrum_bins<<<g,b>>>(d_c,NX,NY,d_bins,d_cnt,nbins);
+        spectrum_power_bins<<<g,b>>>(d_c,NX,NY,d_bins,d_cnt,nbins);
         CHECK_CUDA(cudaDeviceSynchronize());
 
         std::vector<float> h_bins(nbins,0.f);
@@ -219,7 +218,7 @@ struct Spectrum2D {
         cudaFree(d_bins); cudaFree(d_cnt);
 
         for(int i=0;i<nbins;i++){
-            if(h_cnt[i]>0) h_bins[i] /= float(h_cnt[i]);  // average per mode
+            if(h_cnt[i]>0) h_bins[i] /= float(h_cnt[i]);
         }
         return h_bins;
     }

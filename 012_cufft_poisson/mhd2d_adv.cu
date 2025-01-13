@@ -1,13 +1,12 @@
-#include <cstdio>
+﻿#include <cstdio>
 #include <cmath>
 #include <vector>
 #include <cuda_runtime.h>
 #include <cstdint>
 #include <cstring>
 #include <algorithm>
-
-#define CHECK_CUDA(x) do { auto err=(x); if (err!=cudaSuccess){ \
-  fprintf(stderr,"CUDA error %s:%d: %s\n", __FILE__,__LINE__,cudaGetErrorString(err)); exit(1);} } while(0)
+#include <filesystem>
+#include "poisson_fft.cuh"
 
 constexpr float GAMMA   = 1.4f;
 constexpr float RHO_MIN = 1e-6f;
@@ -395,10 +394,6 @@ void init_orszag_tang(std::vector<float>& hU, int NX, int NY, float Lx, float Ly
 
 // ---------- main ----------
 int main(int argc,char** argv){
-    Poisson2D poisson; poisson.init(NX,NY);
-    Spectrum2D spec;   spec.init(NX,NY);
-    float *d_phi=nullptr; CHECK_CUDA(cudaMalloc(&d_phi, cells*sizeof(float)));
-
     int NX    = (argc>1)? atoi(argv[1]) : 256;
     int NY    = (argc>2)? atoi(argv[2]) : 256;
     int STEPS = (argc>3)? atoi(argv[3]) : 400;
@@ -407,51 +402,28 @@ int main(int argc,char** argv){
 
     float Lx=1.0f, Ly=1.0f, dx=Lx/NX, dy=Ly/NY;
 
-    size_t cells = (size_t)NX*NY, bytes = 6*cells*sizeof(float);
+    size_t cells = (size_t)NX*NY;
+    size_t bytes = 6*cells*sizeof(float);
     std::vector<float> hU(6*cells), hUout(6*cells);
     init_orszag_tang(hU,NX,NY,Lx,Ly);
 
-    for (int s=1; s<=STEPS; ++s){
-        float dt = compute_dt_gpu(dU,NX,NY,dx,dy);
-        step_mhd_muscl_powell<<<grid,block>>>(dU,dV,NX,NY,dx,dy,dt,theta);
-        CHECK_CUDA(cudaPeekAtLastError());
-        std::swap(dU,dV);
-
-        // ---- POISSON φ from current ρ with mean(ρ) removed ----
-        size_t cells=(size_t)NX*NY;
-        std::vector<float> tmpRho(cells);
-        CHECK_CUDA(cudaMemcpy(tmpRho.data(), dU, cells*sizeof(float), cudaMemcpyDeviceToHost));
-        double sum=0.0; for(size_t i=0;i<cells;i++) sum += tmpRho[i];
-        float mean_rho = float(sum / double(cells));
-        poisson.solve(/*rhs=*/dU, /*phi=*/d_phi, mean_rho, dx, dy);
-
-        // optional gradient correction to momentum:
-    #if APPLY_POISSON_GRAD
-        dim3 b2(16,16), g2((NX+15)/16,(NY+15)/16);
-        apply_grad_phi<<<g2,b2>>>(/*mx*/dU + 1*cells, /*my*/dU + 2*cells,
-                                d_phi, NX, NY, dx, dy, dt);
-        CHECK_CUDA(cudaDeviceSynchronize());
-    #endif
-
-        if (s % 50 == 0){
-            auto H = spec.compute(/*rho*/dU + 0*cells, /*mx*/dU + 1*cells, /*my*/dU + 2*cells, /*nbins=*/64);
-            printf("Step %4d/%4d  dt=%.3e  spectrum[0..7]:", s,STEPS,dt);
-            for(int i=0;i<8;i++) printf(" %.3e", H[i]);
-            printf("\n");
-        }
-    }
-
-    float *dU=nullptr,*dV=nullptr;
+    float *dU=nullptr,*dV=nullptr,*d_phi=nullptr;
     CHECK_CUDA(cudaMalloc(&dU,bytes));
     CHECK_CUDA(cudaMalloc(&dV,bytes));
     CHECK_CUDA(cudaMemcpy(dU,hU.data(),bytes,cudaMemcpyHostToDevice));
 
     dim3 block(16,16), grid((NX+block.x-1)/block.x,(NY+block.y-1)/block.y);
 
-    // Baseline invariants
+    Poisson2D poisson; poisson.init(NX,NY);
+    Spectrum2D spec;   spec.init(NX,NY);
+    CHECK_CUDA(cudaMalloc(&d_phi, cells*sizeof(float)));
+
     double M0=0.0, E0=0.0;
     compute_invariants_gpu(dU,NX,NY,M0,E0);
     printf("Init invariants: Mass=%.8e  Energy=%.8e\n", M0, E0);
+
+    static std::vector<float> h_snap;
+    static bool frames_ready=false;
 
     for (int s=1; s<=STEPS; ++s){
         float dt = compute_dt_gpu(dU,NX,NY,dx,dy);
@@ -459,11 +431,45 @@ int main(int argc,char** argv){
         CHECK_CUDA(cudaPeekAtLastError());
         std::swap(dU,dV);
 
+        // Poisson solve on rho (mean removed)
+        std::vector<float> tmpRho(cells);
+        CHECK_CUDA(cudaMemcpy(tmpRho.data(), dU, cells*sizeof(float), cudaMemcpyDeviceToHost));
+        double sum=0.0;
+        for(size_t i=0;i<cells;i++) sum += tmpRho[i];
+        float mean_rho = float(sum / double(cells));
+        poisson.solve(/*rhs=*/dU, /*phi=*/d_phi, mean_rho, dx, dy);
+
+    #if APPLY_POISSON_GRAD
+        dim3 b2(16,16), g2((NX+15)/16,(NY+15)/16);
+        apply_grad_phi<<<g2,b2>>>(/*mx*/dU + 1*cells, /*my*/dU + 2*cells,
+                                  d_phi, NX, NY, dx, dy, dt);
+        CHECK_CUDA(cudaDeviceSynchronize());
+    #endif
+
         if (s % log_every == 0){
             double M=0.0,E=0.0;
             compute_invariants_gpu(dU,NX,NY,M,E);
-            printf("Step %4d/%4d  dt=%.3e  Mass=%.8e  dM=%.3e  Energy=%.8e  dE=%.3e\n",
+            printf("Step %4d/%4d  dt=%.3e  Mass=%.8e  dM=%.3e  Energy=%.8e  dE=%.3e",
                    s,STEPS,dt,M, (M-M0)/M0, E,(E-E0)/E0);
+            auto H = spec.compute(/*rho*/dU + 0*cells, /*mx*/dU + 1*cells, /*my*/dU + 2*cells, /*nbins=*/64);
+            printf("  spectrum[0..7]:");
+            for(int i=0;i<8 && i<(int)H.size();i++) printf(" %.3e", H[i]);
+            printf("\n");
+
+            // dump frames for animation (rho and phi)
+            if (!frames_ready){
+                std::filesystem::create_directories("frames");
+                frames_ready=true;
+            }
+            if (h_snap.size() != cells) h_snap.resize(cells);
+            auto dump_field = [&](const float* dptr, const char* tag){
+                CHECK_CUDA(cudaMemcpy(h_snap.data(), dptr, cells*sizeof(float), cudaMemcpyDeviceToHost));
+                std::string fname = "frames/" + std::string(tag) + "_" + std::to_string(s) + ".bin";
+                FILE* fp = fopen(fname.c_str(),"wb");
+                if (fp){ fwrite(h_snap.data(), sizeof(float), cells, fp); fclose(fp); }
+            };
+            dump_field(dU + 0*cells, "rho");
+            dump_field(d_phi,        "phi");
         }
     }
 
