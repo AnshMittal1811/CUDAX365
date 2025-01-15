@@ -5,6 +5,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import animation
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+import re
 
 
 def load_frames(pattern, shape):
@@ -46,6 +48,15 @@ def interpolate_frames(frames_a, frames_b, labels, n_interp):
     return out_a, out_b, out_labels
 
 
+def label_time(label, index, dt):
+    match = re.search(r"(\d+)", label)
+    if match:
+        step = int(match.group(1))
+    else:
+        step = index
+    return step * dt
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Animate rho/phi frames side-by-side."
@@ -72,6 +83,12 @@ def main():
         "--out", default="mhd_rho_phi.mp4", help="Output video filename."
     )
     parser.add_argument(
+        "--mode",
+        choices=["heatmap", "surface"],
+        default="heatmap",
+        help="Render as 2D heatmap or 3D surface.",
+    )
+    parser.add_argument(
         "--title", default="FP16 MHD (rho | phi)", help="Figure title."
     )
     parser.add_argument(
@@ -89,6 +106,30 @@ def main():
         default=1,
         help="Interpolated steps between frames (>=1).",
     )
+    parser.add_argument(
+        "--dt",
+        type=float,
+        default=1.0,
+        help="Time step per frame for labeling (default 1.0).",
+    )
+    parser.add_argument(
+        "--stride",
+        type=int,
+        default=1,
+        help="Stride for surface plotting (>=1). Higher is faster.",
+    )
+    parser.add_argument(
+        "--elev",
+        type=float,
+        default=30.0,
+        help="Elevation angle for 3D view.",
+    )
+    parser.add_argument(
+        "--azim",
+        type=float,
+        default=-60.0,
+        help="Azimuth angle for 3D view.",
+    )
     args = parser.parse_args()
 
     rho_frames, rho_labels = load_frames(args.rho, args.shape)
@@ -105,31 +146,78 @@ def main():
     phi_min = min(f.min() for f in phi_frames)
     phi_max = max(f.max() for f in phi_frames)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-    fig.suptitle(args.title)
-    im1 = ax1.imshow(rho_frames[0], origin="lower", cmap="viridis",
-                     vmin=rho_min, vmax=rho_max)
-    im2 = ax2.imshow(phi_frames[0], origin="lower", cmap="magma",
-                     vmin=phi_min, vmax=phi_max)
-    ax1.set_title(args.rho_title)
-    ax2.set_title(args.phi_title)
-    ax1.set_xlabel("x")
-    ax1.set_ylabel("y")
-    ax2.set_xlabel("x")
-    ax2.set_ylabel("y")
-    fig.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
-    fig.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
+    if args.mode == "heatmap":
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+        fig.suptitle(args.title)
+        im1 = ax1.imshow(rho_frames[0], origin="lower", cmap="viridis",
+                         vmin=rho_min, vmax=rho_max)
+        im2 = ax2.imshow(phi_frames[0], origin="lower", cmap="magma",
+                         vmin=phi_min, vmax=phi_max)
+        ax1.set_title(args.rho_title)
+        ax2.set_title(args.phi_title)
+        ax1.set_xlabel("x")
+        ax1.set_ylabel("y")
+        ax2.set_xlabel("x")
+        ax2.set_ylabel("y")
+        fig.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
+        fig.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
 
-    def update(i):
-        im1.set_data(rho_frames[i])
-        im2.set_data(phi_frames[i])
-        ax1.set_title(f"{args.rho_title}  ({labels[i]})")
-        ax2.set_title(f"{args.phi_title}  ({labels[i]})")
-        return (im1, im2)
+        def update(i):
+            im1.set_data(rho_frames[i])
+            im2.set_data(phi_frames[i])
+            t = label_time(labels[i], i, args.dt)
+            fig.suptitle(f"{args.title}  t={t:.3f}")
+            ax1.set_title(f"{args.rho_title}  ({labels[i]})")
+            ax2.set_title(f"{args.phi_title}  ({labels[i]})")
+            return (im1, im2)
 
-    ani = animation.FuncAnimation(
-        fig, update, frames=len(rho_frames), interval=1000 / args.fps, blit=True
-    )
+        ani = animation.FuncAnimation(
+            fig, update, frames=len(rho_frames), interval=1000 / args.fps, blit=True
+        )
+    else:
+        stride = max(1, args.stride)
+        ny, nx = rho_frames[0].shape
+        x = np.linspace(0, 1, nx)[::stride]
+        y = np.linspace(0, 1, ny)[::stride]
+        X, Y = np.meshgrid(x, y)
+
+        fig = plt.figure(figsize=(11, 5))
+        ax1 = fig.add_subplot(1, 2, 1, projection="3d")
+        ax2 = fig.add_subplot(1, 2, 2, projection="3d")
+        ax1.set_xlabel("x")
+        ax1.set_ylabel("y")
+        ax2.set_xlabel("x")
+        ax2.set_ylabel("y")
+        ax1.set_zlim(rho_min, rho_max)
+        ax2.set_zlim(phi_min, phi_max)
+        ax1.view_init(elev=args.elev, azim=args.azim)
+        ax2.view_init(elev=args.elev, azim=args.azim)
+        ax1.set_title(args.rho_title)
+        ax2.set_title(args.phi_title)
+
+        surf1 = [None]
+        surf2 = [None]
+
+        def update(i):
+            if surf1[0] is not None:
+                surf1[0].remove()
+            if surf2[0] is not None:
+                surf2[0].remove()
+            rho = rho_frames[i][::stride, ::stride]
+            phi = phi_frames[i][::stride, ::stride]
+            surf1[0] = ax1.plot_surface(X, Y, rho, cmap="viridis",
+                                        vmin=rho_min, vmax=rho_max, linewidth=0)
+            surf2[0] = ax2.plot_surface(X, Y, phi, cmap="magma",
+                                        vmin=phi_min, vmax=phi_max, linewidth=0)
+            t = label_time(labels[i], i, args.dt)
+            fig.suptitle(f"{args.title}  t={t:.3f}")
+            ax1.set_title(f"{args.rho_title}  ({labels[i]})")
+            ax2.set_title(f"{args.phi_title}  ({labels[i]})")
+            return []
+
+        ani = animation.FuncAnimation(
+            fig, update, frames=len(rho_frames), interval=1000 / args.fps, blit=False
+        )
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     writer = "pillow" if out_path.suffix.lower() == ".gif" else "ffmpeg"
