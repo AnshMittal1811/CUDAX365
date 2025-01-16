@@ -1125,7 +1125,7 @@ Current issue (why energy/spectrum blew up to inf):
 - Likely causes: CFL too aggressive, weak density/pressure floors, sharp rho discontinuities feeding back through the Poisson correction.
 - Mitigations to try: lower CFL (e.g., 0.05–0.1), abort if dt < 1e-12 or any field is not finite, tighten rho/pressure floors, use more diffusive flux (HLL) or smaller limiter theta, and log min/max rho/p/E each step to catch the first divergence.
 ```bash
-> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -c step_tiled_poisson.cu -o step_tiled_poisson.o
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -c step_tiled_poisson.cu -o step_tiled_poisson.o
 ptxas info    : 0 bytes gmem
 ptxas info    : Compiling entry function '_Z19power_spectrum_binsPK6float2iiPfPji' for 'sm_89'
 ptxas info    : Function properties for _Z19power_spectrum_binsPK6float2iiPfPji
@@ -1168,7 +1168,7 @@ ptxas info    : Function properties for _Z7fill_k2Pfii
 ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
 ptxas info    : Compile time = 0.825 ms
 
-> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_adv.cu -lcufft -o mhd_poisson_tiled
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_adv.cu -lcufft -o mhd_poisson_tiled
 ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
 ptxas info    : Compiling entry function '_Z18reduce_mass_energyPKfiPdS1_' for 'sm_89'
 ptxas info    : Function properties for _Z18reduce_mass_energyPKfiPdS1_
@@ -1231,7 +1231,7 @@ ptxas info    : Function properties for _Z7fill_k2Pfii
 ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
 ptxas info    : Compile time = 0.700 ms
 
->  ./mhd_poisson_tiled 256 256 200
+>> ./mhd_poisson_tiled 256 256 200
 Init invariants: Mass=6.55360000e+04  Energy=2.29376016e+05
 Step   50/ 200  dt=9.870e-10  Mass=6.55360140e+04  dM=2.131e-07  Energy=1.84444453e+06  dE=7.041e+00  spectrum[0..7]: 7.934e+10 6.135e+10 6.300e+10 6.141e+10 6.141e+10 6.135e+10 6.123e+10 6.111e+10
 Step  100/ 200  dt=9.158e-10  Mass=6.55360127e+04  dM=1.936e-07  Energy=4.33319315e+06  dE=1.789e+01  spectrum[0..7]: 6.788e+10 5.133e+10 5.285e+10 5.139e+10 5.140e+10 5.135e+10 5.126e+10 5.116e+10
@@ -1259,11 +1259,559 @@ After using `-c` flag, we get an object file and instead may need to relink usin
 Day 13:
 Write a 32×32 butterfly FFT kernel in PTX; compare its runtime with cuFFT 
 
+013_fft_ptx_butterfly
+
+Goals:
+- Code a 32x32 butterfly FFT kernel (hand-written PTX or inline PTX) and compare against cuFFT.
+- Cross-check with ideas from NVIDIA's "FFT on GPUs" blog (but implement locally).
+- Collect PTX/SASS and basic timing to see instruction mix and occupancy.
+
+Suggested workflow:
+1) Implement the custom kernel in `butterfly_fft.cu` (32-point or 32x32 tile; keep IO simple, e.g., in-place complex float).
+2) Build and dump PTX/SASS:
+   - `nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v butterfly_fft.cu -lcufft -o butterfly_fft`
+   - `nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -ptx butterfly_fft.cu -o butterfly_fft.ptx`
+   - `cuobjdump --dump-sass butterfly_fft > butterfly_fft.sass`
+3) Compare against cuFFT baseline:
+   - Build and run: `nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v butterfly_fft.cu -lcufft -o butterfly_fft`
+   - `./butterfly_fft 1` prints PTX-FFT vs cuFFT timings and max |err|; increase tiles for steadier timing.
+4) Capture notes on instruction patterns and occupancy:
+   - Record ptxas info (regs, smem, barriers) from `-Xptxas -v`.
+   - Skim SASS for shuffle/twiddle patterns and the shared-memory transpose.
+5) Animate the butterfly stages (similar to Day 12):
+   - `./butterfly_fft --dump` (writes `frames/fft_stage_00.bin` ... `frames/fft_stage_13.bin`)
+   - `python animate_fft.py --pattern "frames/fft_stage_*.bin" --field mag --mode heatmap --out fft_mag.mp4 --title "FFT magnitude"`
+   - `python animate_fft.py --pattern "frames/fft_stage_*.bin" --field phase --mode heatmap --out fft_phase.mp4 --title "FFT phase"`
+   - Stage map: 00 input, 01-05 row stages, 06 row output (bit-reversed), 07 column input (transpose), 08-12 column stages, 13 final output.
+
+
+```bash 
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v butterfly_fft.cu -lcufft -o butterfly_fft
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z17fft32x32_warp_ptxPK6float2PS_i' for 'sm_89'
+ptxas info    : Function properties for _Z17fft32x32_warp_ptxPK6float2PS_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 27 registers, used 1 barriers, 8448 bytes smem, 372 bytes cmem[0]
+ptxas info    : Compile time = 5.922 ms
+
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -ptx butterfly_fft.cu -o butterfly_fft.ptx
+>> cuobjdump --dump-sass butterfly_fft > butterfly_fft.sass
+
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v butterfly_fft.cu -lcufft -o butterfly_fft
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z23fft32x32_warp_ptx_debugPK6float2PS_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z23fft32x32_warp_ptx_debugPK6float2PS_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 38 registers, used 1 barriers, 8448 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 33.918 ms
+ptxas info    : Compiling entry function '_Z17fft32x32_warp_ptxPK6float2PS_i' for 'sm_89'
+ptxas info    : Function properties for _Z17fft32x32_warp_ptxPK6float2PS_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 27 registers, used 1 barriers, 8448 bytes smem, 372 bytes cmem[0]
+ptxas info    : Compile time = 5.909 ms
+```
+
 Day 14:
 Switch MHD solver to FP16 + Tensor Cores; verify HMMA instructions in PTX
 
+What this demo does:
+- Uses a 16x16 WMMA tile blur (FP16) to update rho (density) on each step.
+- Solves Poisson (cuFFT) to compute phi from rho each step.
+- Dumps rho/phi every step to `frames/` so you can animate both in one frame.
+- Periodic domain, sinusoidal + Gaussian rho initialization (MHD-style seeding).
+- Animate rho + phi side-by-side to compare fluid density vs potential.
+- Compute phi each step with cuFFT Poisson (from Day 12) and dump rho/phi frames.
+
+
+Suggested workflow:
+Build:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc.cu -lcufft -o mhd_fp16_tc
+```
+
+Run (NX NY STEPS mix phi_scale):
+```bash
+./mhd_fp16_tc 128 128 60
+```
+
+Verify Tensor Core instructions:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 -ptx mhd_fp16_tc.cu -o mhd_fp16_tc.ptx
+rg -n "mma.sync" mhd_fp16_tc.ptx
+cuobjdump --dump-sass mhd_fp16_tc | rg "HMMA|mma"
+```
+
+Animate rho + phi in a single frame:
+```bash
+python animate_mhd_fp16.py --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" \
+  --shape 128 128 --out mhd_rho_phi.mp4 --fps 12 --title "FP16 MHD (rho | phi)"
+```
+If `ffmpeg` is missing, use `--out mhd_rho_phi.gif`.
+
+Animate rho + phi as 3D surfaces (time t shown in title):
+```bash
+python animate_mhd_fp16.py --mode surface --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" \
+  --shape 128 128 --out mhd_rho_phi_3d.mp4 --fps 12 --dt 1.0 --stride 2 \
+  --title "FP16 MHD 3D (rho | phi)"
+```
+
+Advanced (014_5_advanced_mhd_fp16_tensorcore):
+- Full Rusanov MHD update in FP16 storage + Poisson coupling + WMMA smoothing.
+- Combined 3D visualization: rho surface colored by phi.
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc_adv.cu -lcufft -o mhd_fp16_tc_adv
+./mhd_fp16_tc_adv 192 192 120 1.0 0.08 0.05 1
+python animate_mhd_advanced.py --mode combined --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" \
+  --shape 192 192 --out mhd_combined_3d.mp4 --fps 12 --dt 1.0 --stride 2
+```
+
+
+```bash
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc.cu -lcufft -o mhd_fp16_tc
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z15update_rho_wmmaPK6__halfPS_S1_PKfiiff' for 'sm_89'
+ptxas info    : Function properties for _Z15update_rho_wmmaPK6__halfPS_S1_PKfiiff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, used 1 barriers, 1024 bytes smem, 400 bytes cmem[0]
+ptxas info    : Compile time = 3.144 ms
+ptxas info    : Compiling entry function '_Z10reduce_sumPKfPdi' for 'sm_89'
+ptxas info    : Function properties for _Z10reduce_sumPKfPdi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 1 barriers, 2048 bytes smem, 372 bytes cmem[0]
+ptxas info    : Compile time = 1.221 ms
+ptxas info    : Compiling entry function '_Z13float_to_halfPKfP6__halfi' for 'sm_89'
+ptxas info    : Function properties for _Z13float_to_halfPKfP6__halfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.597 ms
+ptxas info    : Compiling entry function '_Z13half_to_floatPK6__halfPfi' for 'sm_89'
+ptxas info    : Function properties for _Z13half_to_floatPK6__halfPfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.544 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.838 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 17 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 3.292 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.496 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.448 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 4.741 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.553 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 16 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 3.334 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.737 ms
+
+>> ./mhd_fp16_tc 128 128 60
+Step    0/  60  rho[min,max]=[0.9199, 1.6562]
+Step   10/  60  rho[min,max]=[0.9199, 1.6494]
+Step   20/  60  rho[min,max]=[0.9199, 1.6455]
+Step   30/  60  rho[min,max]=[0.9199, 1.6455]
+Step   40/  60  rho[min,max]=[0.9199, 1.6455]
+Step   50/  60  rho[min,max]=[0.9199, 1.6455]
+Step   59/  60  rho[min,max]=[0.9199, 1.6455]
+
+>> python animate_mhd_fp16.py --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" --shape 128 128 --out mhd_rho_phi.mp4 --fps 12
+Saved animation to mhd_rho_phi.mp4 using 60 frames.
+
+>> grep -n "mma.sync" mhd_fp16_tc.ptx
+831:    wmma.mma.sync.aligned.row.row.m16n16k16.f32.f32 {%f4, %f5, %f6, %f7, %f8, %f9, %f10, %f11}, {%r14, %r15, %r16, %r17, %r18, %r19, %r20, %r21}, {%r23, %r24, %r25, %r26, %r27, %r28, %r29, %r30}, {%f3, %f3, %f3, %f3, %f3, %f3, %f3, %f3};
+
+>> cuobjdump --dump-sass mhd_fp16_tc | grep -E "HMMA|MMA"
+        /*02f0*/                   HMMA.16816.F32 R12, R4.reuse, R22, RZ ;              /* 0x00000016040c723c */
+        /*0300*/                   HMMA.16816.F32 R4, R4, R24, RZ ;                     /* 0x000000180404723c */
+```
+
+Day 14.5:
+Goal:
+- Combining all earlier days
+- Full MHD Rusanov update using FP16 storage, Poisson coupling for phi, and WMMA Tensor Core smoothing.
+
+What this does:
+- Evolves 2D MHD state (rho, mx, my, Bx, By, E) with a first-order Rusanov flux.
+- Stores state in FP16 (half) and computes fluxes in FP32.
+- Solves Poisson (cuFFT) for phi from rho each step, applies grad(phi) to momentum.
+- Runs a WMMA tile blur on rho to exercise Tensor Cores (HMMA/mma.sync).
+- Dumps rho/phi every step to `frames/` for animation.
+
+Build:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc_adv.cu -lcufft -o mhd_fp16_tc_adv
+```
+
+Run (NX NY STEPS dt_scale phi_scale wmma_mix dump_every):
+```bash
+./mhd_fp16_tc_adv 192 192 120 1.0 0.08 0.05 1
+```
+
+Verify Tensor Core instructions:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 -ptx mhd_fp16_tc_adv.cu -o mhd_fp16_tc_adv.ptx
+rg -n "mma.sync" mhd_fp16_tc_adv.ptx
+cuobjdump --dump-sass mhd_fp16_tc_adv | rg "HMMA|mma"
+```
+If `rg` is missing, use `grep -n "mma.sync" mhd_fp16_tc_adv.ptx` and `cuobjdump --dump-sass mhd_fp16_tc_adv | grep -E "HMMA|MMA"`.
+
+Animate combined 3D (rho as surface, phi as color):
+```bash
+python animate_mhd_advanced.py --mode combined \
+  --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" --shape 192 192 \
+  --out mhd_combined_3d.mp4 --fps 12 --dt 1.0 --stride 2 \
+  --title "Advanced MHD (rho colored by phi)"
+```
+
+Side-by-side heatmaps:
+```bash
+python animate_mhd_advanced.py --mode side-by-side \
+  --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" --shape 192 192 \
+  --out mhd_side_by_side.mp4 --fps 12 --dt 1.0
+```
+
+Notes:
+- NX and NY must be multiples of 16 for WMMA tiles.
+- Each saved frame corresponds to one step (step size = 1 by default).
+- Increase `phi_scale` or `wmma_mix` for more visible dynamics.
+
+
+```bash
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc_adv.cu -lcufft -o mhd_fp16_tc_adv
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z13wmma_blur_rhoP6__halfPKS_iif' for 'sm_89'
+ptxas info    : Function properties for _Z13wmma_blur_rhoP6__halfPKS_iif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, used 1 barriers, 1024 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 22.399 ms
+ptxas info    : Compiling entry function '_Z10reduce_sumPKfPdi' for 'sm_89'
+ptxas info    : Function properties for _Z10reduce_sumPKfPdi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 1 barriers, 2048 bytes smem, 372 bytes cmem[0]
+ptxas info    : Compile time = 1.414 ms
+ptxas info    : Compiling entry function '_Z19apply_grad_phi_halfP6__halfPKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z19apply_grad_phi_halfP6__halfPKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 8.226 ms
+ptxas info    : Compiling entry function '_Z25extract_rho_half_to_floatPK6__halfPfi' for 'sm_89'
+ptxas info    : Function properties for _Z25extract_rho_half_to_floatPK6__halfPfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.786 ms
+ptxas info    : Compiling entry function '_Z20kernel_maxspeed_halfPK6__halfii' for 'sm_89'
+ptxas info    : Function properties for _Z20kernel_maxspeed_halfPK6__halfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 21 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 6.022 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.305 ms
+ptxas info    : Compiling entry function '_Z21step_mhd_rusanov_halfPK6__halfPS_iifff' for 'sm_89'
+ptxas info    : Function properties for _Z21step_mhd_rusanov_halfPK6__halfPS_iifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 21.239 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 2.069 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 17 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 3.481 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.554 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.675 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 5.492 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.621 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 16 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 3.435 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.836 ms
+
+>> ./mhd_fp16_tc_adv 192 192 120 1.0 0.08 0.05 1
+Step    0/ 120  dt=4.579e-04  rho[min,max]=[1.0000, 1.0000]
+Step   10/ 120  dt=4.577e-04  rho[min,max]=[0.9976, 1.0049]
+Step   20/ 120  dt=4.570e-04  rho[min,max]=[0.9912, 1.0195]
+Step   30/ 120  dt=4.561e-04  rho[min,max]=[0.9810, 1.0420]
+Step   40/ 120  dt=4.545e-04  rho[min,max]=[0.9673, 1.0752]
+Step   50/ 120  dt=4.455e-04  rho[min,max]=[0.9512, 1.1172]
+Step   60/ 120  dt=4.376e-04  rho[min,max]=[0.9316, 1.1689]
+Step   70/ 120  dt=4.301e-04  rho[min,max]=[0.9121, 1.2305]
+Step   80/ 120  dt=4.231e-04  rho[min,max]=[0.8887, 1.3008]
+Step   90/ 120  dt=4.163e-04  rho[min,max]=[0.8643, 1.3799]
+Step  100/ 120  dt=4.097e-04  rho[min,max]=[0.8398, 1.4678]
+Step  110/ 120  dt=4.030e-04  rho[min,max]=[0.8145, 1.5645]
+Step  119/ 120  dt=3.966e-04  rho[min,max]=[0.7900, 1.6553]
+
+>> python animate_mhd_advanced.py --mode combined \
+  --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" --shape 192 192 \
+  --out mhd_combined_3d.mp4 --fps 12 --dt 1.0 --stride 2
+
+
+>> python animate_mhd_advanced.py --mode side-by-side \
+  --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" --shape 192 192 \
+  --out mhd_side_by_side.mp4 --fps 12 --dt 1.0
+
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 -ptx mhd_fp16_tc_adv.cu -o mhd_fp16_tc_adv.ptx
+
+>> grep -n "mma.sync" mhd_fp16_tc_adv.ptx
+2021:   wmma.mma.sync.aligned.row.row.m16n16k16.f32.f32 {%f3, %f4, %f5, %f6, %f7, %f8, %f9, %f10}, {%r14, %r15, %r16, %r17, %r18, %r19, %r20, %r21}, {%r23, %r24, %r25, %r26, %r27, %r28, %r29, %r30}, {%f2, %f2, %f2, %f2, %f2, %f2, %f2, %f2};
+
+>> cuobjdump --dump-sass mhd_fp16_tc_adv | grep -E "HMMA|MMA"
+        /*02f0*/                   HMMA.16816.F32 R12, R4.reuse, R22, RZ ;               /* 0x00000016040c723c */
+        /*0300*/                   HMMA.16816.F32 R4, R4, R24, RZ ;                      /* 0x000000180404723c */
+```
+
 Day 15:
 Inline approximate reciprocal (`rcp.approx.f32`) PTX in the flux loop to replace division 
+
+- Inline `rcp.approx.f32` in the flux loop to replace division by rho (PTX ISA v8).
+- Compare exact vs approximate reciprocal runs with a combined 3D animation.
+- Animate exact vs approx to visualize drift.
+
+
+What this demo does:
+- Runs full MHD Rusanov updates with FP16 storage (like Day 14.5).
+- Uses inline PTX `rcp.approx.f32` for the approximate run in flux/pressure/speed paths.
+- Solves Poisson for phi each step and dumps rho/phi frames for exact + approx.
+- Outputs two frame folders: `frames_exact/` and `frames_approx/`.
+
+Build:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc_rcp.cu -lcufft -o mhd_fp16_tc_rcp
+```
+
+Run (NX NY STEPS dt_scale phi_scale wmma_mix dump_every):
+```bash
+./mhd_fp16_tc_rcp 192 192 120 1.0 0.08 0.05 1
+```
+
+Verify `rcp.approx.f32` in PTX:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 -ptx mhd_fp16_tc_rcp.cu -o mhd_fp16_tc_rcp.ptx
+grep -n "rcp.approx.f32" mhd_fp16_tc_rcp.ptx
+```
+
+Compare exact vs rcp.approx (3D combined view):
+```bash
+python animate_mhd_rcp_compare.py --mode compare \
+  --exact-rho "frames_exact/rho_*.bin" --exact-phi "frames_exact/phi_*.bin" \
+  --approx-rho "frames_approx/rho_*.bin" --approx-phi "frames_approx/phi_*.bin" \
+  --shape 192 192 --out mhd_rcp_compare.mp4 --fps 12 --dt 1.0 --stride 2
+```
+
+Optional: visualize rho difference heatmap:
+```bash
+python animate_mhd_rcp_compare.py --mode delta --shape 192 192 --out mhd_rcp_delta.mp4
+```
+
+Execution:
+
+```bash
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc_rcp.cu -lcufft -o mhd_fp16_tc_rcp
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z21step_mhd_rusanov_halfILb1EEvPK6__halfPS0_iifff' for 'sm_89'
+ptxas info    : Function properties for _Z21step_mhd_rusanov_halfILb1EEvPK6__halfPS0_iifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 63 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 47.974 ms
+ptxas info    : Compiling entry function '_Z20kernel_maxspeed_halfILb1EEvPK6__halfii' for 'sm_89'
+ptxas info    : Function properties for _Z20kernel_maxspeed_halfILb1EEvPK6__halfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 17 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 2.271 ms
+ptxas info    : Compiling entry function '_Z21step_mhd_rusanov_halfILb0EEvPK6__halfPS0_iifff' for 'sm_89'
+ptxas info    : Function properties for _Z21step_mhd_rusanov_halfILb0EEvPK6__halfPS0_iifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 65 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 16.345 ms
+ptxas info    : Compiling entry function '_Z20kernel_maxspeed_halfILb0EEvPK6__halfii' for 'sm_89'
+ptxas info    : Function properties for _Z20kernel_maxspeed_halfILb0EEvPK6__halfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 18 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 3.292 ms
+ptxas info    : Compiling entry function '_Z13wmma_blur_rhoP6__halfPKS_iif' for 'sm_89'
+ptxas info    : Function properties for _Z13wmma_blur_rhoP6__halfPKS_iif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, used 1 barriers, 1024 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 1.795 ms
+ptxas info    : Compiling entry function '_Z10reduce_sumPKfPdi' for 'sm_89'
+ptxas info    : Function properties for _Z10reduce_sumPKfPdi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 1 barriers, 2048 bytes smem, 372 bytes cmem[0]
+ptxas info    : Compile time = 1.071 ms
+ptxas info    : Compiling entry function '_Z19apply_grad_phi_halfP6__halfPKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z19apply_grad_phi_halfP6__halfPKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 4.894 ms
+ptxas info    : Compiling entry function '_Z25extract_rho_half_to_floatPK6__halfPfi' for 'sm_89'
+ptxas info    : Function properties for _Z25extract_rho_half_to_floatPK6__halfPfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.563 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.293 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.960 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 17 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 2.933 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.507 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.852 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 4.888 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.484 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 16 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 3.106 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.755 ms
+
+>> ./mhd_fp16_tc_rcp 192 192 120 1.0 0.08 0.05 1
+
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 -ptx mhd_fp16_tc_rcp.cu -o mhd_fp16_tc_rcp.ptx
+
+>> grep -n "rcp.approx.f32" mhd_fp16_tc_rcp.ptx
+2194:   rcp.approx.f32 %f7, %f12;
+2204:   rcp.approx.f32 %f9, %f12;
+2230:   rcp.approx.f32 %f11, %f12;
+2660:   rcp.approx.f32 %f34, %f51;
+2670:   rcp.approx.f32 %f36, %f51;
+2720:   rcp.approx.f32 %f38, %f111;
+2730:   rcp.approx.f32 %f40, %f111;
+2777:   rcp.approx.f32 %f42, %f51;
+2783:   rcp.approx.f32 %f44, %f111;
+2790:   rcp.approx.f32 %f46, %f51;
+2811:   rcp.approx.f32 %f48, %f111;
+2832:   rcp.approx.f32 %f50, %f51;
+2847:   rcp.approx.f32 %f52, %f111;
+2903:   rcp.approx.f32 %f54, %f111;
+2913:   rcp.approx.f32 %f56, %f111;
+2957:   rcp.approx.f32 %f58, %f73;
+2967:   rcp.approx.f32 %f60, %f73;
+3013:   rcp.approx.f32 %f62, %f111;
+3019:   rcp.approx.f32 %f64, %f73;
+3026:   rcp.approx.f32 %f66, %f111;
+3047:   rcp.approx.f32 %f68, %f73;
+3068:   rcp.approx.f32 %f70, %f111;
+3082:   rcp.approx.f32 %f72, %f73;
+3140:   rcp.approx.f32 %f74, %f91;
+3150:   rcp.approx.f32 %f76, %f91;
+3197:   rcp.approx.f32 %f78, %f111;
+3207:   rcp.approx.f32 %f80, %f111;
+3247:   rcp.approx.f32 %f82, %f91;
+3253:   rcp.approx.f32 %f84, %f111;
+3260:   rcp.approx.f32 %f86, %f91;
+3281:   rcp.approx.f32 %f88, %f111;
+3302:   rcp.approx.f32 %f90, %f91;
+3316:   rcp.approx.f32 %f92, %f111;
+3371:   rcp.approx.f32 %f94, %f111;
+3381:   rcp.approx.f32 %f96, %f111;
+3425:   rcp.approx.f32 %f98, %f113;
+3435:   rcp.approx.f32 %f100, %f113;
+3481:   rcp.approx.f32 %f102, %f111;
+3487:   rcp.approx.f32 %f104, %f113;
+3494:   rcp.approx.f32 %f106, %f111;
+3515:   rcp.approx.f32 %f108, %f113;
+3536:   rcp.approx.f32 %f110, %f111;
+3550:   rcp.approx.f32 %f112, %f113;
+
+>> python animate_mhd_rcp_compare.py --mode compare \
+  --exact-rho "frames_exact/rho_*.bin" --exact-phi "frames_exact/phi_*.bin" \
+  --approx-rho "frames_approx/rho_*.bin" --approx-phi "frames_approx/phi_*.bin" \
+  --shape 192 192 --out mhd_rcp_compare.mp4 --fps 12 --dt 1.0 --stride 2
+Saved animation to mhd_rcp_compare.mp4 using 120 frames.
+
+>> python animate_mhd_rcp_compare.py --mode delta --shape 192 192 --out mhd_rcp_delta.mp4
+Saved animation to mhd_rcp_delta.mp4 using 120 frames.
+```
+
+**Notes:**
+- NX and NY must be multiples of 16 for WMMA tiles.
+- Each saved frame corresponds to one step (step size = 1 by default).
+- The approximate reciprocal affects flux/pressure/speed calculations, so dynamics may drift.
+
 
 
 -- Created a Poetry environment for my HPC experiments
@@ -1340,6 +1888,125 @@ nvcc -lcublas -lcurand -o cublas_curand_example cublas_curand_example.cu
 
 Day 16:
 Put the full time-step in a CUDA Graph; run 1000 iterations in one graph launch
+- Capture the full time-step in a CUDA Graph and run 1000 iterations in one graph launch.
+- Dump rho/phi frames and animate with the combined 3D view as Day 15.
+
+What this does:
+- FP16 storage MHD Rusanov update with Poisson coupling (cuFFT) and optional WMMA smoothing.
+- Uses CUDA Graph capture to unroll `STEPS` iterations into one graph.
+- Stores frames on-device during the graph, then copies out after launch.
+
+Build:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc_graph.cu -lcufft -o mhd_fp16_tc_graph
+```
+
+Run (NX NY STEPS dt_scale phi_scale wmma_mix dump_every):
+```bash
+./mhd_fp16_tc_graph 128 128 1000 1.0 0.08 0.05 1
+```
+
+Animate combined 3D (rho surface colored by phi):
+```bash
+python animate_mhd_advanced.py --mode combined \
+  --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" --shape 128 128 \
+  --out mhd_graph_combined_3d.mp4 --fps 12 --dt 1.0 --stride 2 \
+  --title "CUDA Graph MHD (rho colored by phi)"
+```
+
+Notes:
+- NX and NY must be multiples of 16 for WMMA tiles.
+- `dump_every=1` stores every step; reduce if memory is tight.
+- Frames are written after the graph completes (device -> host).
+
+Execution:
+```bash
+>> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -std=c++17 mhd_fp16_tc_graph.cu -lcufft -o mhd_fp16_tc_graph
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 1.767 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.608 ms
+ptxas info    : Compiling entry function '_Z20subtract_mean_devicePfiPKf' for 'sm_89'
+ptxas info    : Function properties for _Z20subtract_mean_devicePfiPKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.509 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 16 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 3.473 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.830 ms
+ptxas info    : Compiling entry function '_Z11store_framePKfS0_PfS1_ii' for 'sm_89'
+ptxas info    : Function properties for _Z11store_framePKfS0_PfS1_ii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 0.607 ms
+ptxas info    : Compiling entry function '_Z13wmma_blur_rhoP6__halfPKS_iif' for 'sm_89'
+ptxas info    : Function properties for _Z13wmma_blur_rhoP6__halfPKS_iif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, used 1 barriers, 1024 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 1.846 ms
+ptxas info    : Compiling entry function '_Z19compute_mean_kernelPKdPfi' for 'sm_89'
+ptxas info    : Function properties for _Z19compute_mean_kernelPKdPfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 23 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 2.798 ms
+ptxas info    : Compiling entry function '_Z10reduce_sumPKfPdi' for 'sm_89'
+ptxas info    : Function properties for _Z10reduce_sumPKfPdi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 1 barriers, 2048 bytes smem, 372 bytes cmem[0]
+ptxas info    : Compile time = 1.721 ms
+ptxas info    : Compiling entry function '_Z25apply_grad_phi_half_graphP6__halfPKfS2_iifff' for 'sm_89'
+ptxas info    : Function properties for _Z25apply_grad_phi_half_graphP6__halfPKfS2_iifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 19 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 5.665 ms
+ptxas info    : Compiling entry function '_Z25extract_rho_half_to_floatPK6__halfPfi' for 'sm_89'
+ptxas info    : Function properties for _Z25extract_rho_half_to_floatPK6__halfPfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.523 ms
+ptxas info    : Compiling entry function '_Z17compute_dt_kernelPffff' for 'sm_89'
+ptxas info    : Function properties for _Z17compute_dt_kernelPffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 2.816 ms
+ptxas info    : Compiling entry function '_Z20kernel_maxspeed_halfPK6__halfii' for 'sm_89'
+ptxas info    : Function properties for _Z20kernel_maxspeed_halfPK6__halfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 21 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 5.455 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.384 ms
+ptxas info    : Compiling entry function '_Z27step_mhd_rusanov_half_graphPK6__halfPS_PKfiiff' for 'sm_89'
+ptxas info    : Function properties for _Z27step_mhd_rusanov_half_graphPK6__halfPS_PKfiiff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 0 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 21.057 ms
+
+>> ./mhd_fp16_tc_graph 128 128 1000 1.0 0.08 0.05 1
+>> python animate_mhd_advanced.py --mode combined \
+  --rho "frames/rho_*.bin" --phi "frames/phi_*.bin" --shape 128 128 \
+  --out mhd_graph_combined_3d.mp4 --fps 12 --dt 1.0 --stride 2 \
+  --title "CUDA Graph MHD (rho colored by phi)"
+
+
+```
 
 Day 17:
 Add dynamic parallelism: launch a sub-grid refinement kernel from within the solver 
