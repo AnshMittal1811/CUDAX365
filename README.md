@@ -2008,26 +2008,394 @@ ptxas info    : Compile time = 21.057 ms
 
 ```
 
-Day 17:
-Add dynamic parallelism: launch a sub-grid refinement kernel from within the solver 
+Day 17: Add dynamic parallelism: launch a sub-grid refinement kernel from within the solver
+- Launch a refine kernel from inside the solver when rho gradients exceed a threshold.
+- Dump rho/phi/bx/by frames for base vs refined and compare with magnetic field annotations.
 
-Day 18:
-Use Nsight Compute to check occupancy & warp usage; tune block size for best occupancy 
+Build (run from 017_dynpar_mhd):
+```bash
+nvcc -O3 -arch=sm_89 -rdc=true -lineinfo -Xptxas -v 017_dynpar_mhd.cu -lcudadevrt -lcufft -o mhd_dynpar
+```
 
-Day 19:
-Install PyTorch 2.2 and test torch.compile on a model; dump generated PTX
+Run (NX NY STEPS refine_thresh dump_every):
+```bash
+./mhd_dynpar 128 128 120 0.15 1
+```
 
-Day 20:
-Try TorchRL on CartPole environment; examine an example Triton kernel PTX 
+Animate comparison:
+```bash
+python animate_dynpar_compare.py --base frames_base --refine frames_refine \
+  --shape 128 128 --out dynpar_compare.mp4 --fps 12 --stride 6
+```
 
-Day 21:
-Use `nvdisasm` on a Triton kernel SASS; annotate key operations
+Earth-style 3D compare (dynpar vs 014_5):
+- Requires baseline frames in `../014_5_advanced_mhd_fp16_tensorcore/frames`.
+- Overlays rotating dipole field lines around an Earth sphere while rho/phi share the same plane.
+- If frame counts differ, the script uses the minimum length.
 
-Day 22:
-Prototype a Q-learning agent to tune the CFL number in the MHD solver 
+```bash
+python animate_dynpar_earth_compare.py \
+  --dynpar-rho "frames_refine/rho_*.bin" --dynpar-phi "frames_refine/phi_*.bin" \
+  --dynpar-bx "frames_refine/bx_*.bin" --dynpar-by "frames_refine/by_*.bin" \
+  --baseline-rho "../014_5_advanced_mhd_fp16_tensorcore/frames/rho_*.bin" \
+  --baseline-phi "../014_5_advanced_mhd_fp16_tensorcore/frames/phi_*.bin" \
+  --dynpar-shape 128 128 --baseline-shape 192 192 \
+  --out dynpar_earth_compare_3d.mp4 --fps 12 --dt 1.0 --stride 2 \
+  --tilt-deg 20 --spin-deg 2.5 --line-shells 5 --line-phis 8 --line-scale 0.42
+```
 
-Day 23:
-Inline PTX atomic add (`atom.add.u64`) for a custom reward counter
+Execution:
+```bash
+>> nvcc -O3 -arch=sm_89 -rdc=true -lineinfo -Xptxas -v 017_dynpar_mhd.cu -lcudadevrt -lcufft -o mhd_dynpar
+nvcc -O3 -arch=sm_89 -rdc=true -lineinfo -Xptxas -v 017_dynpar_mhd.cu -lcudadevrt -lcufft -o mhd_dynpar
+ptxas info    : 4 bytes gmem
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 3.934 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.445 ms
+ptxas info    : Compiling entry function '_Z23step_mhd_rusanov_dynparPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z23step_mhd_rusanov_dynparPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 91 registers, used 1 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 21.015 ms
+ptxas info    : Compiling entry function '_Z12refine_patchPKfPfiifffiiii' for 'sm_89'
+ptxas info    : Function properties for _Z12refine_patchPKfPfiifffiiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 0 barriers, 404 bytes cmem[0]
+ptxas info    : Compile time = 16.140 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.683 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.653 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.683 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.592 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 3.157 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.468 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 1.135 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.740 ms
+
+>> ./mhd_dynpar 128 128 120 0.15 1
+>> python animate_dynpar_compare.py --base frames_base --refine frames_refine \
+  --shape 128 128 --out dynpar_compare.mp4 --fps 12 --stride 6
+/mnt/c/Users/anshm/250DaysStraight/017_dynpar_mhd/animate_dynpar_compare.py:77: MatplotlibDeprecationWarning: The collections attribute was deprecated in Matplotlib 3.8 and will be removed in 3.10.
+  for col in c1.collections:
+/mnt/c/Users/anshm/250DaysStraight/017_dynpar_mhd/animate_dynpar_compare.py:79: MatplotlibDeprecationWarning: The collections attribute was deprecated in Matplotlib 3.8 and will be removed in 3.10.
+  for col in c2.collections:
+
+>> python animate_dynpar_earth_compare.py \
+  --dynpar-rho "frames_refine/rho_*.bin" --dynpar-phi "frames_refine/phi_*.bin" \
+  --dynpar-bx "frames_refine/bx_*.bin" --dynpar-by "frames_refine/by_*.bin" \
+  --baseline-rho "../014_5_advanced_mhd_fp16_tensorcore/frames/rho_*.bin" \
+  --baseline-phi "../014_5_advanced_mhd_fp16_tensorcore/frames/phi_*.bin" \
+  --dynpar-shape 128 128 --baseline-shape 192 192 \
+  --out dynpar_earth_compare_3d.mp4 --fps 12 --dt 1.0 --stride 2 \
+  --tilt-deg 20 --spin-deg 2.5 --line-shells 5 --line-phis 8 --line-scale 0.42
+Saved animation to dynpar_earth_compare_3d.mp4 using 120 frames.
+```
+
+Notes:
+- Set refine_thresh < 0 to disable the dynamic kernel launch.
+
+
+Day 18: Use Nsight Compute to check occupancy & warp usage; tune block size for best occupancy
+Run Nsight Compute across multiple block sizes (run from 018_ncu_occupancy):
+```bash
+chmod +x run_ncu.sh
+./run_ncu.sh 128 128 50 0.15
+```
+
+```bash
+ ./run_ncu.sh 128 128 50 0.15 > compilation_ncu.txt
+ptxas info    : 4 bytes gmem
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 2.477 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.282 ms
+ptxas info    : Compiling entry function '_Z23step_mhd_rusanov_dynparPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z23step_mhd_rusanov_dynparPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 91 registers, used 1 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 20.202 ms
+ptxas info    : Compiling entry function '_Z12refine_patchPKfPfiifffiiii' for 'sm_89'
+ptxas info    : Function properties for _Z12refine_patchPKfPfiifffiiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 0 barriers, 404 bytes cmem[0]
+ptxas info    : Compile time = 17.971 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.545 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.328 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.566 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.583 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 3.259 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.503 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 1.455 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.767 ms
+ptxas info    : 4 bytes gmem
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 3.351 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.459 ms
+ptxas info    : Compiling entry function '_Z23step_mhd_rusanov_dynparPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z23step_mhd_rusanov_dynparPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 91 registers, used 1 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 20.543 ms
+ptxas info    : Compiling entry function '_Z12refine_patchPKfPfiifffiiii' for 'sm_89'
+ptxas info    : Function properties for _Z12refine_patchPKfPfiifffiiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 0 barriers, 404 bytes cmem[0]
+ptxas info    : Compile time = 18.169 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.699 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.357 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.640 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.508 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 3.464 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.492 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 1.340 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 1.189 ms
+ptxas info    : 4 bytes gmem
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 2.751 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.334 ms
+ptxas info    : Compiling entry function '_Z23step_mhd_rusanov_dynparPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z23step_mhd_rusanov_dynparPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 91 registers, used 1 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 19.569 ms
+ptxas info    : Compiling entry function '_Z12refine_patchPKfPfiifffiiii' for 'sm_89'
+ptxas info    : Function properties for _Z12refine_patchPKfPfiifffiiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 0 barriers, 404 bytes cmem[0]
+ptxas info    : Compile time = 16.558 ms
+ptxas info    : Compiling entry function '_Z19spectrum_power_binsPK6float2iiPfPji' for 'sm_89'
+ptxas info    : Function properties for _Z19spectrum_power_binsPK6float2iiPfPji
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.635 ms
+ptxas info    : Compiling entry function '_Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i' for 'sm_89'
+ptxas info    : Function properties for _Z22spectrum_make_ke_fieldP6float2PKfS2_S2_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 1.442 ms
+ptxas info    : Compiling entry function '_Z15complex_to_realPfPK6float2if' for 'sm_89'
+ptxas info    : Function properties for _Z15complex_to_realPfPK6float2if
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 0.655 ms
+ptxas info    : Compiling entry function '_Z15real_to_complexP6float2PKfi' for 'sm_89'
+ptxas info    : Function properties for _Z15real_to_complexP6float2PKfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 10 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 0.548 ms
+ptxas info    : Compiling entry function '_Z14apply_grad_phiPfS_PKfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14apply_grad_phiPfS_PKfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 396 bytes cmem[0]
+ptxas info    : Compile time = 3.476 ms
+ptxas info    : Compiling entry function '_Z13subtract_meanPfif' for 'sm_89'
+ptxas info    : Function properties for _Z13subtract_meanPfif
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 0.528 ms
+ptxas info    : Compiling entry function '_Z21apply_poisson_scalingP6float2PKfii' for 'sm_89'
+ptxas info    : Function properties for _Z21apply_poisson_scalingP6float2PKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 0 barriers, 376 bytes cmem[0]
+ptxas info    : Compile time = 1.261 ms
+ptxas info    : Compiling entry function '_Z7fill_k2Pfii' for 'sm_89'
+ptxas info    : Function properties for _Z7fill_k2Pfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 14 registers, used 0 barriers, 368 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 0.850 ms
+```
+
+Notes:
+- The script builds three variants of the Day 17 kernel and runs `ncu --set full`.
+- Adjust block sizes by editing `run_ncu.sh`.
+
+Day 19: Install PyTorch 2.2 and test torch.compile on a model; dump generated PTX
+
+Install (CUDA 12.1 wheels are fine on 12.x drivers):
+```bash
+python -m pip install --upgrade pip
+python -m pip install "torch==2.2.*" --index-url https://download.pytorch.org/whl/cu121
+```
+
+Run and locate PTX:
+```bash
+python torch_compile_ptx.py
+find torchinductor_cache -name "*.ptx" | head -n 5
+```
+
+Notes:
+- PTX files land in `torchinductor_cache/` because TORCHINDUCTOR_CACHE_DIR is set in the script.
+
+Day 20: Try TorchRL on CartPole environment; examine an example Triton kernel PTX
+
+Install:
+```bash
+python -m pip install torchrl gymnasium
+```
+
+Run and locate PTX:
+```bash
+python torchrl_cartpole_ptx.py
+find torchinductor_cache -name "*.ptx" | head -n 5
+```
+
+Day 21: Use nvdisasm on a Triton kernel SASS; annotate key operations
+Dump SASS and annotate (run from 021_nvdisasm_triton):
+```bash
+chmod +x dump_sass.sh
+./dump_sass.sh /path/to/kernel.cubin
+```
+
+Notes:
+- Find cubins from Day 19/20 with `find ../019_torch_compile_ptx/torchinductor_cache -name "*.cubin"`.
+- `annotate_sass.py` tags memory/math/control ops inline.
+
+
+Day 22: Prototype a Q-learning agent to tune the CFL number in the MHD solver
+Build and run:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd_qlearn_cfl.cu -lcufft -o mhd_qlearn_cfl
+python qlearn_cfl.py
+```
+
+Notes:
+- The Q-learning loop calls the solver with different CFL values and rewards low energy drift / no NaNs.
+
+Day 23: Inline PTX atomic add (atom.add.u64) for a custom reward counter
+Build and run:
+```bash
+nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd_atomic_reward.cu -lcufft -o mhd_atomic_reward
+./mhd_atomic_reward 128 128 100 --reward-every 10 --rho-min 0.8 --rho-max 1.2 --phi-max 0.2 --b-max 1.5
+```
+
+Verify inline PTX:
+```bash
+nvcc -O3 -arch=sm_89 -ptx mhd_atomic_reward.cu -o mhd_atomic_reward.ptx
+grep -n "atom.global.add.u64" mhd_atomic_reward.ptx
+```
+
 
 Day 24:
 Read the NVIDIA Hopper (SM90) whitepaper; compare theoretical scheduling model
