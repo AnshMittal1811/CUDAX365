@@ -8,6 +8,43 @@ Day 1:
 Set up your WSL2 (Ubuntu) environment for CUDA 12.8.
 Verify nvidia-smi and install the latest NVIDIA driver & CUDA toolkit.
 Reference: NVIDIA CUDA Setup Guide
+```bash
+wsl --update
+
+# 2. Open Ubuntu shell, update packages
+sudo apt-get update
+sudo apt-get upgrade -y
+
+# 3. Add CUDA repository (for 12.8 or whatever the newest release branch is)
+#   (See official NVIDIA docs for the exact repo steps if needed)
+# Example for Ubuntu 22.04:
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /"
+sudo apt-get update
+
+# 4. Install CUDA Toolkit (12.8 example)
+sudo apt-get install -y cuda-12-8
+
+# 5. Confirm environment variables in ~/.bashrc or equivalent:
+echo 'export PATH=/usr/local/cuda-12.8/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+
+# 6. Verify CUDA works
+nvidia-smi           # Should show your GPU usage
+nvcc --version       # Should show CUDA 12.x
+
+# Download and run samples
+git clone https://github.com/NVIDIA/cuda-samples.git
+cd cuda-samples
+make -j8
+# Then run, e.g.:
+./bin/x86_64/linux/release/deviceQuery
+./bin/x86_64/linux/release/bandwidthTest
+
+```
 
 Day 2:
 Explore simple CUDA samples (deviceQuery, bandwidthTest) and run them.
