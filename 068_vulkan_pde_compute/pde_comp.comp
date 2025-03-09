@@ -1,0 +1,14 @@
+#version 450
+layout(local_size_x = 16, local_size_y = 16) in;
+layout(set = 0, binding = 0) buffer InBuf { float u[]; } inbuf;
+layout(set = 0, binding = 1) buffer OutBuf { float out[]; } outbuf;
+layout(push_constant) uniform Push { int width; int height; } pc;
+
+void main(){
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    if (x >= uint(pc.width) || y >= uint(pc.height)) return;
+    uint idx = y * uint(pc.width) + x;
+    float u0 = inbuf.u[idx];
+    outbuf.out[idx] = u0 * 0.99;
+}
