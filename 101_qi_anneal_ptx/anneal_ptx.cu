@@ -23,6 +23,7 @@ __device__ __forceinline__ float cost_fn(float x){
     return d * d + 0.05f * sinf(10.0f * x);
 }
 
+
 __global__ void anneal_kernel(float* candidates, float* costs, int steps, float t0){
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned state = 1234u + i * 1663u;
