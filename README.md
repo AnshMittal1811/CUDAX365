@@ -2400,246 +2400,556 @@ grep -n "atom.global.add.u64" mhd_atomic_reward.ptx
 Day 24:
 Read the NVIDIA Hopper (SM90) whitepaper; compare theoretical scheduling model
 
-Day 25:
-Try a baseline HPC pipeline for QCD data using sparse matrices on GPU.
-Try CuSPARSE and CuSOLVER
-Compile for sm_90 and use cuobjdump to compare SASS vs. sm_86
-Investigate quantization in neural networks: post-training quantization basics (INT8, etc.).
-Reference: TensorRT 8.6 or 9.0 (Preview) INT8 Docs
-Return to NeRF concepts: Explore how to incorporate fluid fields (like MHD data) into a NeRF pipeline (semi-experimental).
-Reference: [Neural Volumes / Hybrid NeRF papers on ArXiv]
-Experiment with quantization aware training in PyTorch on a smaller CNN or MLP.
-Reference: PyTorch Quantization Docs
-Explore how to do partial quantization on a small NeRF or MLP model (just a test).
-Reference: [TinyNeRF + PyTorch Quantization blog posts / repos]
-
-Day 26:
-Install cuTensor; test a small tensor contraction vs. WMMA kernel 
-
-Day 27:
-Move RL convolution to use cuTensorNet library; run a small batch through it 
-
-Day 28:
-Use Nsight to check L2 cache residency for conv vs. PDE kernel
-
-Day 29:
-Download Cityscapes (512× samples); set up a PyTorch dataloader
-
-Day 30:
-Train SegFormer-B0 for one epoch (fits in ~8 GB VRAM) on Cityscapes
-
-Day 31:
-Export one SegFormer conv layer to PTX (via `torch.compile(full_graph)`); inspect 
-
-Day 32:
-Inline PTX to fuse bias + activation in a Triton conv kernel; rebuild and test
-
-Day 33:
-Use CUTLASS to implement a 3×3 depthwise conv; inspect the SASS 
-
-Day 34:
-Try TensorRT 8.6 INT8/FP8 sparse inference on a model; export and inspect PTX 
-
-Day 35:
-Write a connected-component labeling kernel in PTX for mask cleanup
-
-Day 36:
-Integrate the segmentation into CARLA simulation (RL env); test end-to-end
-
-Day 37:
-Clone instant-ngp (NeRF); render a small synthetic MHD volume dataset
-
-Day 38:
-Inspect a fused NeRF CUDA kernel’s SASS; enable FP16 half mode and re-run
-
-Day 39:
-Apply INT4 post-training quantization to instant-ngp; compare FPS
-
-Day 40:
-Overlay segmentation masks on NeRF frames using OpenGL (CUDA-OpenGL interop PBO)
-
-Day 41:
-Fine-tune a 4-bit QLoRA TinyLlama on MHD simulation logs (e.g., causal LM on text)
-
-Day 42:
-Try FlashAttention-2 on an LLM; ensure ldmatrix PTX instructions appear
-
-Day 43:
-Implement a LangChain retrieval QA with MHD documentation (RAG pipeline)
-
-Day 44:
-Use warp-level reduce (inline PTX shuffle) inside LoRA gradient update step 
-
-Day 45:
-Profile with Nsight Systems timeline to see I/O vs. compute overlap 
-
-Day 46:
-Fuse LoRA forward + backward into a single CUDA Graph; replay 100 iterations 
-
-Day 47:
-Export the LoRA-augmented model to TensorRT-LLM; benchmark ~128 tokens/s
-
-Day 48:
-Inspect TensorRT engine PTX for HMMA and DP4A ops after optimization
-
-Day 49:
-Fine-tune TabLLM (tabular LLM) 4-bit on magnetics sensor data tables
-
-Day 50:
-Investigate NVGRAPH for GPU-based graph analytics; try a small GNN or GCN approach.
-Measure perplexity of TabLLM vs. baseline Llama on a test set
-
-Day 51:
-Implement a Fourier Neural Operator (FNO) for PDE using cuFFT for convolution 
-
-Day 52:
-Write a custom Chebyshev dense matrix-vector multiply PTX kernel (for solver) 
-
-Day 53:
-Integrate the FNO as a surrogate predictor in the MHD time-step loop 
-
-Day 54:
-Use Nsight to trace global memory accesses in the FNO predictor 
-
-Day 55:
-Apply QAT (quantization-aware training) INT8 to the FNO model; check accuracy drop 
-
-Day 56:
-Install cuQuantum SDK; run a state-vector simulation example (4-qubit SVD) 
-
-Day 57:
-Use PennyLane to run a VQE (4-qubit) on GPU (Lightning-Qubit)
-
-Day 58:
-Inspect PennyLane’s GPU simulator PTX kernels for VQE
-
-Day 59:
-Use the VQE energy output as a coefficient in the PDE (hybrid quantum-classical step)
-
-Day 60:
-Generate an end-to-end GFLOP/s performance report across modules 
-
-Day 61:
-Construct a mesh graph of the MHD domain; train a PyG (2.5) GATv2 on it
-
-Day 62:
-Write a scatter-add kernel with warp shfl.sync (inline PTX) for neighbor sums
-
-Day 63:
-Train the GATv2 for 10 epochs on the mesh data
-
-Day 64:
-Experiment with TensorRT conversion of the GNN (if supported); handle custom layers 
-
-Day 65:
-Insert the GNN output as a correction term into the PDE loop; evaluate improvement
-
-Day 66:
-Use CUDA-OpenGL Pixel Buffer (PBO) to render an iso-surface of the volume in real-time
-
-Day 67:
-Write a PTX kernel to copy volume data into an OpenGL PBO; measure bandwidth 
-
-Day 68:
-Port a compute shader version of the PDE update to Vulkan (using Vulkan compute) 
-
-Day 69:
-Compare SPIR-V (Vulkan) vs. PTX performance for the compute shader
-
-Day 70:
-Use EGL for headless offscreen rendering of NeRF output; benchmark FPS 
-
-Day 71:
-Test Hopper FP8 Tensor Core instructions: inline PTX dp8a dot product on dummy data
-
-Day 72:
-Convert the SegFormer model to FP8 using cuBLASLt (FP8 GEMM); evaluate IOU drop
-
-Day 73:
-Profile FP8 kernel metrics (Nsight) and occupancy on Hopper if available 
-
-Day 74:
-Try DeepSpeed ZeRO-2 on the TinyLlama training (16 GB VRAM); observe memory saving
-
-Day 75:
-Compare iteration time vs. the earlier QLoRA baseline training
-
-Day 76:
-Use CURAND Sobol sequence in device code (PTX) to initialize turbulence field 
-
-Day 77:
-Embed the Sobol-generated noise field into the solver for randomness (turbulence) 
-
-Day 78:
-Use Vulkan Ray Tracing (VK_KHR_ray_tracing) to preview volume rendering with rays
-
-Day 79:
-Try DirectX 12 DXR for NeRF path tracing; measure latency vs. Vulkan
-
-Day 80:
-Enable CUDA Multi-Process Service (MPS); run NeRF and RL concurrently in separate processes
-
-Day 81:
-Train a D-NeRF (dynamic NeRF) on a moving scene dataset
-
-Day 82:
-Apply INT4 post-training quantization to D-NeRF; check PSNR drop
-
-Day 83:
-Have the RL agent optimize the NeRF camera path for better exploration 
-
-Day 84:
-Simulate multi-GPU with NCCL in loopback (single GPU pretending to be two) for testing
-
-Day 85:
-Use cuobjdump to inspect NCCL kernels; note HMMA usage for all-reduce
-
-Day 86:
-Use NVC++ to compile an OpenACC version of the flux kernel; generate PTX 
-
-Day 87:
-Compare runtime of the OpenACC kernel vs. the original CUDA kernel
-
-Day 88:
-Use cooperative groups ( `cooperative_groups` library) to synchronize threads vs. `1__syncthreads`
-
-Day 89:
-Inline `bar.sync` 0 PTX to manually manage warp synchronization in a regrouping kernel
-
-Day 90:
-Use `__launch_bounds__` to experiment with limiting registers for higher occupancy 
-
-Day 91:
-Set up TensorRT-LLM with multi-context (server mode); aim for ~512 QPS with a 7B model 
-
-Day 92:
-Implement a Reinforcement Learning with Human Feedback (RLHF) loop for TinyLlama; compile the reward model to PTX
-
-Day 93:
-Collect GPU power metrics with `nvidia-smi -q -d POWER` during a long run
-
-Day 94:
-Implement a wavelet transform on GPU (inline PTX) and embed it in the solver (for compression) 
-
-Day 95:
-Use a CUDA Graph to fuse the PDE update and wavelet transform; profile timeline
-
-Day 96:
-Set up a Docker container with the whole stack (CUDA, PyTorch, Triton, etc.) using nvidia-docker 
-
-Day 97:
-Run a 6-hour stress test of the integrated pipeline; capture Nsight Systems timeline
-
-Day 98:
-Try the new cuTensorNet v2 convolution fusion on a sample model; compare speed 
-
-Day 99:
-Compare fused vs. unfused kernel PTX instruction counts (Nsight diff mode)
-
-Day 100:
-Write an auto-tuner script to sweep block and register settings for a kernel; find optimal
-
-
+Day 25: Compile for sm_90 and use cuobjdump to compare SASS vs. sm_86
+Folder: 025_sm90_cuobjdump
+Run (from the folder):
+```bash
+./compare_sass.sh
+```
+
+Day 26: Install cuTensor; test a small tensor contraction vs. WMMA kernel
+Folder: 026_cutensor_wmma
+Run (from the folder):
+```bash
+./run_cutensor_wmma.sh
+```
+
+Day 27: Use cuTensorNet for a small RL convolution batch
+Folder: 027_cutensornet_conv_rl
+Run (from the folder):
+```bash
+./run_cutensornet_conv.sh
+```
+
+Day 28: Nsight Compute L2 residency for conv vs PDE kernel
+Folder: 028_ncu_l2_residency
+Run (from the folder):
+```bash
+./profile_l2.sh
+```
+
+Day 29: Download Cityscapes (512x) and set up PyTorch dataloader
+Folder: 029_cityscapes_dataloader
+Run (from the folder):
+```bash
+./cityscapes_setup.sh
+python cityscapes_dataloader.py --split train
+```
+Notes: Set CITYSCAPES_ROOT or pass --root.
+
+Day 30: Train SegFormer-B0 for one epoch on Cityscapes
+Folder: 030_segformer_train
+Run (from the folder):
+```bash
+./run_train.sh
+```
+
+Day 31: Export one SegFormer conv layer to PTX via torch.compile
+Folder: 031_segformer_ptx
+Run (from the folder):
+```bash
+python segformer_conv_ptx.py
+./find_ptx.sh
+```
+
+Day 32: Inline PTX to fuse bias + activation in a Triton kernel
+Folder: 032_triton_bias_act_ptx
+Run (from the folder):
+```bash
+./run_triton_conv.sh
+```
+
+Day 33: CUTLASS 3x3 depthwise conv; inspect SASS
+Folder: 033_cutlass_depthwise
+Run (from the folder):
+```bash
+./build_cutlass_depthwise.sh
+```
+Notes: Set CUTLASS_PATH to a CUTLASS clone if needed.
+
+Day 34: TensorRT 8.6 INT8/FP8 inference; export and inspect
+Folder: 034_trt_int8_fp8
+Run (from the folder):
+```bash
+python export_onnx.py
+python trt_int8_fp8.py
+./inspect_trt_ptx.sh
+```
+
+Day 35: Connected-component labeling kernel in PTX
+Folder: 035_ptx_cc_label
+Run (from the folder):
+```bash
+./run_cc_label.sh
+```
+
+Day 36: Integrate segmentation into CARLA simulation
+Folder: 036_carla_segmentation
+Run (from the folder):
+```bash
+./run_carla.sh
+```
+Notes: Requires CARLA server running on localhost:2000.
+
+Day 37: Clone instant-ngp; render a synthetic MHD volume
+Folder: 037_instant_ngp_mhd
+Run (from the folder):
+```bash
+./run_instant_ngp.sh
+```
+
+Day 38: Inspect fused NeRF SASS; enable FP16 and re-run
+Folder: 038_nerf_sass_fp16
+Run (from the folder):
+```bash
+./build_fp16.sh
+./inspect_nerf_sass.sh
+```
+Notes: Adjust CMake flags if your instant-ngp version differs.
+
+Day 39: Apply INT4 post-training quantization to instant-ngp (proxy)
+Folder: 039_instant_ngp_int4
+Run (from the folder):
+```bash
+./run_quant_ngp.sh
+```
+
+Day 40: Overlay segmentation masks via CUDA-OpenGL PBO
+Folder: 040_cuda_gl_pbo_masks
+Run (from the folder):
+```bash
+./build_pbo.sh
+```
+Notes: Requires GLFW/GLEW/GL dev packages.
+
+Day 41: Fine-tune 4-bit QLoRA TinyLlama on MHD logs
+Folder: 041_qlora_tinyllama
+Run (from the folder):
+```bash
+./run_qlora.sh
+```
+
+Day 42: FlashAttention-2; verify ldmatrix PTX
+Folder: 042_flashattn2_ldmatrix
+Run (from the folder):
+```bash
+python flashattn2_ldmatrix.py
+./inspect_flashattn_ptx.sh
+```
+
+Day 43: LangChain RAG on MHD docs
+Folder: 043_langchain_rag_mhd
+Run (from the folder):
+```bash
+./run_rag.sh
+```
+
+Day 44: Warp-level reduce (inline PTX shuffle) for LoRA
+Folder: 044_lora_shuffle_reduce
+Run (from the folder):
+```bash
+./run_lora_shuffle.sh
+```
+
+Day 45: Nsight Systems timeline for I/O vs compute overlap
+Folder: 045_nsys_io_overlap
+Run (from the folder):
+```bash
+./profile_nsys.sh
+```
+
+Day 46: Fuse LoRA forward+backward into CUDA Graph
+Folder: 046_lora_cuda_graph
+Run (from the folder):
+```bash
+./run_graph.sh
+```
+
+Day 47: Export LoRA model to TensorRT-LLM; benchmark
+Folder: 047_trtllm_server
+Run (from the folder):
+```bash
+./trtllm_export.sh
+./benchmark_trtllm.sh
+```
+Notes: Set TRTLLM_PATH and MODEL_PATH.
+
+Day 48: Inspect TensorRT engine PTX for HMMA/DP4A
+Folder: 048_trt_engine_ptx
+Run (from the folder):
+```bash
+./inspect_trt_engine.sh /path/to/engine.plan
+```
+
+Day 49: Fine-tune TabLLM (4-bit) on magnetics data
+Folder: 049_tabllm_finetune
+Run (from the folder):
+```bash
+./run_tabllm.sh
+```
+
+Day 50: Measure perplexity vs baseline Llama
+Folder: 050_tabllm_perplexity
+Run (from the folder):
+```bash
+python perplexity_eval.py
+```
+
+Day 51: FNO for PDE using cuFFT
+Folder: 051_fno_cufft
+Run (from the folder):
+```bash
+python fno_pde.py
+```
+
+Day 52: Chebyshev dense mat-vec PTX kernel
+Folder: 052_chebyshev_ptx
+Run (from the folder):
+```bash
+./run_cheb.sh
+```
+
+Day 53: Integrate FNO surrogate into PDE loop
+Folder: 053_fno_mhd_surrogate
+Run (from the folder):
+```bash
+python fno_surrogate_mhd.py
+```
+
+Day 54: Nsight Compute memory tracing for FNO
+Folder: 054_ncu_fno_mem
+Run (from the folder):
+```bash
+./profile_fno_mem.sh
+```
+
+Day 55: QAT INT8 for FNO; check accuracy drop
+Folder: 055_fno_qat_int8
+Run (from the folder):
+```bash
+python fno_qat_int8.py
+```
+
+Day 56: cuQuantum SDK state-vector SVD (4-qubit)
+Folder: 056_cuquantum_svd
+Run (from the folder):
+```bash
+python cuquantum_svd.py
+```
+
+Day 57: PennyLane VQE on GPU
+Folder: 057_pennylane_vqe
+Run (from the folder):
+```bash
+python pennylane_vqe.py
+```
+
+Day 58: Inspect PennyLane GPU PTX kernels
+Folder: 058_pennylane_ptx
+Run (from the folder):
+```bash
+./inspect_pennylane_ptx.sh
+```
+
+Day 59: Use VQE energy as PDE coefficient
+Folder: 059_vqe_pde_coupling
+Run (from the folder):
+```bash
+python vqe_pde_coupling.py
+```
+
+Day 60: End-to-end GFLOP/s report
+Folder: 060_gflops_report
+Run (from the folder):
+```bash
+./run_gflops.sh
+```
+
+Day 61: Mesh graph of MHD domain; train PyG GATv2
+Folder: 061_pyg_gatv2_mesh
+Run (from the folder):
+```bash
+python mesh_gatv2.py
+```
+
+Day 62: Scatter-add kernel with warp shfl.sync (PTX)
+Folder: 062_ptx_scatter_shuffle
+Run (from the folder):
+```bash
+./run_scatter.sh
+```
+
+Day 63: Train GATv2 for 10 epochs
+Folder: 063_gatv2_train
+Run (from the folder):
+```bash
+python train_gatv2.py
+```
+
+Day 64: TensorRT conversion of GNN (custom layers)
+Folder: 064_trt_gnn_custom
+Run (from the folder):
+```bash
+./run_trtexec.sh
+```
+
+Day 65: Insert GNN output as PDE correction
+Folder: 065_gnn_pde_correction
+Run (from the folder):
+```bash
+python gnn_pde_correction.py
+```
+
+Day 66: CUDA-OpenGL PBO iso-surface render
+Folder: 066_cuda_gl_isosurface
+Run (from the folder):
+```bash
+./build_isosurface.sh
+```
+Notes: Requires GLFW/GLEW/GL dev packages.
+
+Day 67: PTX kernel to copy volume into PBO
+Folder: 067_ptx_pbo_copy
+Run (from the folder):
+```bash
+./run_pbo_copy.sh
+```
+
+Day 68: Vulkan compute shader PDE update
+Folder: 068_vulkan_pde_compute
+Run (from the folder):
+```bash
+./build_spirv.sh
+```
+Notes: Requires glslangValidator.
+
+Day 69: Compare SPIR-V vs PTX performance
+Folder: 069_spirv_ptx_compare
+Run (from the folder):
+```bash
+./compare_spirv_ptx.sh
+```
+
+Day 70: EGL headless offscreen rendering
+Folder: 070_egl_headless_nerf
+Run (from the folder):
+```bash
+./build_egl.sh
+```
+Notes: Requires EGL/GLES dev packages.
+
+Day 71: Hopper FP8 Tensor Core dp8a/dp4a demo
+Folder: 071_hopper_fp8_dp8a
+Run (from the folder):
+```bash
+./run_dp8a.sh
+```
+
+Day 72: SegFormer FP8 GEMM with cuBLASLt
+Folder: 072_segformer_fp8_cublaslt
+Run (from the folder):
+```bash
+./run_fp8_gemm.sh
+```
+
+Day 73: Profile FP8 kernel metrics
+Folder: 073_fp8_ncu_metrics
+Run (from the folder):
+```bash
+./profile_fp8.sh
+```
+
+Day 74: DeepSpeed ZeRO-2 on TinyLlama
+Folder: 074_deepspeed_zero2
+Run (from the folder):
+```bash
+./run_deepspeed.sh
+```
+
+Day 75: Compare iteration time vs QLoRA baseline
+Folder: 075_deepspeed_compare
+Run (from the folder):
+```bash
+python compare_iters.py
+```
+
+Day 76: CURAND Sobol sequence in device code
+Folder: 076_curand_sobol
+Run (from the folder):
+```bash
+./run_sobol.sh
+```
+
+Day 77: Embed Sobol noise into solver
+Folder: 077_sobol_turbulence
+Run (from the folder):
+```bash
+./run_turbulence.sh
+```
+
+Day 78: Vulkan Ray Tracing preview
+Folder: 078_vulkan_raytracing
+Run (from the folder):
+```bash
+./build_vkrt.sh
+```
+Notes: Requires glslangValidator with ray tracing support.
+
+Day 79: DirectX 12 DXR path tracing
+Folder: 079_dx12_dxr_nerf
+Run (from the folder):
+```bash
+./compile_dxr.ps1
+```
+Notes: Run on Windows with dxc.exe available.
+
+Day 80: Enable CUDA MPS; run concurrent workloads
+Folder: 080_cuda_mps
+Run (from the folder):
+```bash
+./run_mps.sh
+```
+
+Day 81: Train D-NeRF on moving scene
+Folder: 081_dnerf_train
+Run (from the folder):
+```bash
+python train_dnerf.py
+```
+
+Day 82: INT4 post-training quantization for D-NeRF
+Folder: 082_dnerf_int4
+Run (from the folder):
+```bash
+python quantize_dnerf_int4.py
+```
+
+Day 83: RL agent to optimize NeRF camera path
+Folder: 083_rl_nerf_camera
+Run (from the folder):
+```bash
+python rl_nerf_camera.py
+```
+
+Day 84: NCCL loopback multi-process test
+Folder: 084_nccl_loopback
+Run (from the folder):
+```bash
+./run_nccl_loopback.sh
+```
+
+Day 85: cuobjdump NCCL kernels; HMMA usage
+Folder: 085_nccl_cuobjdump
+Run (from the folder):
+```bash
+./inspect_nccl_sass.sh
+```
+
+Day 86: OpenACC flux kernel; generate PTX
+Folder: 086_openacc_flux
+Run (from the folder):
+```bash
+./build_openacc.sh
+```
+
+Day 87: Compare OpenACC vs CUDA runtime
+Folder: 087_openacc_vs_cuda
+Run (from the folder):
+```bash
+./compare_openacc_cuda.sh
+```
+
+Day 88: cooperative_groups sync vs __syncthreads
+Folder: 088_coop_groups_sync
+Run (from the folder):
+```bash
+./run_sync.sh
+```
+
+Day 89: Inline bar.sync 0 PTX
+Folder: 089_ptx_bar_sync
+Run (from the folder):
+```bash
+./run_bar.sh
+```
+
+Day 90: __launch_bounds__ occupancy experiments
+Folder: 090_launch_bounds_occ
+Run (from the folder):
+```bash
+./run_launch_bounds.sh
+```
+
+Day 91: TensorRT-LLM multi-context server
+Folder: 091_trtllm_multicontext
+Run (from the folder):
+```bash
+./start_server.sh
+./bench_client.sh
+```
+
+Day 92: RLHF loop; reward model PTX
+Folder: 092_rlhf_tinyllama
+Run (from the folder):
+```bash
+python rlhf_loop.py
+```
+
+Day 93: Collect GPU power metrics
+Folder: 093_power_metrics
+Run (from the folder):
+```bash
+./power_metrics.sh
+```
+
+Day 94: Wavelet transform on GPU (PTX)
+Folder: 094_wavelet_ptx
+Run (from the folder):
+```bash
+./run_wavelet.sh
+```
+
+Day 95: CUDA Graph fuse PDE + wavelet
+Folder: 095_graph_wavelet_fuse
+Run (from the folder):
+```bash
+./run_graph_wavelet.sh
+```
+
+Day 96: Docker container with CUDA/PyTorch/Triton
+Folder: 096_docker_stack
+Run (from the folder):
+```bash
+./build_docker.sh
+```
+
+Day 97: 6-hour stress test + Nsight Systems
+Folder: 097_stress_test_nsys
+Run (from the folder):
+```bash
+./stress_test.sh
+```
+
+Day 98: cuTensorNet v2 convolution fusion
+Folder: 098_cutensornet_v2_fusion
+Run (from the folder):
+```bash
+python cutensornet_v2_conv.py
+```
+
+Day 99: Compare fused vs unfused PTX counts
+Folder: 099_nsight_diff_ptx
+Run (from the folder):
+```bash
+./diff_ptx.sh a.ptx b.ptx
+```
+
+Day 100: Auto-tuner sweep for block/register settings
+Folder: 100_autotuner
+Run (from the folder):
+```bash
+./autotune.sh
+```
 Day 101:
 Implement a quantum-inspired simulated annealing search kernel in PTX for optimization
 
