@@ -1,14 +1,12 @@
 import subprocess
 import numpy as np
 
-
 def run_gpu_anneal():
     try:
         out = subprocess.check_output(["../101_qi_anneal_ptx/anneal_ptx"], text=True)
         return out.strip()
     except Exception:
         return None
-
 
 def main():
     result = run_gpu_anneal()
