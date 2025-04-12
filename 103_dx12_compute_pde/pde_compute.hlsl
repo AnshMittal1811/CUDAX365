@@ -9,3 +9,4 @@ void main(uint3 tid : SV_DispatchThreadID){
     float u0 = In[idx];
     Out[idx] = u0 * 0.99;
 }
+
