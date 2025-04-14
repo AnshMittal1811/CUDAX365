@@ -12,3 +12,4 @@ else
   ffmpeg -y -f rawvideo -pix_fmt rgb24 -s 320x180 -r 30 -i frame_%04d.rgb \
     -c:v libx264 -preset veryfast out_cpu.mp4
 fi
+
