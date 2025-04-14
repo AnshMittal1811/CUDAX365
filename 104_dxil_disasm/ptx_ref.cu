@@ -6,6 +6,7 @@ __global__ void pde_ref(const float* in, float* out, int n){
     if (i < n) out[i] = in[i] * 0.99f;
 }
 
+
 int main(){
     int n = 1 << 16;
     float* d_in=nullptr; float* d_out=nullptr;
