@@ -11,6 +11,7 @@ __global__ void kernel_b(float* data){
     data[i] = data[i] * 2.0f;
 }
 
+
 int main(){
     int n = 1 << 20;
     float* d = nullptr;
