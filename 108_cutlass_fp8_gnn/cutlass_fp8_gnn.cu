@@ -3,6 +3,8 @@
 #include <cuda_runtime.h>
 #include <cstdio>
 
+
+
 int main(){
     using ElementInput = cutlass::half_t;
     using ElementOutput = float;
