@@ -8,3 +8,4 @@ for i in range(frames):
     img[:, :, 2] = (np.linspace(0, 255, h).astype(np.uint8)[:, None])
     img.tofile(f"frame_{i:04d}.rgb")
 print("wrote raw 1080p frames")
+
