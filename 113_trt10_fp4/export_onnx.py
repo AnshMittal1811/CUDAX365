@@ -12,3 +12,4 @@ model = MLP().eval()
 example = torch.randn(1, 128)
 torch.onnx.export(model, example, "mlp.onnx", input_names=["x"], output_names=["y"], opset_version=17)
 print("wrote mlp.onnx")
+
