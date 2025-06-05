@@ -1,0 +1,32 @@
+#version 450
+
+layout(local_size_x = 16, local_size_y = 16) in;
+layout(binding = 0) readonly uniform sampler2D inputTex;
+layout(binding = 1, rgba8) writeonly uniform image2D outputTex;
+
+const float kernel[5] = float[](1.0, 4.0, 6.0, 4.0, 1.0);
+
+void main() {
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(outputTex);
+    if (gid.x >= size.x || gid.y >= size.y) {
+        return;
+    }
+
+    float sum = 0.0;
+    float wsum = 0.0;
+    int step = 2;
+
+    for (int ky = -2; ky <= 2; ++ky) {
+        for (int kx = -2; kx <= 2; ++kx) {
+            ivec2 pos = clamp(gid + ivec2(kx * step, ky * step), ivec2(0), size - 1);
+            float w = kernel[kx + 2] * kernel[ky + 2];
+            float v = texelFetch(inputTex, pos, 0).r;
+            sum += v * w;
+            wsum += w;
+        }
+    }
+
+    float out_val = sum / wsum;
+    imageStore(outputTex, gid, vec4(out_val, out_val, out_val, 1.0));
+}
