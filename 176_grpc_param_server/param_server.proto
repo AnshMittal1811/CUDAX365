@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package paramserver;
+
+message ParamRequest {
+  int32 step = 1;
+}
+
+message ParamResponse {
+  repeated float params = 1;
+}
+
+service ParamService {
+  rpc GetParams(ParamRequest) returns (ParamResponse);
+}
