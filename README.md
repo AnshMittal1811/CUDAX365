@@ -973,8 +973,148 @@ Center (rho,mx,my,Bx,By,E): 0.982538 0.034419 -0.008991 0.012728 0.064614 2.4078
 ```
 
 Day 11:
-Introduction to Neural Radiance Fields (NeRFs) in the context of fluid or volumetric data.
-Reference: NeRF original paper (Mildenhall et al.)
+Avoiding Banking Conflicts by padding tiles in the above equation
+
+```bash
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_tile.cu -o mhd2d_tile
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z14step_mhd_tiledILi16ELi16ELi1EEvPKfPfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14step_mhd_tiledILi16ELi16ELi1EEvPKfPfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 63 registers, used 1 barriers, 8208 bytes smem, 388 bytes cmem[0]
+ptxas info    : Compile time = 31.827 ms
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 5.675 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.301 ms
+
+> ./mhd2d_tile 256 256 150
+step 0/150 (dt=4.121e-04)
+step 50/150 (dt=4.051e-04)
+step 100/150 (dt=3.735e-04)
+Center: rho=0.89654 mx=0.01024 my=-0.00387 Bx=-0.00233 By=0.03217 E=2.17966
+
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -DPAD_X=1 -DTILE_X=16 -DTILE_Y=16 mhd2d_tile.cu -o mhd2d_tile_pad
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z14step_mhd_tiledILi16ELi16ELi1EEvPKfPfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14step_mhd_tiledILi16ELi16ELi1EEvPKfPfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 63 registers, used 1 barriers, 8208 bytes smem, 388 bytes cmem[0]
+ptxas info    : Compile time = 32.115 ms
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 5.526 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.293 ms
+
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v -DPAD_X=0 -DTILE_X=16 -DTILE_Y=16 mhd2d_tile.cu -o mhd2d_tile_nopad
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z14step_mhd_tiledILi16ELi16ELi0EEvPKfPfiifff' for 'sm_89'
+ptxas info    : Function properties for _Z14step_mhd_tiledILi16ELi16ELi0EEvPKfPfiifff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 63 registers, used 1 barriers, 7776 bytes smem, 388 bytes cmem[0]
+ptxas info    : Compile time = 33.069 ms
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 5.783 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.322 ms
+
+> ncu --set full \
+    --metrics \
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,\
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum,\
+smsp__pipe_lsu_mem_shared_op_stalled_backpressure_per_warp_active.avg \
+    ./mhd2d_tile_nopad 512 512 50
+
+> ncu --set full \
+    --metrics \
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,\
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum,\
+smsp__pipe_lsu_mem_shared_op_stalled_backpressure_per_warp_active.avg \
+    ./mhd2d_tile_pad 512 512 50
+
+> nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_muscl_hll.cu -o mhd_muscl_hll
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z18reduce_mass_energyPKfiPdS1_' for 'sm_89'
+ptxas info    : Function properties for _Z18reduce_mass_energyPKfiPdS1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 22 registers, used 1 barriers, 384 bytes cmem[0]
+ptxas info    : Compile time = 2.720 ms
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 14.241 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.485 ms
+ptxas info    : Compiling entry function '_Z21step_mhd_muscl_powellPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z21step_mhd_muscl_powellPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 0 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 57.800 ms
+
+> ./mhd_muscl_hll 256 256 200
+Init invariants: Mass=6.55360000e+04  Energy=2.29376016e+05  (USE_HLL=1, USE_POWELL=1)
+Step   50/ 200  dt=2.224e-10  Mass=6.55351947e+04  dM=-1.229e-05  Energy=1.57430925e+07  dE=6.763e+01
+Step  100/ 200  dt=2.035e-10  Mass=6.55351936e+04  dM=-1.230e-05  Energy=4.08041729e+07  dE=1.769e+02
+Step  150/ 200  dt=1.754e-10  Mass=6.55351924e+04  dM=-1.232e-05  Energy=6.92232569e+07  dE=3.008e+02
+Step  200/ 200  dt=1.088e-10  Mass=6.55351913e+04  dM=-1.234e-05  Energy=1.08833112e+08  dE=4.735e+02
+Center (rho,mx,my,Bx,By,E): 0.996674 0.014877 -0.008712 0.009267 0.027849 2.480634
+
+> nvcc -O3 -arch=sm_89 -DUSE_HLL=0 -lineinfo -Xptxas -v mhd2d_muscl_hll.cu -o mhd_muscl_rusanov
+ptxas info    : 4 bytes gmem, 8 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z18reduce_mass_energyPKfiPdS1_' for 'sm_89'
+ptxas info    : Function properties for _Z18reduce_mass_energyPKfiPdS1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 22 registers, used 1 barriers, 384 bytes cmem[0]
+ptxas info    : Compile time = 2.420 ms
+ptxas info    : Compiling entry function '_Z15kernel_maxspeedPKfii' for 'sm_89'
+ptxas info    : Function properties for _Z15kernel_maxspeedPKfii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 25 registers, used 0 barriers, 368 bytes cmem[0]
+ptxas info    : Compile time = 5.034 ms
+ptxas info    : Compiling entry function '_Z14reset_maxspeedv' for 'sm_89'
+ptxas info    : Function properties for _Z14reset_maxspeedv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 6 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.326 ms
+ptxas info    : Compiling entry function '_Z21step_mhd_muscl_powellPKfPfiiffff' for 'sm_89'
+ptxas info    : Function properties for _Z21step_mhd_muscl_powellPKfPfiiffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 95 registers, used 0 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 49.991 ms
+
+> ./mhd_muscl_rusanov 256 256 200
+./mhd_muscl_rusanov 256 256 200
+Init invariants: Mass=6.55360000e+04  Energy=2.29376016e+05  (USE_HLL=0, USE_POWELL=1)
+Step   50/ 200  dt=9.870e-10  Mass=6.55360140e+04  dM=2.131e-07  Energy=1.84444453e+06  dE=7.041e+00
+Step  100/ 200  dt=9.158e-10  Mass=6.55360127e+04  dM=1.936e-07  Energy=4.33319315e+06  dE=1.789e+01
+Step  150/ 200  dt=2.441e-11  Mass=6.55360117e+04  dM=1.792e-07  Energy=3.96417799e+10  dE=1.728e+05
+Step  200/ 200  dt=1.292e-15  Mass=9.30251829e+04  dM=4.195e-01  Energy=2.28094355e+21  dE=9.944e+15
+Center (rho,mx,my,Bx,By,E): 0.996392 0.015229 -0.008865 0.009325 0.028031 2.479517
+```
+
+TODO: Need to resolve problems with NaNs coming up as the smoothing continues when working with discontinuities due to rho, and plug this kernel 
 
 Day 12:
 Look into existing 3D volume rendering examples in PyTorch or JAX.
