@@ -1117,21 +1117,17 @@ Center (rho,mx,my,Bx,By,E): 0.996392 0.015229 -0.008865 0.009325 0.028031 2.4795
 TODO: Need to resolve problems with NaNs coming up as the smoothing continues when working with discontinuities due to rho, and plug this kernel 
 
 Day 12:
-Look into existing 3D volume rendering examples in PyTorch or JAX.
-Reference: Nerfstudio GitHub
+Add cuFFT for a 2-D Poisson solve step; verify energy spectrum stays consistent
+
 
 Day 13:
-Start coding a minimal “voxel-based” NeRF-like approach to represent MHD fields.
-Reference: TinyNeRF Implementation
+Write a 32×32 butterfly FFT kernel in PTX; compare its runtime with cuFFT 
 
 Day 14:
-Explore cuFFT and practice a 2D/3D FFT for potential wave-based fluid analysis.
-Reference: cuFFT Documentation
+Switch MHD solver to FP16 + Tensor Cores; verify HMMA instructions in PTX
 
 Day 15:
-Integrate cuFFT in your PDE solver or in a separate experiment (e.g., measure energy spectrum in MHD).
-Reference: Fluid simulation FFT-based examples on GitHub (e.g., Jax-CFD, GPU-based PDE code)
-
+Inline approximate reciprocal (`rcp.approx.f32`) PTX in the flux loop to replace division 
 
 Extras: 
 Basic GitHub project structure for your HPC experiments.
