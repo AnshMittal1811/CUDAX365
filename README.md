@@ -1129,9 +1129,6 @@ Switch MHD solver to FP16 + Tensor Cores; verify HMMA instructions in PTX
 Day 15:
 Inline approximate reciprocal (`rcp.approx.f32`) PTX in the flux loop to replace division 
 
-Extras: 
-Basic GitHub project structure for your HPC experiments.
-Reference: Git Book - Best Practices
 
 -- Created a Poetry environment for my HPC experiments
 Dive into HPC libraries: install and test cuBLAS and cuRAND with small matrix multiply and random number generation examples.
@@ -1205,31 +1202,21 @@ nvcc -lcublas -lcurand -o cublas_curand_example cublas_curand_example.cu
 ./cublas_curand_example
 ```
 
----
-Block 4 (Days 16–20)
-
 Day 16:
-Start exploring Quantum Computing basics: Qubits, gates, Bloch sphere, from a coding perspective.
-Reference: Qiskit Textbook
+Put the full time-step in a CUDA Graph; run 1000 iterations in one graph launch
 
 Day 17:
-Install Qiskit or Cirq on WSL2. Run basic quantum circuits on the local simulator.
-Reference: Qiskit Installation Guide
+Add dynamic parallelism: launch a sub-grid refinement kernel from within the solver 
 
 Day 18:
-Implement a simple quantum algorithm (e.g., quantum teleportation or Grover’s) in Qiskit.
-Reference: Grover’s Algorithm Qiskit Tutorial
+Use Nsight Compute to check occupancy & warp usage; tune block size for best occupancy 
 
 Day 19:
-Introduction to Quantum Machine Learning: conceptual overview of parameterized quantum circuits.
-Reference: PennyLane tutorials
+Install PyTorch 2.2 and test torch.compile on a model; dump generated PTX
 
 Day 20:
-Try a small QML example (variational circuit) with PennyLane or Qiskit Machine Learning.
-Reference: Qiskit Machine Learning Docs
+Try TorchRL on CartPole environment; examine an example Triton kernel PTX 
 
----
-Block 5 (Days 21–25)
 Day 21:
 Introduction to Quantum Chromodynamics (QCD) and how ML is used (e.g., lattice QCD data analysis).
 Reference: Lectures: “Machine Learning for Quantum Physics,”
