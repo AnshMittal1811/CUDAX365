@@ -1218,50 +1218,41 @@ Day 20:
 Try TorchRL on CartPole environment; examine an example Triton kernel PTX 
 
 Day 21:
-Introduction to Quantum Chromodynamics (QCD) and how ML is used (e.g., lattice QCD data analysis).
-Reference: Lectures: “Machine Learning for Quantum Physics,”
+Use `nvdisasm` on a Triton kernel SASS; annotate key operations
 
 Day 22:
-Explore any open dataset from lattice QCD or QCD-based simulation. Start a Python script to parse it.
-Reference: [SciPy Lattice QCD Tools / HPC projects on GitHub]
+Prototype a Q-learning agent to tune the CFL number in the MHD solver 
 
 Day 23:
-Attempt a small classification or regression project with QCD data using PyTorch.
-Reference: [PyTorch official tutorial + Kaggle or Zenodo QCD data if available]
+Inline PTX atomic add (`atom.add.u64`) for a custom reward counter
 
 Day 24:
-Investigate HPC optimization strategies for large QCD arrays (use cuSPARSE or cuSOLVER if relevant).
-Reference: cuSPARSE Documentation, cuSOLVER Docs
+Read the NVIDIA Hopper (SM90) whitepaper; compare theoretical scheduling model
 
 Day 25:
 Try a baseline HPC pipeline for QCD data using sparse matrices on GPU.
-Reference: NVIDIA HPC blog on sparse computations
-
----
-Block 6 (Days 26–30)
-
-Day 26:
-Return to NeRF concepts: Explore how to incorporate fluid fields (like MHD data) into a NeRF pipeline (semi-experimental).
-Reference: [Neural Volumes / Hybrid NeRF papers on ArXiv]
-
-Day 27:
-Basic code attempts at a “Neural Volume” approach: represent MHD 3D fields for rendering.
-Reference: “Neural Volumes” by Lombardi et al.
-
-Day 28:
+Try CuSPARSE and CuSOLVER
+Compile for sm_90 and use cuobjdump to compare SASS vs. sm_86
 Investigate quantization in neural networks: post-training quantization basics (INT8, etc.).
 Reference: TensorRT 8.6 or 9.0 (Preview) INT8 Docs
-
-Day 29:
+Return to NeRF concepts: Explore how to incorporate fluid fields (like MHD data) into a NeRF pipeline (semi-experimental).
+Reference: [Neural Volumes / Hybrid NeRF papers on ArXiv]
 Experiment with quantization aware training in PyTorch on a smaller CNN or MLP.
 Reference: PyTorch Quantization Docs
-
-Day 30:
 Explore how to do partial quantization on a small NeRF or MLP model (just a test).
 Reference: [TinyNeRF + PyTorch Quantization blog posts / repos]
 
----
-Block 7 (Days 31–35)
+Day 26:
+
+Day 27:
+
+Day 28:
+
+Day 29:
+
+Day 30:
+
+
 
 Day 31:
 Introduction to LLMs and QLoRA concept.
