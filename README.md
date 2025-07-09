@@ -1243,20 +1243,22 @@ Explore how to do partial quantization on a small NeRF or MLP model (just a test
 Reference: [TinyNeRF + PyTorch Quantization blog posts / repos]
 
 Day 26:
+Install cuTensor; test a small tensor contraction vs. WMMA kernel 
 
 Day 27:
+Move RL convolution to use cuTensorNet library; run a small batch through it 
 
 Day 28:
+Use Nsight to check L2 cache residency for conv vs. PDE kernel
 
 Day 29:
+Download Cityscapes (512× samples); set up a PyTorch dataloader
 
 Day 30:
-
-
+Train SegFormer-B0 for one epoch (fits in ~8 GB VRAM) on Cityscapes
 
 Day 31:
-Introduction to LLMs and QLoRA concept.
-Reference: QLoRA paper (Dettmers et al.)
+Export one SegFormer conv layer to PTX (via `torch.compile(full_graph)`); inspect 
 
 Day 32:
 Set up a local environment (HF Transformers, bitsandbytes) for 4-bit or 8-bit LLM training.
