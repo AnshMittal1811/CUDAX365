@@ -1261,23 +1261,16 @@ Day 31:
 Export one SegFormer conv layer to PTX (via `torch.compile(full_graph)`); inspect 
 
 Day 32:
-Set up a local environment (HF Transformers, bitsandbytes) for 4-bit or 8-bit LLM training.
-Reference: Hugging Face PEFT + QLoRA docs
+Inline PTX to fuse bias + activation in a Triton conv kernel; rebuild and test
 
 Day 33:
-Fine-tune a small LLaMA-like or GPT-NeoX model on a minimal dataset with QLoRA (16GB VRAM constraint).
-Reference: [QLoRA examples on Hugging Face GitHub]
+Use CUTLASS to implement a 3×3 depthwise conv; inspect the SASS 
 
 Day 34:
-Try an MHD or fluid small dataset in a “Tabular LLM” scenario: see if it can do basic MHD question answering.
-Reference: [“Tabular LLM” – Tools or HF community posts discussing tabular data + LLM]
+Try TensorRT 8.6 INT8/FP8 sparse inference on a model; export and inspect PTX 
 
 Day 35:
-Test and record inference performance with different quantization levels (4-bit vs. 8-bit).
-Reference: bitsandbytes GitHub + HF Transformers Integration Docs
-
----
-Block 8 (Days 36–40)
+Write a connected-component labeling kernel in PTX for mask cleanup
 
 Day 36:
 Introduction to DocLLMs (document Q&A flows) and retrieval-augmented generation.
