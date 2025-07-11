@@ -1273,31 +1273,22 @@ Day 35:
 Write a connected-component labeling kernel in PTX for mask cleanup
 
 Day 36:
-Introduction to DocLLMs (document Q&A flows) and retrieval-augmented generation.
-Reference: LangChain Docs
+Integrate the segmentation into CARLA simulation (RL env); test end-to-end
 
 Day 37:
-Implement a small “DocLLM” pipeline locally using a vector store (FAISS) + QLoRA LLM.
-Reference: [Hugging Face Inference or LangChain tutorials]
+Clone instant-ngp (NeRF); render a small synthetic MHD volume dataset
 
 Day 38:
-Insert an MHD text resource or fluid doc into the vector store. Test question answering.
-Reference: [FAISS GitHub, LangChain Examples]
+Inspect a fused NeRF CUDA kernel’s SASS; enable FP16 half mode and re-run
 
 Day 39:
-Investigate large vision-language models (LVLMs) for fluid image or volumetric data + textual descriptions.
-Reference: [BLIP, Florence, or CLIP-based LVLM approaches on Hugging Face]
+Apply INT4 post-training quantization to instant-ngp; compare FPS
 
 Day 40:
-Try a minimal CLIP-based approach to label MHD visualizations with text prompts.
-Reference: OpenAI CLIP GitHub
-
----
-Block 9 (Days 41–45)
+Overlay segmentation masks on NeRF frames using OpenGL (CUDA-OpenGL interop PBO)
 
 Day 41:
-GPU-based kernel programming deeper dive: advanced warp shuffles, memory coalescing, etc.
-Reference: NVIDIA CUDA Best Practices Guide
+Fine-tune a 4-bit QLoRA TinyLlama on MHD simulation logs (e.g., causal LM on text)
 
 Day 42:
 Implement a custom reduction kernel for large arrays (sum, min, max) using warp intrinsics.
