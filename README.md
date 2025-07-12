@@ -1291,23 +1291,15 @@ Day 41:
 Fine-tune a 4-bit QLoRA TinyLlama on MHD simulation logs (e.g., causal LM on text)
 
 Day 42:
-Implement a custom reduction kernel for large arrays (sum, min, max) using warp intrinsics.
-Reference: NVIDIA reduce.cu sample
+Try FlashAttention-2 on an LLM; ensure ldmatrix PTX instructions appear
 
 Day 43:
-Explore CUDA IPC to share data between processes.
-Reference: CUDA IPC docs in Programming Guide
+Implement a LangChain retrieval QA with MHD documentation (RAG pipeline)
 
 Day 44:
-Attempt a multi-process pipeline: one process does PDE updates, another does some analysis. Share data via IPC.
-Reference: [NVIDIA Developer Forum / HPC discussion boards]
+Use warp-level reduce (inline PTX shuffle) inside LoRA gradient update step 
 
 Day 45:
-Practice with NVRTC to compile CUDA kernels at runtime from strings.
-Reference: NVRTC documentation
-
----
-Block 10 (Days 46–50)
 
 Day 46:
 Dive into NVJPEG library for GPU-based image decoding.
