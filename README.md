@@ -1300,29 +1300,23 @@ Day 44:
 Use warp-level reduce (inline PTX shuffle) inside LoRA gradient update step 
 
 Day 45:
+Profile with Nsight Systems timeline to see I/O vs. compute overlap 
 
 Day 46:
-Dive into NVJPEG library for GPU-based image decoding.
-Reference: NVJPEG Documentation
+Fuse LoRA forward + backward into a single CUDA Graph; replay 100 iterations 
 
 Day 47:
-Integrate NVJPEG into a data-loading pipeline for training a CV model on MHD images or other fluid images.
-Reference: NVIDIA DALI or NVJPEG examples on GitHub
+Export the LoRA-augmented model to TensorRT-LLM; benchmark ~128 tokens/s
 
 Day 48:
-Explore NPP (NVIDIA Performance Primitives) for image transformations on GPU.
-Reference: NPP Docs
+Inspect TensorRT engine PTX for HMMA and DP4A ops after optimization
 
 Day 49:
-Implement a data augmentation pipeline using NPP (rotate, scale, etc.) for fluid snapshots.
-Reference: [NPP sample code in the CUDA Toolkit]
+Fine-tune TabLLM (tabular LLM) 4-bit on magnetics sensor data tables
 
 Day 50:
 Investigate NVGRAPH for GPU-based graph analytics; try a small GNN or GCN approach.
-Reference: NVGRAPH Documentation
-
----
-Block 11 (Days 51–55)
+Measure perplexity of TabLLM vs. baseline Llama on a test set
 
 Day 51:
 Explore GNN libraries (PyTorch Geometric or DGL) + GPU graph computations for MHD adjacency or QCD data.
