@@ -1319,16 +1319,13 @@ Investigate NVGRAPH for GPU-based graph analytics; try a small GNN or GCN approa
 Measure perplexity of TabLLM vs. baseline Llama on a test set
 
 Day 51:
-Explore GNN libraries (PyTorch Geometric or DGL) + GPU graph computations for MHD adjacency or QCD data.
-Reference: PyTorch Geometric Docs
+Implement a Fourier Neural Operator (FNO) for PDE using cuFFT for convolution 
 
 Day 52:
-Implement a simple GCN for classifying a small graph-based dataset.
-Reference: GCN original paper (Kipf & Welling)
+Write a custom Chebyshev dense matrix-vector multiply PTX kernel (for solver) 
 
 Day 53:
-Try advanced GNN approach for fluid mesh data or QCD lattice connectivity.
-Reference: [DGL + scientific computing examples]
+Integrate the FNO as a surrogate predictor in the MHD time-step loop 
 
 Day 54:
 Evaluate HPC optimization for GNN training using multi-stream concurrency.
