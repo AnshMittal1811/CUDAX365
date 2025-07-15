@@ -1328,23 +1328,16 @@ Day 53:
 Integrate the FNO as a surrogate predictor in the MHD time-step loop 
 
 Day 54:
-Evaluate HPC optimization for GNN training using multi-stream concurrency.
-Reference: CUDA Streams doc
+Use Nsight to trace global memory accesses in the FNO predictor 
 
 Day 55:
-Return to TensorRT for potential GNN or CNN inference optimization.
-Reference: TensorRT Docs
-
----
-Block 12 (Days 56–60)
+Apply QAT (quantization-aware training) INT8 to the FNO model; check accuracy drop 
 
 Day 56:
-TensorRT-LLM: test or read about the new features for LLM inference acceleration.
-Reference: [NVIDIA TensorRT-LLM blog posts]
+Install cuQuantum SDK; run a state-vector simulation example (4-qubit SVD) 
 
 Day 57:
-Attempt to convert a GPT-like model to ONNX and then to TensorRT for faster inference.
-Reference: [TensorRT + ONNX conversion tutorials]
+Use PennyLane to run a VQE (4-qubit) on GPU (Lightning-Qubit)
 
 Day 58:
 Measure performance improvements with INT8 or FP16 on the 4090 for your fine-tuned QLoRA model.
