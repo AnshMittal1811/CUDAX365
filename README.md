@@ -1340,8 +1340,7 @@ Day 57:
 Use PennyLane to run a VQE (4-qubit) on GPU (Lightning-Qubit)
 
 Day 58:
-Measure performance improvements with INT8 or FP16 on the 4090 for your fine-tuned QLoRA model.
-Reference: NVIDIA Nsight Systems for profiling
+Inspect PennyLane’s GPU simulator PTX kernels for VQE
 
 Day 59:
 Quick introduction to DeepSpeed for large model training on limited GPU memory.
