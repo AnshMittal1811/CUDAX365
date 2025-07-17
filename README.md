@@ -1343,24 +1343,16 @@ Day 58:
 Inspect PennyLane’s GPU simulator PTX kernels for VQE
 
 Day 59:
-Quick introduction to DeepSpeed for large model training on limited GPU memory.
-Reference: DeepSpeed GitHub & Tutorials
+Use the VQE energy output as a coefficient in the PDE (hybrid quantum-classical step)
 
 Day 60:
-Attempt partial pipeline parallel or ZeRO optimization with DeepSpeed on a small GPT or BERT.
-Reference: DeepSpeed ZeRO docs
-
----
-
-Block 13 (Days 61–65)
+Generate an end-to-end GFLOP/s performance report across modules 
 
 Day 61:
-Tackle DirectX on Windows: basics of the GPU pipeline, creating a device/context.
-Reference: DirectX 12 Intro Docs
+Construct a mesh graph of the MHD domain; train a PyG (2.5) GATv2 on it
 
 Day 62:
-Render a simple triangle in DirectX 12.
-Reference: DirectX 12 samples from Microsoft
+Write a scatter-add kernel with warp shfl.sync (inline PTX) for neighbor sums
 
 Day 63:
 Investigate compute shaders in DirectX for GPGPU tasks.
