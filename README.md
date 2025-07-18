@@ -2950,312 +2950,721 @@ Run (from the folder):
 ```bash
 ./autotune.sh
 ```
-Day 101:
-Implement a quantum-inspired simulated annealing search kernel in PTX for optimization
 
-Day 102:
-Integrate the annealing search as a hyperparameter tuner for the MHD solver
-
-Day 103:
-Port the PDE update kernel to DirectX12 compute (use DirectCompute ); test correctness
-
-
-Day 104:
-Disassemble the DXIL compute shader; compare operations to PTX equivalents 
-
-Day 105:
-Use NvMedia (if available) to encode raw NeRF frames to H.264; note any hardware acceleration 
-
-Day 106:
-
-Use PTX mov.u64 %rd<*> from %globaltimer register to timestamp kernel intervals
-
-Day 107:
-Explore CUDA Graph external dependencies: use CUDA events and semaphores between graph launches
-
-Day 108:
-Use CUTLASS to train a small GNN with FP8 (enable FP8 WMMA); inspect SASS HMMA
-
-Day 109:
-Use Nsight Systems “Pipeline” view to visualize the entire workload (PDE + ML + rendering)
-
-Day 110:
-Deploy the TabLLM model with HuggingFace TextGeneration-Inference (TGI); inspect its Triton kernels PTX
-
-
-Day 111:
-Use EGL + NVENC to record a 1080p video of the NeRF output in real-time
-
-Day 112:
-Measure NVENC encoding FPS vs. CPU software encoding for the recorded video
-
-Day 113:
-Try a preview of TensorRT 10; test FP4 matrix multiply on a small network
-
-Day 114:
-Inline PTX dp4a (INT8 dot) in a custom conv; compare throughput to HMMA
-
-Day 115:
-Note the throughput difference between INT8 DP4A and FP16 HMMA on the 4090 
-
-Day 116:
-Use cuStateVec to simulate a 10-qubit circuit on GPU; measure simulation time 
-
-Day 117:
-Run a QAOA (quantum approximate optimization) cost function evaluation for PDE parameters; use GPU acceleration
-
-Day 118:
-Export the gradient computation of the QAOA circuit to a CUDA kernel (e.g., using cuQuantum); inspect PTX 
-
-Day 119:
-Write a warp-specialized convolution kernel using ldmatrix for LDG (like FlashAttention uses)
-
-Day 120:
-Set `__launch_bounds__` on the convolution kernel to limit registers and improve occupancy
-
-
-Day 121:
-Build a Fourier Feature positional encoding + MLP renderer; verify PTX
-
-Day 122:
-Add FP8 WMMA triple-buffering to the MLP (overlap load/ compute)
-
-Day 123:
-Use Nsight Compute’s new occupancy heatmap feature to visualize SM utilization 
-
-Day 124:
-Launch a multi-stream test with cudaLaunchCooperativeKernel across streams (overlap compute)
-
-Day 125:
-Measure L2 and texture cache hit rates on NeRF sampling with Nsight; adjust block size to improve locality
-
-Day 126:
-Use CURAND Philox in PTX for random generation; compare distribution to XORShift
-
-Day 127:
-Introduce noise in RL observations (domain randomization) and measure training stability
-
-Day 128:
-Use Vulkan async compute + graphics queues to overlap volume rendering and simulation
-
-Day 129:
-Capture a GPU trace with AMD Radeon GPU Profiler (RGP) for comparison (if AMD GPU available)
-
-Day 130:
-Summarize the ratio of latency to memory-bound stalls from all kernels (from Nsight reports)
-
-Day 131:
-Use DeepSpeed ZeRO-3 offload (32 GB host memory) for TinyLlama; measure throughput
-
-Day 132:
-Profile CPU-GPU transfer using Nsight (NVLink usage if any); attempt to overlap transfers
-
-Day 133:
-Write a Triton custom reduction kernel with inline assembly; compare reg usage vs. CUDA version
-
-Day 134:
-Compare compile-time register usage of this Triton kernel vs. using CUB library
-
-Day 135:
-Add gradient checkpointing to the FNO model training to save memory
-
-Day 136:
-Re-profile VRAM usage during training/inference after checkpointing
-
-Day 137:
-Integrate a 4-bit GPT-J 6B model for code completion (INT4 quantized) and test latency
-
-Day 138:
-Evaluate latency of the GPT-J vs. the TinyLlama; use a script to measure tokens/s
-
-Day 139:
-Use cuTensor to contract a 4th-order tensor from the MHD simulation (e.g., stress tensor) efficiently 
-
-Day 140:
-Try the CUTLASS experimental FFT kernels for 1D transforms; compare to cuFFT 
-
-Day 141:
-Study the SM90 microcode scheduling details (from Hopper whitepaper); relate to measured warp occupancy
-
-Day 142:
-Manually reorder instructions in a small kernel to test the wavefront scheduler effect
-
-Day 143:
-Use Nsight Compute source view to identify stall reasons for a kernel; tweak code to reduce stalls
-
-Day 144:
-Write a warp-level 3×3 matrix cross-product kernel with inline PTX; verify correctness vs. C++
-
-Day 145:
-Compare the performance of this custom cross-product vs. using WMMA (if possible) 
-
-Day 146:
-Use the occupancy API to auto-tune block size and regs (write a script to try ~50 configs)
-
-Day 147:
-Experiment with register bank conflicts: offset shared memory indices mod 32; see effect on speed
-
-Day 148:
-Finalize the flux kernel with all optimizations (barrier sync, FMA fusing); document speedup %
-
-Day 149:
-Attempt a small segment of your solver with inline PTX for specialized instructions.
-Document in README the speedups achieved vs. baseline for each module (for reference)
-
-Day 150:
-Run the entire pipeline (PDE + NeRF + RL + LLM integrated) and validate outputs
-
-Day 151:
-Use CURAND device API for quasi-random Sobol vs. host generation; compare sequence quality
-
-Day 152:
-Implement a warp-level XORSHIFT random number generator in PTX; test distribution (chi-square test)
-
-Day 153:
-Compare RNG quality (chi-square or KS test) for XORShift vs. CURAND vs. Sobol outputs
-
-Day 154:
-Inject random perturbations into the RL training loop (e.g., random resets) and observe stability
-
-Day 155:
-Evaluate training stability: log reward curves with and without randomness (use TensorBoard) 
-
-
-Day 156:
-Port a denoising algorithm (A-Trous wavelet filter) to Vulkan compute; integrate into rendering
-
-Day 157:
-Inline PTX wavelet transform into the denoiser compute shader; verify correctness
-
-Day 158:
-Measure per-frame time with and without denoising; identify bottleneck
-
-Day 159:
-Tune shared memory bank usage in the denoiser (pad arrays to avoid conflicts) 
-
-Day 160:
-Compare visual quality of rendered frames with vs. without denoiser; note improvement
-
-Day 161:
-Build a GNN surrogate for the PDE flux Jacobian (using e.g. JAX/meshGraphNets approach) 
-
-Day 162:
-Export the trained GNN to a TorchInductor fused graph; inspect generated PTX 
-
-Day 163:
-Inspect SASS for the fused GNN inference kernel (via cuobjdump ); verify utilization
-
-Day 164:
-Use cuTensorNet v2’s automatic fusions on a large conv+GEMM sequence; evaluate speedup 
-
-Day 165:
-Measure iteration time with cuTensorNet fused ops vs. separate (log to CSV)
-
-Day 166:
-Add Hopper FP8 pipeline for a convolution (DP8A Tensor Cores); test accuracy vs. FP16
-
-Day 167:
-Use Nsight Experiments to log SM clock & power during heavy ops; try undervolting via `nvidia-smi -pl`
-
-Day 168:
-Observe any thermal throttling vs. performance at different power limits (log GPU stats)
-
-Day 169:
-Try CUDA 13.1 Release Candidate (if available); read release notes for new features
-
-Day 170:
-Re-run key benchmarks under CUDA 13.1; check for any performance regressions or improvements 
-
-Day 171:
-Use OpenACC with cuTENSOR (tensor attribute support) in NVC++ to offload part of code; compile and get PTX
-
-Day 172:
-Compare PTX output from NVC++ OpenACC vs. nvcc CUDA for the same code section
-
-Day 173:
-Simulate multi-GPU offloading with NVLink by splitting domain and passing boundaries (no actual NVLink on laptop)
-
-Day 174:
-Partition the CUDA Graph across two processes using MPS (simulate multi-instance) 
-
-Day 175:
-Use Nsight Systems for a global view of both processes; ensure overlap and no interference
-
-
-Day 176:
-Add an RL parameter server using gRPC (simulate distributed RL); measure overhead
-
-Day 177:
-Measure latency between CPU and GPU for small inference tasks (host API overhead) with a custom script
-
-Day 178:
-Use `cudaMemcpyAsync` with `cudaStreamAttachMemAsync` (async mem copy) to overlap data transfer in a kernel
-
-Day 179:
-Verify L2 cache hit ratio remains high with overlapped copies (Nsight metrics)
-
-Day 180:
-Compile a report of kernel speeds and throughput for all modules (automate via script) 
-
-Day 181:
-Port the NeRF renderer to DirectX12 DXR for ray tracing; test a hybrid pipeline (DXR for rays, CUDA for shading)
-
-Day 182:
-Use CUDA-OpenGL interop to copy rendered frames (`GL texture`) directly to CUDA memory (via `GL_NV_copy_image`)
-
-Day 183:
-Compare the performance of direct copy vs. staging to CPU then GPU for frames
-
-Day 184:
-Integrate an ImGui HUD overlay showing segmentation and LiDAR points on the rendered view (OpenGL + CUDA texture)
-
-Day 185:
-Have the RL agent incorporate the HUD data (segmentation mask, synthetic LiDAR) for decision making; retrain agent
-
-Day 186:
-Evaluate the RL agent’s navigation success rate before vs. after using augmented sensor data 
-
-Day 187:
-Apply FP4 quantization to the SegFormer model using the upcoming TensorRT 10 (FP4 support); test inference
-
-Day 188:
-Inspect PTX from TensorRT engine to see HMMA FP4 instructions (if any) 
-
-Day 189:
-Measure segmentation accuracy drop with FP4 vs. FP16; record differences
-
-Day 190:
-Add a LoRA fine-tuning (PEFT) to the FP4 model to recover accuracy; test if quality improves 
-
-Day 191:
-Try a quantum GAN (qGAN) on GPU with PennyLane for a toy dataset; measure any speed benefits vs. CPU  
-
-Day 192:
-Use cuTensorNet to accelerate the convolution in the qGAN’s generator (if applicable); see if latency improves
-
-Day 193:
-Inspect the GPU kernel SASS for the qGAN conv (via `cuobjdump`); ensure Tensor Cores are used 
-
-Day 194:
-Use the qGAN to generate samples for RL environment domain randomization; see if this improves agent robustness
-
-Day 195:
-Measure quality of qGAN generated samples (e.g., FID score) vs. real data 
-
-Day 196:
-Use an advanced CUDA Graph with multiple instances and cross-stream events for the full pipeline; ensure overlap of compute tasks
-
-Day 197:
-Use cudaEventRecord with `cudaEventBlockingSync` flags to synchronize GPU tasks and CPU reliably; measure overhead
-
-Day 198:
-Profile the overlap of compute and copy using Nsight timeline after adding events; adjust as needed  
-
-Day 199:
-Tune chunk sizes for overlapping work (e.g., split inference into sub-batches) to maximize GPU utilization
-
-Day 200:
-200-Day Stress Test: Run the entire pipeline continuously for 8 hours; log any memory leaks or slowdowns 
+Day 101: Quantum-inspired simulated annealing PTX kernel
+Folder: 101_qi_anneal_ptx
+Run (from the folder):
+```bash
+./run_anneal.sh
+```
+
+Day 102: Annealing hyperparameter tuner for MHD (mock fields)
+Folder: 102_anneal_tuner_mhd
+Run (from the folder):
+```bash
+python generate_mock_fields.py
+python tune_with_anneal.py
+```
+
+Day 103: DirectX12 compute PDE update + reference
+Folder: 103_dx12_compute_pde
+Run (from the folder):
+```bash
+python generate_mock_input.py
+python pde_reference.py
+powershell.exe -ExecutionPolicy Bypass -File ./compile_dx12.ps1
+```
+
+Day 104: DXIL disassembly vs PTX reference
+Folder: 104_dxil_disasm
+Run (from the folder):
+```bash
+./compile_ptx.sh
+powershell.exe -ExecutionPolicy Bypass -File ./disasm_dxil.ps1
+```
+
+Day 105: NvMedia encode (fallback to NVENC/CPU)
+Folder: 105_nvmedia_encode
+Run (from the folder):
+```bash
+python generate_mock_frames.py
+./encode_nvmedia.sh
+```
+
+Day 106: PTX globaltimer timestamp kernel
+Folder: 106_ptx_globaltimer
+Run (from the folder):
+```bash
+./run_globaltimer.sh
+```
+
+Day 107: CUDA Graph external dependencies
+Folder: 107_graph_ext_deps
+Run (from the folder):
+```bash
+./run_graph_deps.sh
+```
+
+Day 108: CUTLASS FP8 GNN GEMM + SASS inspect
+Folder: 108_cutlass_fp8_gnn
+Run (from the folder):
+```bash
+./build_cutlass_fp8.sh
+./inspect_sass.sh
+```
+
+Day 109: Nsight Systems pipeline view workload
+Folder: 109_nsys_pipeline
+Run (from the folder):
+```bash
+./profile_pipeline.sh
+```
+
+Day 110: TabLLM deployment with TGI + Triton PTX
+Folder: 110_tgi_tabllm
+Run (from the folder):
+```bash
+./run_tgi.sh
+python test_query.py
+./inspect_tgi_ptx.sh
+```
+
+Day 111: EGL + NVENC 1080p recording
+Folder: 111_egl_nvenc
+Run (from the folder):
+```bash
+python generate_1080p_frames.py
+./record_nvenc.sh
+```
+
+Day 112: NVENC vs CPU encode throughput
+Folder: 112_nvenc_vs_cpu
+Run (from the folder):
+```bash
+./compare_encode.sh
+```
+
+Day 113: TensorRT 10 FP4 preview
+Folder: 113_trt10_fp4
+Run (from the folder):
+```bash
+./run_trt10_fp4.sh
+```
+
+Day 114: Inline PTX dp4a vs HMMA
+Folder: 114_dp4a_vs_hmma
+Run (from the folder):
+```bash
+./run_dp4a_vs_hmma.sh
+```
+
+Day 115: INT8 DP4A vs FP16 HMMA throughput summary
+Folder: 115_int8_fp16_throughput
+Run (from the folder):
+```bash
+python compare_throughput.py
+```
+
+Day 116: cuStateVec 10-qubit simulation
+Folder: 116_custatevec_10q
+Run (from the folder):
+```bash
+python custatevec_10q.py
+```
+
+Day 117: QAOA cost for PDE parameters
+Folder: 117_qaoa_pde
+Run (from the folder):
+```bash
+python qaoa_pde.py
+```
+
+Day 118: QAOA gradient PTX export
+Folder: 118_qaoa_grad_ptx
+Run (from the folder):
+```bash
+python qaoa_grad_ptx.py
+./find_ptx.sh
+```
+
+Day 119: ldmatrix-style warp conv kernel
+Folder: 119_ldmatrix_conv
+Run (from the folder):
+```bash
+./build_ldmatrix.sh
+```
+
+Day 120: Launch bounds on conv kernel
+Folder: 120_launch_bounds_conv
+Run (from the folder):
+```bash
+./run_launch_bounds.sh
+```
+
+Day 121: Fourier feature MLP + PTX check
+Folder: 121_fourier_mlp
+Run (from the folder):
+```bash
+python generate_mock_inputs.py
+python fourier_mlp.py
+./find_ptx.sh
+```
+
+Day 122: FP8 WMMA triple-buffering demo
+Folder: 122_fp8_triplebuf
+Run (from the folder):
+```bash
+./run_fp8_triplebuf.sh
+```
+
+Day 123: Nsight occupancy heatmap
+Folder: 123_ncu_occ_heatmap
+Run (from the folder):
+```bash
+./profile_occ_heatmap.sh
+```
+
+Day 124: Cooperative kernel multi-stream overlap
+Folder: 124_coop_multistream
+Run (from the folder):
+```bash
+./run_coop.sh
+```
+
+Day 125: L2/texture cache metrics on sampling
+Folder: 125_nerf_cache_metrics
+Run (from the folder):
+```bash
+./profile_cache.sh
+```
+
+Day 126: Philox vs XORShift RNG distribution
+Folder: 126_philox_vs_xorshift
+Run (from the folder):
+```bash
+./run_rng_compare.sh
+```
+
+Day 127: RL noise stability test
+Folder: 127_rl_noise_stability
+Run (from the folder):
+```bash
+python rl_noise.py
+```
+
+Day 128: Vulkan async compute overlap
+Folder: 128_vulkan_async_overlap
+Run (from the folder):
+```bash
+./build_async.sh
+```
+
+Day 129: AMD RGP trace capture
+Folder: 129_amd_rgp_trace
+Run (from the folder):
+```bash
+./run_rgp.sh
+```
+
+Day 130: Nsight stall ratio summary
+Folder: 130_nsight_stall_ratio
+Run (from the folder):
+```bash
+./collect_stalls.sh
+python stall_ratio.py
+```
+
+Day 131: DeepSpeed ZeRO-3 offload
+Folder: 131_ds_zero3_offload
+Run (from the folder):
+```bash
+./run_zero3.sh
+```
+
+Day 132: NSYS transfer overlap trace
+Folder: 132_nsys_nvlink_overlap
+Run (from the folder):
+```bash
+./profile_transfers.sh
+```
+
+Day 133: Triton reduction with inline asm
+Folder: 133_triton_reduction_asm
+Run (from the folder):
+```bash
+./run_triton_reduce.sh
+```
+
+Day 134: Triton vs CUB register usage
+Folder: 134_triton_vs_cub_regs
+Run (from the folder):
+```bash
+./compare_regs.sh
+```
+
+Day 135: FNO gradient checkpointing
+Folder: 135_fno_checkpointing
+Run (from the folder):
+```bash
+python fno_checkpoint.py
+```
+
+Day 136: VRAM profiling during training
+Folder: 136_vram_profile
+Run (from the folder):
+```bash
+./profile_vram.sh
+```
+
+Day 137: GPT-J INT4 inference test
+Folder: 137_gptj_int4
+Run (from the folder):
+```bash
+./run_gptj_int4.sh
+```
+
+Day 138: GPT-J vs TinyLlama latency
+Folder: 138_gptj_vs_tinyllama_latency
+Run (from the folder):
+```bash
+python compare_latency.py
+```
+
+Day 139: cuTensor 4th-order contraction
+Folder: 139_cutensor_4th_order
+Run (from the folder):
+```bash
+./run_cutensor_4d.sh
+```
+
+Day 140: CUTLASS experimental FFT vs cuFFT
+Folder: 140_cutlass_fft
+Run (from the folder):
+```bash
+./run_cutlass_fft.sh
+```
+
+Day 141: SM90 microcode scheduling notes + occupancy
+Folder: 141_sm90_microcode_notes
+Run (from the folder):
+```bash
+./collect_occupancy.sh
+python summarize_microcode.py
+```
+
+Day 142: Instruction reorder SASS experiment
+Folder: 142_sass_reorder_test
+Run (from the folder):
+```bash
+./run_reorder.sh
+```
+
+Day 143: Nsight source stall analysis
+Folder: 143_ncu_source_stalls
+Run (from the folder):
+```bash
+./profile_stalls.sh
+```
+
+Day 144: Warp-level 3x3 cross product PTX
+Folder: 144_ptx_cross_product
+Run (from the folder):
+```bash
+./run_cross.sh
+```
+
+Day 145: Cross product vs WMMA comparison
+Folder: 145_cross_vs_wmma
+Run (from the folder):
+```bash
+./run_cross_vs_wmma.sh
+```
+
+Day 146: Occupancy auto-tune sweep
+Folder: 146_occ_autotune
+Run (from the folder):
+```bash
+./run_autotune.sh
+```
+
+Day 147: Shared memory bank conflict sweep
+Folder: 147_reg_bank_conflicts
+Run (from the folder):
+```bash
+./run_bank_conflicts.sh
+```
+
+Day 148: Flux kernel optimized vs baseline
+Folder: 148_flux_kernel_finalize
+Run (from the folder):
+```bash
+./run_flux_bench.sh
+```
+
+Day 149: Speedup documentation summary
+Folder: 149_speedup_doc
+Run (from the folder):
+```bash
+./run_speedup_doc.sh
+```
+
+Day 150: Full pipeline integration test
+Folder: 150_full_pipeline_test
+Run (from the folder):
+```bash
+./run_full_pipeline.sh
+```
+
+Day 151: CURAND Sobol device vs host quality
+Folder: 151_curand_sobol_quality
+Run (from the folder):
+```bash
+./run_sobol_compare.sh
+```
+
+Day 152: Warp-level XORSHIFT PTX RNG
+Folder: 152_ptx_xorshift_warp
+Run (from the folder):
+```bash
+./run_xorshift.sh
+```
+
+Day 153: RNG quality comparison (chi-square/KS)
+Folder: 153_rng_quality_compare
+Run (from the folder):
+```bash
+./run_rng_quality.sh
+```
+
+Day 154: RL random resets perturbation
+Folder: 154_rl_random_resets
+Run (from the folder):
+```bash
+./run_random_resets.sh
+```
+
+Day 155: TensorBoard reward stability logs
+Folder: 155_tensorboard_stability
+Run (from the folder):
+```bash
+./run_tensorboard.sh
+```
+
+Day 156: A-Trous denoiser (Vulkan shader + CPU)
+Folder: 156_vulkan_atrous_denoise
+Run (from the folder):
+```bash
+./run_atrous.sh
+```
+
+Day 157: PTX wavelet transform verification
+Folder: 157_ptx_wavelet_denoise
+Run (from the folder):
+```bash
+./run_wavelet_ptx.sh
+```
+
+Day 158: Denoiser timing benchmark
+Folder: 158_denoise_timing
+Run (from the folder):
+```bash
+./run_denoise_timing.sh
+```
+
+Day 159: Denoiser shared memory bank tuning
+Folder: 159_denoise_bank_tuning
+Run (from the folder):
+```bash
+./run_bank_tune.sh
+```
+
+Day 160: Denoiser quality comparison
+Folder: 160_denoise_quality_compare
+Run (from the folder):
+```bash
+./run_quality_compare.sh
+```
+
+Day 161: GNN flux Jacobian surrogate
+Folder: 161_gnn_flux_surrogate
+Run (from the folder):
+```bash
+./run_gnn_train.sh
+```
+
+Day 162: GNN TorchInductor PTX export
+Folder: 162_gnn_inductor_ptx
+Run (from the folder):
+```bash
+python gnn_inductor_ptx.py
+./find_ptx.sh
+```
+
+Day 163: GNN fused kernel SASS inspect
+Folder: 163_gnn_sass_inspect
+Run (from the folder):
+```bash
+./inspect_gnn_sass.sh
+```
+
+Day 164: cuTensorNet v2 fusion mock benchmark
+Folder: 164_cutensornet_fusion
+Run (from the folder):
+```bash
+./run_fusion.sh
+```
+
+Day 165: cuTensorNet fused vs separate timing
+Folder: 165_cutensornet_timing
+Run (from the folder):
+```bash
+./run_fusion_timing.sh
+```
+
+Day 166: FP8 (dp4a) conv pipeline demo
+Folder: 166_fp8_conv_dp8a
+Run (from the folder):
+```bash
+./run_fp8_conv.sh
+```
+
+Day 167: Nsight power/clock logging
+Folder: 167_nsight_power_clock
+Run (from the folder):
+```bash
+./run_power_profile.sh
+```
+
+Day 168: Thermal throttling sweep
+Folder: 168_thermal_throttle_log
+Run (from the folder):
+```bash
+./run_thermal_sweep.sh
+```
+
+Day 169: CUDA 13.1 release notes check
+Folder: 169_cuda_131_release
+Run (from the folder):
+```bash
+./check_cuda_131.sh
+```
+
+Day 170: CUDA 13.1 benchmark rerun
+Folder: 170_cuda_131_benchmarks
+Run (from the folder):
+```bash
+./run_cuda_131_benchmarks.sh
+```
+
+Day 171: OpenACC offload sample (NVC++)
+Folder: 171_openacc_cutensor
+Run (from the folder):
+```bash
+./build_openacc.sh
+```
+
+Day 172: OpenACC vs nvcc PTX compare
+Folder: 172_openacc_vs_nvcc_ptx
+Run (from the folder):
+```bash
+./compare_ptx.sh
+```
+
+Day 173: Domain split NVLink simulation
+Folder: 173_nvlink_domain_split
+Run (from the folder):
+```bash
+./run_domain_split.sh
+```
+
+Day 174: MPS partitioned CUDA Graph
+Folder: 174_mps_graph_partition
+Run (from the folder):
+```bash
+./run_mps_graph.sh
+```
+
+Day 175: Nsight Systems MPS overlap
+Folder: 175_nsys_mps_overlap
+Run (from the folder):
+```bash
+./profile_mps_nsys.sh
+```
+
+Day 176: gRPC RL parameter server
+Folder: 176_grpc_param_server
+Run (from the folder):
+```bash
+./run_grpc.sh
+```
+
+Day 177: CPU-GPU launch latency
+Folder: 177_cpu_gpu_latency
+Run (from the folder):
+```bash
+./run_latency.sh
+```
+
+Day 178: Async memcpy overlap
+Folder: 178_async_memcpy_overlap
+Run (from the folder):
+```bash
+./run_async_copy.sh
+```
+
+Day 179: L2 hit ratio profiling
+Folder: 179_l2_hit_overlap
+Run (from the folder):
+```bash
+./profile_l2.sh
+```
+
+Day 180: Kernel speed report
+Folder: 180_speed_report
+Run (from the folder):
+```bash
+./run_speed_report.sh
+```
+
+Day 181: DX12 DXR NeRF mock pipeline
+Folder: 181_dx12_dxr_nerf
+Run (from the folder):
+```bash
+./run_dxr.sh
+```
+
+Day 182: GL_NV_copy_image mock copy
+Folder: 182_gl_nv_copy_image
+Run (from the folder):
+```bash
+./run_gl_copy.sh
+```
+
+Day 183: Direct vs staging copy compare
+Folder: 183_copy_vs_staging
+Run (from the folder):
+```bash
+./run_copy_compare.sh
+```
+
+Day 184: ImGui HUD overlay mock
+Folder: 184_imgui_hud_overlay
+Run (from the folder):
+```bash
+./run_hud_overlay.sh
+```
+
+Day 185: RL HUD sensor fusion
+Folder: 185_rl_hud_fusion
+Run (from the folder):
+```bash
+./run_hud_fusion.sh
+```
+
+Day 186: RL success rate comparison
+Folder: 186_rl_success_rate
+Run (from the folder):
+```bash
+./run_success_rate.sh
+```
+
+Day 187: SegFormer FP4 mock quant
+Folder: 187_segformer_fp4_trt
+Run (from the folder):
+```bash
+./run_fp4_quantize.sh
+```
+
+Day 188: TensorRT FP4 PTX inspect
+Folder: 188_trt_engine_fp4_ptx
+Run (from the folder):
+```bash
+./inspect_trt_fp4_ptx.sh
+```
+
+Day 189: SegFormer FP4 accuracy drop
+Folder: 189_segformer_fp4_accuracy
+Run (from the folder):
+```bash
+./run_accuracy.sh
+```
+
+Day 190: LoRA recovery on FP4
+Folder: 190_lora_fp4_recover
+Run (from the folder):
+```bash
+./run_lora_recover.sh
+```
+
+Day 191: qGAN PennyLane demo
+Folder: 191_qgan_pennylane
+Run (from the folder):
+```bash
+./run_qgan.sh
+```
+
+Day 192: qGAN cuTensorNet conv
+Folder: 192_qgan_cutensornet
+Run (from the folder):
+```bash
+./run_cutensornet_qgan.sh
+```
+
+Day 193: qGAN conv SASS inspect
+Folder: 193_qgan_sass
+Run (from the folder):
+```bash
+./inspect_qgan_sass.sh
+```
+
+Day 194: qGAN RL domain randomization
+Folder: 194_qgan_rl_domain
+Run (from the folder):
+```bash
+./run_qgan_rl.sh
+```
+
+Day 195: qGAN FID score
+Folder: 195_qgan_fid
+Run (from the folder):
+```bash
+./run_fid.sh
+```
+
+Day 196: Multi-stream CUDA Graph events
+Folder: 196_graph_multistream_events
+Run (from the folder):
+```bash
+./run_multigraph.sh
+```
+
+Day 197: cudaEventBlockingSync overhead
+Folder: 197_event_blocking_overhead
+Run (from the folder):
+```bash
+./run_event_overhead.sh
+```
+
+Day 198: Nsight overlap with events
+Folder: 198_nsys_overlap_events
+Run (from the folder):
+```bash
+./profile_overlap.sh
+```
+
+Day 199: Chunk size tuning
+Folder: 199_chunk_size_tuning
+Run (from the folder):
+```bash
+./run_chunk_tuning.sh
+```
+
+Day 200: 8-hour pipeline stress test
+Folder: 200_stress_test_8h
+Run (from the folder):
+```bash
+./run_stress_8h.sh 8
+```
 
 Day 201:
 Build a custom convolution kernel in Triton 2.2 using new `asm` macros; verify PTX matches expectations 
