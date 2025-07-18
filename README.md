@@ -1355,23 +1355,16 @@ Day 62:
 Write a scatter-add kernel with warp shfl.sync (inline PTX) for neighbor sums
 
 Day 63:
-Investigate compute shaders in DirectX for GPGPU tasks.
-Reference: DirectCompute documentation
+Train the GATv2 for 10 epochs on the mesh data
 
 Day 64:
-Attempt a small fluid simulation or parted PDE approach with DirectCompute.
-Reference: [GPU Pro books / Microsoft samples]
+Experiment with TensorRT conversion of the GNN (if supported); handle custom layers 
 
 Day 65:
-Compare DirectCompute performance to your CUDA approach.
-Reference: [Forums / Articles comparing DirectCompute vs CUDA]
-
----
-Block 14 (Days 66–70)
+Insert the GNN output as a correction term into the PDE loop; evaluate improvement
 
 Day 66:
-OpenGL basics: create a simple context in WSL2 using X11 forwarding or Windows host.
-Reference: LearnOpenGL
+Use CUDA-OpenGL Pixel Buffer (PBO) to render an iso-surface of the volume in real-time
 
 Day 67:
 Draw a rotating 3D shape with modern OpenGL (VAOs, VBOs, shaders).
