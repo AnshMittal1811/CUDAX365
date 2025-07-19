@@ -1367,54 +1367,37 @@ Day 66:
 Use CUDA-OpenGL Pixel Buffer (PBO) to render an iso-surface of the volume in real-time
 
 Day 67:
-Draw a rotating 3D shape with modern OpenGL (VAOs, VBOs, shaders).
-Reference: [OpenGL Superbible or any up-to-date tutorial]
+Write a PTX kernel to copy volume data into an OpenGL PBO; measure bandwidth 
 
 Day 68:
-Explore OpenGL ES differences. Possibly use an emulator or angle to see it in action.
-Reference: OpenGL ES docs
+Port a compute shader version of the PDE update to Vulkan (using Vulkan compute) 
 
 Day 69:
-Start linking an OpenGL “surface visualization” to your MHD data (render isosurfaces).
-Reference: [Marching Cubes GPU implementations, e.g., NVIDIA sample]
+Compare SPIR-V (Vulkan) vs. PTX performance for the compute shader
 
 Day 70:
-Basic overlay of CUDA–OpenGL interop to display fluid fields in real time.
-Reference: [CUDA-OpenGL interop sample in the CUDA toolkit]
-
----
-Block 15 (Days 71–75)
+Use EGL for headless offscreen rendering of NeRF output; benchmark FPS 
 
 Day 71:
-Check out Vulkan basics, especially compute pipelines.
-Reference: Vulkan Tutorial
+Test Hopper FP8 Tensor Core instructions: inline PTX dp8a dot product on dummy data
 
 Day 72:
-Implement a minimal Vulkan compute pipeline for a simple operation (vector add).
-Reference: Official Khronos Vulkan Samples
+Convert the SegFormer model to FP8 using cuBLASLt (FP8 GEMM); evaluate IOU drop
 
 Day 73:
-Integrate Vulkan + MHD data to do some GPU-based fluid step.
-Reference: [Vulkan compute examples on GitHub]
+Profile FP8 kernel metrics (Nsight) and occupancy on Hopper if available 
 
 Day 74:
-Investigate X11 usage under WSL2, how to run Vulkan or OpenGL with X forwarding.
-Reference: [X11 in WSL2 docs or community guides]
+Try DeepSpeed ZeRO-2 on the TinyLlama training (16 GB VRAM); observe memory saving
 
 Day 75:
-Learn about OpenVG, EGL, EGLOutput, and EGLSync for low-level rendering on embedded devices.
-Reference: Khronos EGL docs
-
-----
-Block 16 (Days 76–80)
+Compare iteration time vs. the earlier QLoRA baseline training
 
 Day 76:
-Build a minimal EGL + OpenGL ES environment on WSL2 if possible.
-Reference: [EGL/GL ES on Linux tutorials]
+Use CURAND Sobol sequence in device code (PTX) to initialize turbulence field 
 
 Day 77:
-Explore NVSCI and NvMedia (NVIDIA APIs for advanced cross-process video/graphics).
-Reference: [NVIDIA Drive or Jetson documentation (NvMedia / NVSCIIPC)]
+Embed the Sobol-generated noise field into the solver for randomness (turbulence) 
 
 Day 78:
 Attempt a minimal pipeline combining an EGL surface + CUDA to display real-time fluid updates.
