@@ -1400,31 +1400,22 @@ Day 77:
 Embed the Sobol-generated noise field into the solver for randomness (turbulence) 
 
 Day 78:
-Attempt a minimal pipeline combining an EGL surface + CUDA to display real-time fluid updates.
-Reference: [NVIDIA Drive/Jetson sample code for display integration]
+Use Vulkan Ray Tracing (VK_KHR_ray_tracing) to preview volume rendering with rays
 
 Day 79:
-Expand to handle multiple buffers with EGLSync for synchronization.
-Reference: [Khronos EGLSync docs]
+Try DirectX 12 DXR for NeRF path tracing; measure latency vs. Vulkan
 
 Day 80:
-Evaluate performance for real-time MHD or fluid data visualization pipeline.
-Reference: [Nsight Graphics or Nsight Systems for profiling]
-
----
-Block 17 (Days 81–85)
+Enable CUDA Multi-Process Service (MPS); run NeRF and RL concurrently in separate processes
 
 Day 81:
-Deeper look at Quantum Machine Learning with PennyLane’s advanced demos.
-Reference: PennyLane QML demos
+Train a D-NeRF (dynamic NeRF) on a moving scene dataset
 
 Day 82:
-Attempt a hybrid classical–quantum model for a small dataset.
-Reference: [PennyLane tutorial on hybrid models]
+Apply INT4 post-training quantization to D-NeRF; check PSNR drop
 
 Day 83:
-Investigate parametric circuits for classification or regression tasks, perhaps fluid classification.
-Reference: [Qiskit Machine Learning’s QSVM or VQC demos]
+Have the RL agent optimize the NeRF camera path for better exploration 
 
 Day 84:
 Run or emulate a small quantum device approach to a fluid PDE (toy model).
