@@ -1421,23 +1421,16 @@ Day 84:
 Simulate multi-GPU with NCCL in loopback (single GPU pretending to be two) for testing
 
 Day 85:
-Start reading about HPC + quantum co-processing or quantum-inspired algorithms.
-Reference: [Quantum-Inspired HPC docs from D-Wave or IonQ blog]
-
----
-Block 18 (Days 86–90)
+Use cuobjdump to inspect NCCL kernels; note HMMA usage for all-reduce
 
 Day 86:
-Basic introduction to Quantum Chromodynamics-based ML more thoroughly. Possibly check PyTorch for implementing small lattice updates.
-Reference: [Research papers on lattice QCD ML approaches, e.g., “ML for LQCD” on arXiv]
+Use NVC++ to compile an OpenACC version of the flux kernel; generate PTX 
 
 Day 87:
-Attempt a small HPC code to handle mini-lattice updates with CUDA.
-Reference: [GitHub repos for Lattice QCD on GPUs (QUDA library if open-sourced)]
+Compare runtime of the OpenACC kernel vs. the original CUDA kernel
 
 Day 88:
-Evaluate hooking in QML ideas to your HPC-lattice code (this is experimental).
-Reference: [QUDA (Quantum Chromodynamics on GPUs) library docs if you can find it]
+Use cooperative groups ( `cooperative_groups` library) to synchronize threads vs. `1__syncthreads`
 
 Day 89:
 Investigate Tensor Cores for HPC matrix ops.
