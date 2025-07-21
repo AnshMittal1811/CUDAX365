@@ -1418,8 +1418,7 @@ Day 83:
 Have the RL agent optimize the NeRF camera path for better exploration 
 
 Day 84:
-Run or emulate a small quantum device approach to a fluid PDE (toy model).
-Reference: [Quantum PDE solving references on arXiv]
+Simulate multi-GPU with NCCL in loopback (single GPU pretending to be two) for testing
 
 Day 85:
 Start reading about HPC + quantum co-processing or quantum-inspired algorithms.
