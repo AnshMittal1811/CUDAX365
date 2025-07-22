@@ -1433,19 +1433,13 @@ Day 88:
 Use cooperative groups ( `cooperative_groups` library) to synchronize threads vs. `1__syncthreads`
 
 Day 89:
-Investigate Tensor Cores for HPC matrix ops.
-Reference: [NVIDIA Ampere or Ada GPU Tensor Core docs]
+Inline `bar.sync` 0 PTX to manually manage warp synchronization in a regrouping kernel
 
 Day 90:
-Attempt to use Tensor Cores in a custom kernel (WMMA) or with cuBLAS “tensor op” calls.
-Reference: [CUDA WMMA official sample code]
-
----
-Block 19 (Days 91–95)
+Use `__launch_bounds__` to experiment with limiting registers for higher occupancy 
 
 Day 91:
-Return to NeRF: check advanced repos (NeRFStudio, Instant-NGP).
-Reference: Instant-NGP by NVIDIA
+Set up TensorRT-LLM with multi-context (server mode); aim for ~512 QPS with a 7B model 
 
 Day 92:
 Install and run instant-ngp on your MHD volume or fluid data (converted to “images” or partial data).
