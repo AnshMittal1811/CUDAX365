@@ -1442,8 +1442,7 @@ Day 91:
 Set up TensorRT-LLM with multi-context (server mode); aim for ~512 QPS with a 7B model 
 
 Day 92:
-Install and run instant-ngp on your MHD volume or fluid data (converted to “images” or partial data).
-Reference: [Nerfstudio data loading docs]
+Implement a Reinforcement Learning with Human Feedback (RLHF) loop for TinyLlama; compile the reward model to PTX
 
 Day 93:
 Investigate potential real-time rendering or partial 3D reconstruction for fluid “volume rendering.”
