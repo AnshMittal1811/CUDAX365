@@ -1445,8 +1445,7 @@ Day 92:
 Implement a Reinforcement Learning with Human Feedback (RLHF) loop for TinyLlama; compile the reward model to PTX
 
 Day 93:
-Investigate potential real-time rendering or partial 3D reconstruction for fluid “volume rendering.”
-Reference: [NeRF for volume rendering - specialized research papers]
+Collect GPU power metrics with `nvidia-smi -q -d POWER` during a long run
 
 Day 94:
 Start linking the concept of “Neural Radiance Fields in Fluids” more concretely.
