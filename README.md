@@ -1448,8 +1448,7 @@ Day 93:
 Collect GPU power metrics with `nvidia-smi -q -d POWER` during a long run
 
 Day 94:
-Start linking the concept of “Neural Radiance Fields in Fluids” more concretely.
-Reference: [Research on “Neural Fields for PDE or fluid simulation” on ArXiv]
+Implement a wavelet transform on GPU (inline PTX) and embed it in the solver (for compression) 
 
 Day 95:
 Experiment with training a small MHD “Neural Field” to predict next time-step.
