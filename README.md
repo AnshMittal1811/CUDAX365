@@ -1451,19 +1451,13 @@ Day 94:
 Implement a wavelet transform on GPU (inline PTX) and embed it in the solver (for compression) 
 
 Day 95:
-Experiment with training a small MHD “Neural Field” to predict next time-step.
-Reference: [Neural PDE approximation papers (Fourier Neural Operator, etc.)]
-
----
-Block 20 (Days 96–100)
+Use a CUDA Graph to fuse the PDE update and wavelet transform; profile timeline
 
 Day 96:
-Dive deeper into quantization for NeRF: try post-training quantization on an Instant-NGP model.
-Reference: [TensorRT INT8 for NeRF discussion on forums or GitHub forks]
+Set up a Docker container with the whole stack (CUDA, PyTorch, Triton, etc.) using nvidia-docker 
 
 Day 97:
-Evaluate speed vs. accuracy trade-offs with INT8 NeRF.
-Reference: [Nsight Systems to measure performance]
+Run a 6-hour stress test of the integrated pipeline; capture Nsight Systems timeline
 
 Day 98:
 Explore Quantization Aware Training for a small neural volume model.
