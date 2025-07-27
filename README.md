@@ -1460,31 +1460,24 @@ Day 97:
 Run a 6-hour stress test of the integrated pipeline; capture Nsight Systems timeline
 
 Day 98:
-Explore Quantization Aware Training for a small neural volume model.
-Reference: [PyTorch QAT docs again]
+Try the new cuTensorNet v2 convolution fusion on a sample model; compare speed 
 
 Day 99:
-Check if you can combine QLoRA ideas with a smaller neural field for memory savings.
-Reference: [LoRA in non-transformer contexts, community experiments]
+Compare fused vs. unfused kernel PTX instruction counts (Nsight diff mode)
 
 Day 100:
-Possibly combine all: HPC fluid PDE → Neural Field representation → Quantized inference.
-Reference: [Your own HPC code integrated with small MLP for PDE steps]
+Write an auto-tuner script to sweep block and register settings for a kernel; find optimal
 
----
-Block 21 (Days 101–105)
 
 Day 101:
-CUDA graph features for capturing and replaying GPU workloads.
-Reference: CUDA Graphs doc
+Implement a quantum-inspired simulated annealing search kernel in PTX for optimization
 
 Day 102:
-Convert your PDE or MHD pipeline into a CUDA graph to see performance gain.
-Reference: [CUDA Graphs sample in the toolkit]
+Integrate the annealing search as a hyperparameter tuner for the MHD solver
 
 Day 103:
-Investigate using multiple GPUs if you ever add an external GPU or HPC cluster.
-Reference: NCCL docs (NVIDIA Collective Communications Library)
+Port the PDE update kernel to DirectX12 compute (use DirectCompute ); test correctness
+
 
 Day 104:
 Explore concurrency with streams, events, pinned memory for faster transfers.
