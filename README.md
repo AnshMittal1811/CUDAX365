@@ -1480,19 +1480,14 @@ Port the PDE update kernel to DirectX12 compute (use DirectCompute ); test corre
 
 
 Day 104:
-Explore concurrency with streams, events, pinned memory for faster transfers.
-Reference: CUDA Streams and Events Guide
+Disassemble the DXIL compute shader; compare operations to PTX equivalents 
 
 Day 105:
-Try splitting your PDE steps among multiple streams or concurrency to see speedups.
-Reference: [Multi-stream concurrency sample codes]
-
-----
-Block 22 (Days 106–110)
+Use NvMedia (if available) to encode raw NeRF frames to H.264; note any hardware acceleration 
 
 Day 106:
-Revisit GNN pipelines with large graphs or adjacency from fluid grids.
-Reference: [PyTorch Geometric advanced features]
+
+Use PTX mov.u64 %rd<*> from %globaltimer register to timestamp kernel intervals
 
 Day 107:
 Use NVGraph or cuSPARSE for better graph ops.
