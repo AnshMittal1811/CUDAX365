@@ -1490,16 +1490,13 @@ Day 106:
 Use PTX mov.u64 %rd<*> from %globaltimer register to timestamp kernel intervals
 
 Day 107:
-Use NVGraph or cuSPARSE for better graph ops.
-Reference: cuGraph from RAPIDS
+Explore CUDA Graph external dependencies: use CUDA events and semaphores between graph launches
 
 Day 108:
-Benchmark GNN training vs. standard CPU approach.
-Reference: [cugraph docs + PyTorch Geometric + RAPIDS integration]
+Use CUTLASS to train a small GNN with FP8 (enable FP8 WMMA); inspect SASS HMMA
 
 Day 109:
-Attempt advanced GCN or Graph Attention Networks (GAT) on HPC data.
-Reference: GAT paper (Velickovic et al.)
+Use Nsight Systems “Pipeline” view to visualize the entire workload (PDE + ML + rendering)
 
 Day 110:
 Integrate your concurrency knowledge to speed up dataset prefetch / augmentation.
