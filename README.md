@@ -1499,50 +1499,35 @@ Day 109:
 Use Nsight Systems “Pipeline” view to visualize the entire workload (PDE + ML + rendering)
 
 Day 110:
-Integrate your concurrency knowledge to speed up dataset prefetch / augmentation.
-Reference: [NVIDIA DALI or custom concurrency pipelines]
+Deploy the TabLLM model with HuggingFace TextGeneration-Inference (TGI); inspect its Triton kernels PTX
 
----
-Block 23 (Days 111–115)
 
 Day 111:
-Return to Quantum side: try a small “Variational Quantum Eigensolver” (VQE) for a simple chemistry problem.
-Reference: [Qiskit Chemistry / PennyLane Chemistry demos]
+Use EGL + NVENC to record a 1080p video of the NeRF output in real-time
 
 Day 112:
-Evaluate HPC-lattice synergy with quantum circuits: advanced experimental area.
-Reference: [Papers on quantum-lattice synergy]
+Measure NVENC encoding FPS vs. CPU software encoding for the recorded video
 
 Day 113:
-Investigate quantum error mitigation or noise models in simulators.
-Reference: [Qiskit Ignis or Mitiq library]
+Try a preview of TensorRT 10; test FP4 matrix multiply on a small network
 
 Day 114:
-Attempt noise-aware QML model on a simulator.
-Reference: [Mitiq docs or Qiskit Aer]
+Inline PTX dp4a (INT8 dot) in a custom conv; compare throughput to HMMA
 
 Day 115:
-Try scaling your QML model if possible with GPU-based simulators.
-Reference: [NVIDIA cuQuantum library or Qiskit Aer GPU docs]
-
----
-Block 24 (Days 116–120)
+Note the throughput difference between INT8 DP4A and FP16 HMMA on the 4090 
 
 Day 116:
-Coding-based LLMs: check out CodeLLMs (StarCoder, CodeLlama) for GPU usage.
-Reference: StarCoder Hugging Face model card
+Use cuStateVec to simulate a 10-qubit circuit on GPU; measure simulation time 
 
 Day 117:
-Attempt local fine-tuning with QLoRA for code generation tasks.
-Reference: [PEFT/QLoRA for StarCoder examples on HF]
+Run a QAOA (quantum approximate optimization) cost function evaluation for PDE parameters; use GPU acceleration
 
 Day 118:
-Evaluate 4-bit vs. 8-bit for code LLM, test on your 16GB VRAM.
-Reference: [bitsandbytes integration for code LLMs]
+Export the gradient computation of the QAOA circuit to a CUDA kernel (e.g., using cuQuantum); inspect PTX 
 
 Day 119:
-See if you can get the LLM to help generate your HPC kernels or PDE code.
-Reference: [LangChain “agent” approach for code generation]
+Write a warp-specialized convolution kernel using ldmatrix for LDG (like FlashAttention uses)
 
 Day 120:
 Explore performance or accuracy metrics for coding tasks with small local LLM.
