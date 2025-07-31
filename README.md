@@ -1530,15 +1530,11 @@ Day 119:
 Write a warp-specialized convolution kernel using ldmatrix for LDG (like FlashAttention uses)
 
 Day 120:
-Explore performance or accuracy metrics for coding tasks with small local LLM.
-Reference: [HumanEval or MBPP dataset for code generation benchmarks]
+Set `__launch_bounds__` on the convolution kernel to limit registers and improve occupancy
 
----
-Block 25 (Days 121–125)
 
 Day 121:
-Explore DocLLMs specifically for HPC or CUDA documentation search.
-Reference: [LangChain docs for doc-based QA, integrating CUDA docs offline]
+ Build a Fourier Feature positional encoding + MLP renderer; verify PTX
 
 Day 122:
 Index the official CUDA docs, HPC references, and see if your local LLM can answer HPC questions.
