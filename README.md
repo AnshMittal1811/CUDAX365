@@ -1534,7 +1534,7 @@ Set `__launch_bounds__` on the convolution kernel to limit registers and improve
 
 
 Day 121:
- Build a Fourier Feature positional encoding + MLP renderer; verify PTX
+Build a Fourier Feature positional encoding + MLP renderer; verify PTX
 
 Day 122:
 Index the official CUDA docs, HPC references, and see if your local LLM can answer HPC questions.
