@@ -1537,12 +1537,10 @@ Day 121:
 Build a Fourier Feature positional encoding + MLP renderer; verify PTX
 
 Day 122:
-Index the official CUDA docs, HPC references, and see if your local LLM can answer HPC questions.
-Reference: [FAISS / Chroma / Milvus vector DB for doc chunking]
+Add FP8 WMMA triple-buffering to the MLP (overlap load/ compute)
 
 Day 123:
-Add a small “chatbot” interface to ask HPC / quantum queries.
-Reference: [Gradio or Streamlit-based chat UI]
+Use Nsight Compute’s new occupancy heatmap feature to visualize SM utilization 
 
 Day 124:
 Test out advanced retrieval-based question answering, ensuring correct context retrieval.
