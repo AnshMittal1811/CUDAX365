@@ -1543,8 +1543,7 @@ Day 123:
 Use Nsight Compute’s new occupancy heatmap feature to visualize SM utilization 
 
 Day 124:
-Test out advanced retrieval-based question answering, ensuring correct context retrieval.
-Reference: [LangChain RetrievalQA or RAG approach]
+Launch a multi-stream test with cudaLaunchCooperativeKernel across streams (overlap compute)
 
 Day 125:
 Evaluate the possibility of fine-tuning for HPC domain knowledge.
