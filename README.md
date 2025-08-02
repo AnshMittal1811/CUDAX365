@@ -1546,19 +1546,13 @@ Day 124:
 Launch a multi-stream test with cudaLaunchCooperativeKernel across streams (overlap compute)
 
 Day 125:
-Evaluate the possibility of fine-tuning for HPC domain knowledge.
-Reference: [PEFT + domain text approach]
-
----
-Block 26 (Days 126–130)
+Measure L2 and texture cache hit rates on NeRF sampling with Nsight; adjust block size to improve locality
 
 Day 126:
-Investigate DirectX Raytracing (DXR) to visualize volumetric data.
-Reference: Microsoft DXR samples on GitHub
+Use CURAND Philox in PTX for random generation; compare distribution to XORShift
 
 Day 127:
-Attempt a minimal ray tracing example in DirectX 12.
-Reference: [NV Raytracing tutorials if any for Windows]
+Introduce noise in RL observations (domain randomization) and measure training stability
 
 Day 128:
 Combine DXR with your fluid volume for advanced real-time visualization.
