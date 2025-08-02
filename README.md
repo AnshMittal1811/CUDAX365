@@ -1555,12 +1555,10 @@ Day 127:
 Introduce noise in RL observations (domain randomization) and measure training stability
 
 Day 128:
-Combine DXR with your fluid volume for advanced real-time visualization.
-Reference: [Raymarched volume examples in DirectX or Vulkan]
+Use Vulkan async compute + graphics queues to overlap volume rendering and simulation
 
 Day 129:
-Compare DXR vs. path tracing in OpenGL or Vulkan.
-Reference: Ray tracing in Vulkan (VK_KHR_ray_tracing)
+Capture a GPU trace with AMD Radeon GPU Profiler (RGP) for comparison (if AMD GPU available)
 
 Day 130:
 See if real-time volumetric rendering can integrate with your HPC PDE updates.
