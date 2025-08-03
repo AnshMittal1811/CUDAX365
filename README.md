@@ -1561,11 +1561,7 @@ Day 129:
 Capture a GPU trace with AMD Radeon GPU Profiler (RGP) for comparison (if AMD GPU available)
 
 Day 130:
-See if real-time volumetric rendering can integrate with your HPC PDE updates.
-Reference: [Nsight Graphics for debug]
-
----
-Block 27 (Days 131–135)
+Summarize the ratio of latency to memory-bound stalls from all kernels (from Nsight reports)
 
 Day 131:
 Return to NPP or your image pipeline: advanced morphological ops, filtering, etc.
