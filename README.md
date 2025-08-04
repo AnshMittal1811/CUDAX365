@@ -1564,12 +1564,10 @@ Day 130:
 Summarize the ratio of latency to memory-bound stalls from all kernels (from Nsight reports)
 
 Day 131:
-Return to NPP or your image pipeline: advanced morphological ops, filtering, etc.
-Reference: [NPP advanced filtering sample code]
+Use DeepSpeed ZeRO-3 offload (32 GB host memory) for TinyLlama; measure throughput
 
 Day 132:
-Integrate morphological transformations for segmentation tasks in fluid frames.
-Reference: [Any morphological operation doc (OpenCV + GPU or NPP docs)]
+Profile CPU-GPU transfer using Nsight (NVLink usage if any); attempt to overlap transfers
 
 Day 133:
 Investigate advanced custom GPU kernels for wavelet transforms in fluid analysis.
