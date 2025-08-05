@@ -1570,27 +1570,19 @@ Day 132:
 Profile CPU-GPU transfer using Nsight (NVLink usage if any); attempt to overlap transfers
 
 Day 133:
-Investigate advanced custom GPU kernels for wavelet transforms in fluid analysis.
-Reference: [Wavelet transform HPC examples or cuFFT + wavelet combos]
+Write a Triton custom reduction kernel with inline assembly; compare reg usage vs. CUDA version
 
 Day 134:
-Attempt a wavelet-based decomposition of an MHD field and visualize results.
-Reference: [PyWavelets, custom GPU wavelet code on GitHub]
+Compare compile-time register usage of this Triton kernel vs. using CUB library
 
 Day 135:
-If you see interesting patterns, feed them into your LLM as “image + text” for summarization.
-Reference: [CLIP or BLIP for bridging image <-> text]
-
----
-Block 28 (Days 136–140)
+Add gradient checkpointing to the FNO model training to save memory
 
 Day 136:
-Investigate CUSOLVER for advanced linear algebra on GPU (eigenvalue decomposition, SVD).
-Reference: CUSOLVER docs
+Re-profile VRAM usage during training/inference after checkpointing
 
 Day 137:
-Explore how to handle large matrix operations for PDE or QCD systems with CUSOLVER.
-Reference: [Examples in cuSOLVER GitHub or HPC tutorials]
+Integrate a 4-bit GPT-J 6B model for code completion (INT4 quantized) and test latency
 
 Day 138:
 Implement a GPU-based SVD for some MHD or QCD data snapshot matrix.
