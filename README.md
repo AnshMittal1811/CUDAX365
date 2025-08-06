@@ -1585,12 +1585,11 @@ Day 137:
 Integrate a 4-bit GPT-J 6B model for code completion (INT4 quantized) and test latency
 
 Day 138:
-Implement a GPU-based SVD for some MHD or QCD data snapshot matrix.
-Reference: [NVIDIA HPC code samples or custom code]
+Evaluate latency of the GPT-J vs. the TinyLlama; use a script to measure tokens/s
 
 Day 139:
-Investigate using SVD-based dimension reduction for fluid data and feed into your GNN or LLM.
-Reference: [PCA/SVD dimension reduction HPC references]
+Use cuTensor to contract a 4th-order tensor from the MHD
+simulation (e.g., stress tensor) efficiently 
 
 Day 140:
 Evaluate performance vs. CPU-based SVD.
