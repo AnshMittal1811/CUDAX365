@@ -1588,46 +1588,31 @@ Day 138:
 Evaluate latency of the GPT-J vs. the TinyLlama; use a script to measure tokens/s
 
 Day 139:
-Use cuTensor to contract a 4th-order tensor from the MHD
-simulation (e.g., stress tensor) efficiently 
+Use cuTensor to contract a 4th-order tensor from the MHD simulation (e.g., stress tensor) efficiently 
 
 Day 140:
-Evaluate performance vs. CPU-based SVD.
-Reference: [Nsight Systems / Nsight Compute for performance measurement]
-
-----
-Block 29 (Days 141–145)
+Try the CUTLASS experimental FFT kernels for 1D transforms; compare to cuFFT 
 
 Day 141:
-Quantum-inspired algorithms: glimpses into the “Trove of Quantum-inspired HPC.”
-Reference: [Microsoft’s Quantum-Inspired Optimization docs]
+Study the SM90 microcode scheduling details (from Hopper whitepaper); relate to measured warp occupancy
 
 Day 142:
-Attempt a small quantum-inspired approach for fluid optimization or PDE solver.
-Reference: [Papers on quantum annealing for PDE or lattice QCD]
+Manually reorder instructions in a small kernel to test the wavefront scheduler effect
 
 Day 143:
-If feasible, adapt a QAOA-based approach for a discrete optimization in your HPC code.
-Reference: [Qiskit or PennyLane QAOA tutorials]
+Use Nsight Compute source view to identify stall reasons for a kernel; tweak code to reduce stalls
 
 Day 144:
-Compare results with classical HPC solutions.
-Reference: [Mitiq or Qiskit measurement tools]
+Write a warp-level 3×3 matrix cross-product kernel with inline PTX; verify correctness vs. C++
 
 Day 145:
-Evaluate potential future directions (scalable HPC or real quantum hardware usage).
-Reference: [IonQ, Rigetti, IBM Q for possible future runs]
-
----
-Block 30 (Days 146–150)
+Compare the performance of this custom cross-product vs. using WMMA (if possible) 
 
 Day 146:
-Revisit CUDA kernel optimization: instruction-level optimization, occupancy analysis.
-Reference: [NVIDIA Occupancy Calculator in Nsight Compute]
+Use the occupancy API to auto-tune block size and regs (write a script to try ~50 configs)
 
 Day 147:
-Fine-tune your PDE or MHD kernel to reduce registers, improve occupancy.
-Reference: [NVIDIA HPC webinar or dev blog on occupancy]
+Experiment with register bank conflicts: offset shared memory indices mod 32; see effect on speed
 
 Day 148:
 Explore CUDA Inline PTX for advanced control.
