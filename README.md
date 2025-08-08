@@ -1615,23 +1615,17 @@ Day 147:
 Experiment with register bank conflicts: offset shared memory indices mod 32; see effect on speed
 
 Day 148:
-Explore CUDA Inline PTX for advanced control.
-Reference: [Inline PTX docs in CUDA C++ Programming Guide]
+Finalize the flux kernel with all optimizations (barrier sync, FMA fusing); document speedup %
 
 Day 149:
 Attempt a small segment of your solver with inline PTX for specialized instructions.
-Reference: [Examples on GitHub / HPC dev blogs]
+Document in README the speedups achieved vs. baseline for each module (for reference)
 
 Day 150:
-Evaluate performance improvements.
-Reference: [Nsight Compute for kernel analysis]
-
-----
-Block 31 (Days 151–155)
+Run the entire pipeline (PDE + NeRF + RL + LLM integrated) and validate outputs
 
 Day 151:
-CURAND deeper usage: advanced random distributions for fluid or quantum simulations.
-Reference: [CURAND docs advanced usage]
+Use CURAND device API for quasi-random Sobol vs. host generation; compare sequence quality
 
 Day 152:
 Integrate random fluctuations in MHD or QCD code to represent noise or initial conditions.
