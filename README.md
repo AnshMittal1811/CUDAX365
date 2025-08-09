@@ -1628,27 +1628,20 @@ Day 151:
 Use CURAND device API for quasi-random Sobol vs. host generation; compare sequence quality
 
 Day 152:
-Integrate random fluctuations in MHD or QCD code to represent noise or initial conditions.
-Reference: [Physical modeling references for random fields]
+Implement a warp-level XORSHIFT random number generator in PTX; test distribution (chi-square test)
 
 Day 153:
-Investigate parallel random number generation performance.
-Reference: [NVIDIA dev blog on parallel RNG]
+Compare RNG quality (chi-square or KS test) for XORShift vs. CURAND vs. Sobol outputs
 
 Day 154:
-Explore using sobol or quasi-random sequences for HPC or QML.
-Reference: [CURAND docs on sobol sequences]
+Inject random perturbations into the RL training loop (e.g., random resets) and observe stability
 
 Day 155:
-Try a quick experiment with variance reduction in PDE or quantum circuit simulation.
-Reference: [Papers on random sampling methods in HPC]
+Evaluate training stability: log reward curves with and without randomness (use TensorBoard) 
 
-----
-Block 32 (Days 156–160)
 
 Day 156:
-Shift attention to advanced DeepSpeed pipeline or model parallel: train bigger LLM on HPC data.
-Reference: [DeepSpeed pipeline parallel docs]
+Port a denoising algorithm (A-Trous wavelet filter) to Vulkan compute; integrate into rendering
 
 Day 157:
 Evaluate memory usage with ZeRO stage 2 or 3 on your 16GB GPU.
