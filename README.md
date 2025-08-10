@@ -1644,91 +1644,68 @@ Day 156:
 Port a denoising algorithm (A-Trous wavelet filter) to Vulkan compute; integrate into rendering
 
 Day 157:
-Evaluate memory usage with ZeRO stage 2 or 3 on your 16GB GPU.
-Reference: [DeepSpeed advanced tutorials]
+Inline PTX wavelet transform into the denoiser compute shader; verify correctness
 
 Day 158:
-Attempt multi-node simulation on a cloud instance if possible (optional).
-Reference: [Azure or AWS HPC resources + DeepSpeed docs]
+Measure per-frame time with and without denoising; identify bottleneck
 
 Day 159:
-Integrate QLoRA + DeepSpeed for large code or HPC domain LLM.
-Reference: [Any community examples combining QLoRA + DS]
+Tune shared memory bank usage in the denoiser (pad arrays to avoid conflicts) 
 
 Day 160:
-Validate results with HPC Q&A or PDE code generation tasks.
-Reference: [HF Transformers + DS + local dataset pipeline]
-
-Block 33 (Days 161–165)
+Compare visual quality of rendered frames with vs. without denoiser; note improvement
 
 Day 161:
-Explore advanced NeRF variants (e.g., Ref-NeRF, TensoRF) for better efficiency.
-Reference: TensoRF paper
+Build a GNN surrogate for the PDE flux Jacobian (using e.g. JAX/meshGraphNets approach) 
 
 Day 162:
-Check if TensoRF can compress 3D volumetric data for fluid or MHD.
-Reference: [TensoRF GitHub repos or “compressing neural fields” research]
+Export the trained GNN to a TorchInductor fused graph; inspect generated PTX 
 
 Day 163:
-Attempt training TensoRF on a toy MHD dataset.
-Reference: [Implementation instructions from the TensoRF repo]
+Inspect SASS for the fused GNN inference kernel (via cuobjdump ); verify utilization
 
 Day 164:
-Evaluate GPU memory usage and see if quantization helps.
-Reference: [Any INT8 or half-precision TensoRF forks]
+Use cuTensorNet v2’s automatic fusions on a large conv+GEMM sequence; evaluate speedup 
 
 Day 165:
-Compare reconstruction error to your earlier NeRF approach.
-Reference: [Custom scripts or HPC analysis]
-
----
-Block 34 (Days 166–170)
+Measure iteration time with cuTensorNet fused ops vs. separate (log to CSV)
 
 Day 166:
-OpenVG specifics on embedded GPUs if you plan to deploy fluid viz on a smaller device.
-Reference: [Khronos OpenVG docs]
+Add Hopper FP8 pipeline for a convolution (DP8A Tensor Cores); test accuracy vs. FP16
 
 Day 167:
-Explore vector graphics acceleration to see if relevant to MHD overlays or HPC dashboards.
-Reference: [NVIDIA Jetson / Drive docs for advanced GPU usage]
+Use Nsight Experiments to log SM clock & power during heavy ops; try undervolting via `nvidia-smi -pl`
 
 Day 168:
-Basic project: use OpenVG to render a set of vector shapes from fluid data.
-Reference: [OpenVG sample code]
+Observe any thermal throttling vs. performance at different power limits (log GPU stats)
 
 Day 169:
-Attempt an EGL + OpenVG + CUDA pipeline (very niche).
-Reference: [Some embedded system GPU pipeline references]
+Try CUDA 13.1 Release Candidate (if available); read release notes for new features
+
 Day 170:
+Re-run key benchmarks under CUDA 13.1; check for any performance regressions or improvements 
 
-Compare performance to an OpenGL-based overlay.
-Reference: [Nsight Systems for performance counters]
-Block 35 (Days 171–175)
 Day 171:
+Use OpenACC with cuTENSOR (tensor attribute support) in NVC++ to offload part of code; compile and get PTX
 
-Go deeper into NVSCI: advanced inter-process and cross-domain buffering.
-Reference: [NVIDIA documentation for NVSCI on Jetson/Drive platforms]
 Day 172:
+Compare PTX output from NVC++ OpenACC vs. nvcc CUDA for the same code section
 
-Attempt a minimal pipeline that uses NVSCI buffers to share data between a CUDA process and a rendering process.
-Reference: [Example code if available from NVIDIA dev forums]
 Day 173:
+Simulate multi-GPU offloading with NVLink by splitting domain and passing boundaries (no actual NVLink on laptop)
 
-Explore NvMedia for capturing or encoding fluid animation frames.
-Reference: [NvMedia docs for image & video processing on GPU]
 Day 174:
+Partition the CUDA Graph across two processes using MPS (simulate multi-instance) 
 
-Implement a pipeline: fluid simulation → shared memory via NVSCI → compressed via NvMedia → display.
-Reference: [Integration guides for NVSCI + NvMedia on dev forums]
 Day 175:
+Use Nsight Systems for a global view of both processes; ensure overlap and no interference
 
-Evaluate if this approach is feasible on your Windows WSL2 environment or purely hypothetical.
-Reference: [NVIDIA forum discussions about NVSCI support on Windows]
-Block 36 (Days 176–180)
+
 Day 176:
 
 Examine TensorRT-LLM updates for the newest large models.
 Reference: [NVIDIA developer blogs or official GitHub repos]
+
 Day 177:
 
 Try building a custom engine for a popular model like Llama2 or CodeLlama.
