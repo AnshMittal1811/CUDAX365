@@ -1702,14 +1702,11 @@ Use Nsight Systems for a global view of both processes; ensure overlap and no in
 
 
 Day 176:
-
-Examine TensorRT-LLM updates for the newest large models.
-Reference: [NVIDIA developer blogs or official GitHub repos]
+Add an RL parameter server using gRPC (simulate distributed RL); measure overhead
 
 Day 177:
+Measure latency between CPU and GPU for small inference tasks (host API overhead) with a custom script
 
-Try building a custom engine for a popular model like Llama2 or CodeLlama.
-Reference: [TensorRT build steps for Llama2 if available]
 Day 178:
 
 Evaluate real-time inference speeds for HPC question answering.
