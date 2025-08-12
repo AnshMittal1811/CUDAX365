@@ -1708,18 +1708,14 @@ Day 177:
 Measure latency between CPU and GPU for small inference tasks (host API overhead) with a custom script
 
 Day 178:
+Use `cudaMemcpyAsync` with `cudaStreamAttachMemAsync` (async mem copy) to overlap data transfer in a kernel
 
-Evaluate real-time inference speeds for HPC question answering.
-Reference: [Hugging Face “transformers-cli benchmark” or TRT profiling]
 Day 179:
+Verify L2 cache hit ratio remains high with overlapped copies (Nsight metrics)
 
-Investigate multi-context parallelism in TensorRT for consecutive LLM requests.
-Reference: [TensorRT multi-context docs]
 Day 180:
+Compile a report of kernel speeds and throughput for all modules (automate via script) 
 
-If time, test an end-to-end HPC doc chatbot with TensorRT-accelerated LLM.
-Reference: [LangChain or custom pipeline integration tutorial]
-Block 37 (Days 181–185)
 Day 181:
 
 CUBLAS advanced features: batched operations for many small matrices.
