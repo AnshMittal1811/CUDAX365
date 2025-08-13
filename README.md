@@ -1717,9 +1717,8 @@ Day 180:
 Compile a report of kernel speeds and throughput for all modules (automate via script) 
 
 Day 181:
+Port the NeRF renderer to DirectX12 DXR for ray tracing; test a hybrid pipeline (DXR for rays, CUDA for shading)
 
-CUBLAS advanced features: batched operations for many small matrices.
-Reference: [cublas<t>batched function docs]
 Day 182:
 
 Implement batched PDE solver steps that rely on small matrix operations.
