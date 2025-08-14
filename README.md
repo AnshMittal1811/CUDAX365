@@ -1720,9 +1720,8 @@ Day 181:
 Port the NeRF renderer to DirectX12 DXR for ray tracing; test a hybrid pipeline (DXR for rays, CUDA for shading)
 
 Day 182:
+Use CUDA-OpenGL interop to copy rendered frames (`GL texture`) directly to CUDA memory (via `GL_NV_copy_image`)
 
-Implement batched PDE solver steps that rely on small matrix operations.
-Reference: [NVIDIA HPC PDE code samples or your own PDE approach]
 Day 183:
 
 Investigate using tensor cores for half-precision matmul.
