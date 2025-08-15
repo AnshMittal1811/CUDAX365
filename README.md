@@ -1723,26 +1723,20 @@ Day 182:
 Use CUDA-OpenGL interop to copy rendered frames (`GL texture`) directly to CUDA memory (via `GL_NV_copy_image`)
 
 Day 183:
+Compare the performance of direct copy vs. staging to CPU then GPU for frames
 
-Investigate using tensor cores for half-precision matmul.
-Reference: [Mixed-precision training in HPC contexts, e.g. HPC slides from NVIDIA]
 Day 184:
+Integrate an ImGui HUD overlay showing segmentation and LiDAR points on the rendered view (OpenGL + CUDA texture)
 
-Compare single precision vs. half precision for PDE accuracy vs. speed.
-Reference: [Nsight for profiling again]
 Day 185:
+Have the RL agent incorporate the HUD data (segmentation mask, synthetic LiDAR) for decision making; retrain agent
 
-Possibly integrate that into your real-time fluid or MHD pipeline.
-Reference: [Your existing PDE code]
-Block 38 (Days 186–190)
 Day 186:
+Evaluate the RL agent’s navigation success rate before vs. after using augmented sensor data 
 
-Revisit quantum circuits with a focus on QCD or HPC-like operators.
-Reference: [Advanced QCD references from arXiv + quantum computing papers]
 Day 187:
+Apply FP4 quantization to the SegFormer model using the upcoming TensorRT 10 (FP4 support); test inference
 
-Attempt to build a small HPC–Quantum synergy example: a PDE step on GPU, partially guided by quantum circuit.
-Reference: [Quantum Approximate Optimization Algorithm references]
 Day 188:
 
 Investigate parallelizing your quantum simulator across multiple CPU threads or GPU.
