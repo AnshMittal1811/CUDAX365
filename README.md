@@ -1738,22 +1738,17 @@ Day 187:
 Apply FP4 quantization to the SegFormer model using the upcoming TensorRT 10 (FP4 support); test inference
 
 Day 188:
+Inspect PTX from TensorRT engine to see HMMA FP4 instructions (if any) 
 
-Investigate parallelizing your quantum simulator across multiple CPU threads or GPU.
-Reference: [Qiskit Aer GPU mode, cuQuantum usage]
 Day 189:
+Measure segmentation accuracy drop with FP4 vs. FP16; record differences
 
-Check performance vs. a purely classical HPC approach.
-Reference: [Nsight CPU + GPU concurrency analysis]
 Day 190:
+Add a LoRA fine-tuning (PEFT) to the FP4 model to recover accuracy; test if quality improves 
 
-Keep the best working synergy approach for future expansions.
-Reference: [Your HPC or QML codebase]
-Block 39 (Days 191–195)
 Day 191:
+Try a quantum GAN (qGAN) on GPU with PennyLane for a toy dataset; measure any speed benefits vs. CPU  
 
-Look into specialized HPC frameworks like OpenACC or OpenMP for GPU.
-Reference: [OpenACC.org docs]
 Day 192:
 
 Attempt porting a PDE loop from CUDA C to OpenACC.
