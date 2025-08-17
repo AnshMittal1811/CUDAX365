@@ -1750,22 +1750,17 @@ Day 191:
 Try a quantum GAN (qGAN) on GPU with PennyLane for a toy dataset; measure any speed benefits vs. CPU  
 
 Day 192:
+Use cuTensorNet to accelerate the convolution in the qGAN’s generator (if applicable); see if latency improves
 
-Attempt porting a PDE loop from CUDA C to OpenACC.
-Reference: [PGI/NVIDIA HPC SDK docs on OpenACC]
 Day 193:
+Inspect the GPU kernel SASS for the qGAN conv (via `cuobjdump`); ensure Tensor Cores are used 
 
-Compare performance and coding complexity between pure CUDA vs. OpenACC.
-Reference: [NVIDIA HPC SDK performance guides]
 Day 194:
+Use the qGAN to generate samples for RL environment domain randomization; see if this improves agent robustness
 
-Explore if you can combine GPU-accelerated OpenACC code with your LLM or QML approach.
-Reference: [Mixed HPC approaches discussion in HPC forums]
 Day 195:
+Measure quality of qGAN generated samples (e.g., FID score) vs. real data 
 
-Evaluate HPC technique readiness for quantum HPC or advanced fluid codes.
-Reference: [Research HPC frameworks + future directions]
-Block 40 (Days 196–200)
 Day 196:
 
 Revisit Quantum Machine Learning for classification tasks on HPC data.
