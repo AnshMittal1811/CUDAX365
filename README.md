@@ -1762,47 +1762,35 @@ Day 195:
 Measure quality of qGAN generated samples (e.g., FID score) vs. real data 
 
 Day 196:
+Use an advanced CUDA Graph with multiple instances and cross-stream events for the full pipeline; ensure overlap of compute tasks
 
-Revisit Quantum Machine Learning for classification tasks on HPC data.
-Reference: [PennyLane or Qiskit ML advanced classification demos]
 Day 197:
+Use cudaEventRecord with `cudaEventBlockingSync` flags to synchronize GPU tasks and CPU reliably; measure overhead
 
-Attempt a small specialized model (e.g., anomaly detection in MHD snapshots) with a quantum classifier.
-Reference: [Quantum anomaly detection papers]
 Day 198:
+Profile the overlap of compute and copy using Nsight timeline after adding events; adjust as needed  
 
-Optimize data pre-processing on GPU, then feed to quantum circuit.
-Reference: [NVIDIA HPC or RAPIDS for data cleaning, then Qiskit interface]
 Day 199:
+Tune chunk sizes for overlapping work (e.g., split inference into sub-batches) to maximize GPU utilization
 
-Evaluate classification accuracy vs. classical HPC approach.
-Reference: [Comparison methodology from QML papers]
 Day 200:
+200-Day Stress Test: Run the entire pipeline continuously for 8 hours; log any memory leaks or slowdowns 
 
-Combine code LLM to automatically generate quantum circuit scaffolding.
-Reference: [LangChain agents for code generation + Qiskit]
-Block 41 (Days 201–205)
 Day 201:
+Build a custom convolution kernel in Triton 2.2 using new `asm` macros; verify PTX matches expectations 
 
-CURAND advanced distribution usage for debugging or stress testing MHD PDE.
-Reference: [CURAND docs again, focus on distribution reliability]
 Day 202:
+Add a group synchronization test with PTX mbarrier (new in 8.0); experiment with producer-consumer in one kernel 
 
-Try seeding fluid PDE with random initial conditions in a large parameter space.
-Reference: [Monte Carlo style HPC PDE solutions]
 Day 203:
-
-Evaluate if code LLM can help auto-tune PDE solver parameters.
-Reference: [OpenAI or local code LLM prompts to tune HPC code]
+Evaluate how the mbarrier affects compute/latency pipeline in a microbenchmark
+ 
 Day 204:
+Integrate the INT4 GNN + PDE + NeRF inference into one pipeline (multi-model inference); ensure fits in 16 GB
 
-Try generating many solutions in parallel, capturing results in an HPC pipeline.
-Reference: [Multi-stream concurrency or HPC job scheduling docs]
 Day 205:
+Measure VRAM residency of each model when running concurrently (use nvidia-smi continuously)
 
-Possibly feed the PDE results back into a training pipeline for a neural PDE approach.
-Reference: [Deep Operator Networks or FNO references]
-Block 42 (Days 206–210)
 Day 206:
 
 Investigate NVRTC again for JIT compilation of PDE kernels from user input (like a code LLM output).
