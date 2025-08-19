@@ -1792,17 +1792,14 @@ Day 205:
 Measure VRAM residency of each model when running concurrently (use nvidia-smi continuously)
 
 Day 206:
+Use the CUDA Memory Pool API (`cudaMemPool_t`) to manage allocations and reduce fragmentation 
 
-Investigate NVRTC again for JIT compilation of PDE kernels from user input (like a code LLM output).
-Reference: [NVRTC docs]
 Day 207:
+Observe if memory fragmentation is reduced by using a custom memory pool (log memory usage over time)
 
-Auto-generate a PDE kernel with LLM, compile via NVRTC, run it in real time.
-Reference: [Integration approach with Python + NVRTC C++ calls]
 Day 208:
+Add dynamic parallelism for adaptive mesh refinement: launch sub-kernels for fine grid only where needed
 
-Test correctness with simple PDE (heat equation, wave equation).
-Reference: [Comparative HPC PDE references]
 Day 209:
 
 Expand to more complex fluid PDE or partial MHD.
