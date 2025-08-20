@@ -1801,18 +1801,14 @@ Day 208:
 Add dynamic parallelism for adaptive mesh refinement: launch sub-kernels for fine grid only where needed
 
 Day 209:
+Compare the overhead of nested kernel launches vs. doing same work on host (time a step with vs. without adaptivity)
 
-Expand to more complex fluid PDE or partial MHD.
-Reference: [Your MHD solver code + new kernel generation approach]
 Day 210:
+Write notes on nested kernel occupancy and limitations (for documentation) 
 
-Evaluate speed and correctness vs. manually coded approach.
-Reference: [Nsight or HPC verification approach]
-Block 43 (Days 211–215)
 Day 211:
+Train a depth-aware NeRF (with DepthFusion technique) to incorporate LiDAR-like depth supervision
 
-Investigate advanced quantization for large LLMs: ZeroQuant, etc.
-Reference: [ZeroQuant MSR papers on 8-bit or 4-bit quant]
 Day 212:
 
 Attempt post-training quantization on a bigger GPT model you have.
