@@ -1810,9 +1810,8 @@ Day 211:
 Train a depth-aware NeRF (with DepthFusion technique) to incorporate LiDAR-like depth supervision
 
 Day 212:
+Use pseudo-LiDAR depth maps as additional input to NeRF training (fusion of image+depth)
 
-Attempt post-training quantization on a bigger GPT model you have.
-Reference: [ONNX Runtime quantization or PyTorch approach]
 Day 213:
 
 Compare accuracy to QLoRA approach.
