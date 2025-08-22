@@ -1813,9 +1813,8 @@ Day 212:
 Use pseudo-LiDAR depth maps as additional input to NeRF training (fusion of image+depth)
 
 Day 213:
+Write a PTX gather kernel to fuse depth information into NeRF’s radiance field update 
 
-Compare accuracy to QLoRA approach.
-Reference: [Benchmarks from Hugging Face community]
 Day 214:
 
 Check synergy of quantization + QLoRA + HPC domain fine-tuning.
