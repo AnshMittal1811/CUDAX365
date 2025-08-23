@@ -1816,22 +1816,17 @@ Day 213:
 Write a PTX gather kernel to fuse depth information into NeRF’s radiance field update 
 
 Day 214:
+Compare PSNR of rendered views with depth supervision vs. without; see improvement
 
-Check synergy of quantization + QLoRA + HPC domain fine-tuning.
-Reference: [Any research or GitHub repos combining these]
 Day 215:
+Let the RL agent use the depth error (difference between predicted vs. true depth) as a penalty in reward; fine-tune agent
 
-Evaluate inference speed gains on the 4090.
-Reference: [Nsight for final measurements]
-Block 44 (Days 216–220)
 Day 216:
+Update to TensorRT-LLM v1.1; use new fused MHA kernels for LLM inference; measure throughput gain
 
-Neural Radiance Fields in Fluids deeper approach: 4D (3D + time) representation.
-Reference: [Dynamic NeRF or “D-NeRF” papers]
 Day 217:
+Dump the new TensorRT fused kernel SASS; look for `HFMA2.MMA` (`Hopper FP8 FMA`) usage 
 
-Attempt coding or adapting a D-NeRF approach for your PDE time-series data.
-Reference: [D-NeRF official GitHub if it exists]
 Day 218:
 
 Evaluate GPU memory usage and see if half precision or QAT helps.
