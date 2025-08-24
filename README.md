@@ -1828,9 +1828,8 @@ Day 217:
 Dump the new TensorRT fused kernel SASS; look for `HFMA2.MMA` (`Hopper FP8 FMA`) usage 
 
 Day 218:
+Evaluate prompt latency with TRT-LLM v1.1 vs. v1.0 on a 13B model; log any improvement
 
-Evaluate GPU memory usage and see if half precision or QAT helps.
-Reference: [PyTorch half-precision training tips]
 Day 219:
 
 Investigate extracting physically meaningful flows from the learned representation.
