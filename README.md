@@ -1846,14 +1846,11 @@ Day 223:
 Use Nsight Systems to trace copy vs. compute overlap; verify copy engine utilization is near 100%
 
 Day 224:
+Tune the chunk sizes of memcpy to maximize overlap and throughput (empirically find sweet spot)
 
-Investigate synergy with ray-tracing pipelines for fluid visualization in DX12.
-Reference: [DXR docs again + HPC fluid demos if any]
 Day 225:
+Try the cuDNN Frontend API to auto-build a fused `conv+bias+activation`; compare to hand-written version 
 
-Evaluate how to share data between DX12 and CUDA with interop.
-Reference: [NVIDIA docs on DX–CUDA interop]
-Block 46 (Days 226–230)
 Day 226:
 
 Consider advanced HPC load balancing with multi-GPU or multi-CPU scheduling (slurm-like on single machine).
