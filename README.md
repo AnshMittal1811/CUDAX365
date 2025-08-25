@@ -1831,26 +1831,20 @@ Day 218:
 Evaluate prompt latency with TRT-LLM v1.1 vs. v1.0 on a 13B model; log any improvement
 
 Day 219:
+Add retrieval-augmentation to LLM inference using FAISS (vector DB) for MHD documents
 
-Investigate extracting physically meaningful flows from the learned representation.
-Reference: [Physical interpretability of neural fields in fluid domain papers]
 Day 220:
+Measure answer recall/accuracy with RAG vs. without (using a test set of questions)
 
-Compare performance to a standard HPC PDE solver.
-Reference: [Your HPC PDE code + D-NeRF results]
-Block 45 (Days 221–225)
 Day 221:
+Launch multiple GPU streams with copy engine saturation test: e.g., 4 streams each doing copies and compute
 
-Deeper DirectX12 compute pipeline usage for large data.
-Reference: [MS docs on resource binding, descriptor heaps, etc.]
 Day 222:
+Use cudaMemcpyAsync and `cudaGraphAddMemcpyNode` to schedule async transfers in a CUDA Graph
 
-Attempt MHD PDE steps in a DirectX12 compute pipeline for curiosity.
-Reference: [DirectCompute or DX12 compute tutorial]
 Day 223:
+Use Nsight Systems to trace copy vs. compute overlap; verify copy engine utilization is near 100%
 
-Compare kernel development difficulty vs. CUDA.
-Reference: [Your existing PDE code in CUDA]
 Day 224:
 
 Investigate synergy with ray-tracing pipelines for fluid visualization in DX12.
