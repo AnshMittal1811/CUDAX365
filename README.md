@@ -1852,9 +1852,8 @@ Day 225:
 Try the cuDNN Frontend API to auto-build a fused `conv+bias+activation`; compare to hand-written version 
 
 Day 226:
+Inspect the PTX from the cuDNN-generated fused kernel vs. our manual one; see differences
 
-Consider advanced HPC load balancing with multi-GPU or multi-CPU scheduling (slurm-like on single machine).
-Reference: [HTCondor, Slurm, or local Windows HPC scheduling approaches]
 Day 227:
 
 Attempt concurrency: PDE solver on GPU + QLoRA fine-tuning in background (just a stress test).
