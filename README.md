@@ -1855,13 +1855,11 @@ Day 226:
 Inspect the PTX from the cuDNN-generated fused kernel vs. our manual one; see differences
 
 Day 227:
+Insert an inline PTX activation (e.g., HMMA with RELU in epilogue) to the custom conv to mimic cuDNN epilogue fusion
 
-Attempt concurrency: PDE solver on GPU + QLoRA fine-tuning in background (just a stress test).
-Reference: [Multi-process GPU concurrency docs]
 Day 228:
+Compare the speed of the kernel with manual epilogue vs. separate activation call; log improvement
 
-Investigate using Docker or Singularity for containerizing HPC + LLM pipeline.
-Reference: [NVIDIA Container Toolkit docs]
 Day 229:
 
 Test overhead of containerization on WSL2.
