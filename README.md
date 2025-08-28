@@ -1861,9 +1861,8 @@ Day 228:
 Compare the speed of the kernel with manual epilogue vs. separate activation call; log improvement
 
 Day 229:
+Apply QAT INT8 to the conv (simulate training quantized); ensure Tensor Cores (DP4A) are used by checking PTX
 
-Test overhead of containerization on WSL2.
-Reference: [Docker + WSL2 docs]
 Day 230:
 
 Keep refining HPC + LLM pipeline within container for consistent environment.
