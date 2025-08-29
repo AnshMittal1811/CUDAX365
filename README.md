@@ -1864,68 +1864,50 @@ Day 229:
 Apply QAT INT8 to the conv (simulate training quantized); ensure Tensor Cores (DP4A) are used by checking PTX
 
 Day 230:
+Evaluate the accuracy of the INT8 model vs. FP32 on a validation set; ensure drop is within acceptable range
 
-Keep refining HPC + LLM pipeline within container for consistent environment.
-Reference: [Multi-stage Dockerfiles with CUDA support]
-Block 47 (Days 231–235)
 Day 231:
+Install CUDA 13.2 Beta if available; look at any new PTX features (maybe PTX 5.2)
 
-Expand GNN usage: try a spatio-temporal GNN for fluid or MHD.
-Reference: [ST-GCN or temporal GNN papers]
 Day 232:
+Recompile key kernels under CUDA 13.2; note the PTX version and any changes in SASS
 
-Build dataset from PDE time steps as graph sequences.
-Reference: [PyTorch Geometric temporal submodule]
 Day 233:
+Read up on the new Tensor Memory Accelerator (TMA) in Hopper; understand how it can improve memory copy
 
-Train ST-GCN on GPU, see if it can predict next state.
-Reference: [Temporal GNN examples in PyTorch Geometric]
 Day 234:
+Prototype using cp.async.bulk PTX (if supported) for large bulk copy operations in a kernel
 
-Compare performance to your earlier NeRF-based or neural PDE approaches.
-Reference: [Your own code benchmarks]
 Day 235:
+Compare traditional global memory copy vs. TMA approach (simulate if hardware not available)
 
-If feasible, combine partial HPC PDE + GNN correction step.
-Reference: [Hybrid HPC-ML PDE research]
-Block 48 (Days 236–240)
 Day 236:
+Implement Fourier feature look-ups (embedding) via TMA in a kernel, if possible; measure L2 hit reduction
 
-Look into NVGraph again for large dynamic graphs.
-Reference: [NVGraph docs, cugraph for dynamic graphs?]
 Day 237:
+Measure if using TMA for memory brings L2 hit rate down (meaning less thrashing); use Nsight metrics 
 
-Evaluate partial real-time graph partitioning of fluid cells or QCD lattice.
-Reference: [Partitioning HPC references, cugraph calls]
 Day 238:
+Add an FP8 dropout kernel with inline PTX (random bitmask applied to FP8 tensor) in training; test stability
 
-Integrate GNN training in real-time with the partitioning approach.
-Reference: [cugraph + PyTorch Geometric or DGL synergy]
 Day 239:
+Check training stability/accuracy when using FP8 with dropout vs. FP16; log any divergence issues
 
-Explore advanced kernel fusion to reduce memory passes.
-Reference: [NVIDIA HPC blog on kernel fusion or custom approach]
 Day 240:
+Take a snapshot of the entire project repository; ensure all code/notebooks are saved (e.g., commit to Git) 
 
-Profile everything, aim for sub-second updates on your data.
-Reference: [Nsight Systems thorough analysis]
-Block 49 (Days 241–245)
 Day 241:
+Dive deep into instruction scheduling: use Nsight’s instruction timeline view for a kernel to mark latency per instruction group
 
-Investigate advanced Quantum computing hardware (IonQ, Rigetti, IBM). Possibly sign up for free demos.
-Reference: [IBM Quantum or IonQ documentation]
 Day 242:
+Annotate the timeline with pipeline stages (memory vs ALU) for better understanding of bottlenecks 
 
-Try running your QML or quantum PDE code on real hardware if you have credits.
-Reference: [Qiskit or IonQ tutorial with real device usage]
 Day 243:
+Try reordering instructions in a kernel (e.g., move load instructions earlier) to hide latency; re-profile IPC
 
-Compare the difference in results vs. simulation.
-Reference: [Qiskit’s backend properties / error rates]
 Day 244:
+Measure IPC (instructions per cycle) difference after reordering; verify if warp stall count reduced 
 
-Evaluate if quantum hardware helps or is too noisy for HPC PDE tasks.
-Reference: [Your results, error mitigation approaches]
 Day 245:
 
 Potential next expansions: big HPC cluster usage or specialized quantum HPC.
