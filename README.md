@@ -1925,3 +1925,6 @@ Compare the PTX from stdpar compiled code to our earlier hand-written kernel; se
 
 Day 250:
 Run a full-system 24-hour soak test on the pipeline; log GPU temperatures, clock speeds, and any errors
+
+Day 251:
+Install the preview of cuTe (Tensor Extensions) if available; port one convolution to cuTe; compare PTX
