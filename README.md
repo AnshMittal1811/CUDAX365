@@ -1928,3 +1928,25 @@ Run a full-system 24-hour soak test on the pipeline; log GPU temperatures, clock
 
 Day 251:
 Install the preview of cuTe (Tensor Extensions) if available; port one convolution to cuTe; compare PTX
+
+Day 252:
+Compare the PTX or performance of the cuTe convolution vs. CUTLASS baseline; note differences
+
+Day 253:
+Add an RLHF reward model kernel in PTX to the pipeline (simulate inference of a small reward model); test integration
+
+Day 254:
+Train the RLHF policy for 2 epochs on TinyLlama outputs; monitor VRAM usage and throughput
+
+Day 255:
+Integrate the RLHF-tuned policy into the RL agent in the environment; test agent performance improvement
+
+Day 256:
+Use Nsight Systems for a holistic view of GPU, CPU, I/O across the pipeline after RLHF integration
+
+Day 257:
+Adjust thread priorities of encoding vs. rendering threads (e.g., use `chrt` on Linux) to optimize pipeline flow
+
+Day 258: 
+
+Day 259: 
