@@ -1947,6 +1947,12 @@ Use Nsight Systems for a holistic view of GPU, CPU, I/O across the pipeline afte
 Day 257:
 Adjust thread priorities of encoding vs. rendering threads (e.g., use `chrt` on Linux) to optimize pipeline flow
 
-Day 258: 
+Day 258: Re-tune the GPU power limit for sustained performance (lower if thermal throttling); log sustained clocks
 
-Day 259: 
+Day 259: After 30 minutes at new power limit, evaluate if GPU clocks remain stable vs. before (log analysis) 
+
+Day 260: Evaluate long-run stability: no memory leaks, and performance does not degrade over 30 min+ runs 
+
+Day 261: Test CUDA-Aware MPI (OpenMPI) inside WSL: send/recv GPU buffers directly; measure latency vs. CPU buffer 
+
+Day 262: Use MPI to split the PDE domain across 2 processes (on one GPU via time-slicing); measure overhead of communication
