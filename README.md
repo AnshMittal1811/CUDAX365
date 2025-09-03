@@ -1956,3 +1956,59 @@ Day 260: Evaluate long-run stability: no memory leaks, and performance does not 
 Day 261: Test CUDA-Aware MPI (OpenMPI) inside WSL: send/recv GPU buffers directly; measure latency vs. CPU buffer 
 
 Day 262: Use MPI to split the PDE domain across 2 processes (on one GPU via time-slicing); measure overhead of communication
+
+Day 263: Compare direct GPU-to-GPU P2P copy vs. staging through host for these MPI messages (simulate using cudaMemcpy) 
+
+Day 264: Implement a novel FP6 quantization (NetQRE) for LLM weights; integrate into TinyLlama and test perplexity 
+
+Day 265: Inspect PTX for FP6 operations or how it emulates (likely using INT8 with scale); see if any new instructions 
+
+Day 266: Evaluate the accuracy of FP6 quantized model vs. FP8 and FP4; see if it offers a middle ground in quality 
+
+Day 267: Experiment with offloading the LLM KV-cache to disk when GPU memory is exceeded (using paging or streaming) 
+
+Day 268: Measure hit/miss rates and latency impact of disk-paged KV cache (simulate by artificially small cache on GPU) 
+
+Day 269: Tune NVENC encoder preset (quality vs. speed) to find best balance for live streaming the output; test latency impact 
+
+Day 270: Plot the latency vs. quality trade-off for different NVENC presets or bitrates; identify optimal point 
+
+Day 271: Build a stdpar version of the PDE solver (C++ parallel STL); compile with NVC++ and run on GPU 
+
+Day 272: Inspect the generated PTX from stdpar PDE vs. our original CUDA PDE; ensure it vectorized loads properly 
+
+Day 273: Compare runtime of stdpar solver vs. hand-optimized CUDA solver; measure difference in GFLOP/s 
+
+Day 274: Add cp.async multi-stage copies for boundary halo exchange in PDE (overlap communication in shared mem) 
+
+Day 275: Use mbarrier and async.commit_group to coordinate the multi-stage copy (Hopper feature); test on sm_90 if possible
+
+Day 276: Validate that results remain the same with the new asynchronous copy scheme (bitwise compare outputs) 
+
+Day 277: Integrate a mixed-precision strategy (FP8 for some layers, FP16 for others) in conv layers of the ML models; test if training converges 
+
+Day 278: Check PTX of mixed precision kernels to see both FP16 and FP8 ops; confirm scheduler alternates them effectively 
+
+Day 279: Evaluate throughput improvement with mixed precision vs. pure FP16; chart the differences 
+
+Day 280: Push the entire project code to a public GitHub repository (if possible); ensure no proprietary data 
+
+Day 281: Install Triton 3.0 Alpha (if available); port one of our custom Triton kernels to it; examine changes/new scheduler 
+
+Day 282: Measure performance of the Triton 3.0 kernel vs. Triton 2.x version; note any improvements or regressions 
+
+Day 283: Implement a block-sparse attention or transformer with block-sparse kernels (e.g., using Sparse GPT code) 
+
+Day 284: Use CUTLASS or PyTorch SPMM to accelerate the block-sparse attention; examine SASS (should use optimized sparse Tensor Core) 
+
+Day 285: Evaluate memory savings and speed of block-sparse model vs. dense baseline; log results 
+
+Day 286: Add a curriculum learning schedule to the RL training (start easy, progressively harder tasks) 
+
+Day 287: Code a custom reward shaping kernel in PTX (to combine multiple reward signals); integrate into training loop 
+
+Day 288: Monitor the learning curve with curriculum and shaped rewards vs. original; verify faster convergence 
+
+Day 289: Perform a 6-hour pipeline stress test after all optimizations; track VRAM usage to catch leaks (loop nvidia-smi) 
+
+Day 290: Fix any memory leaks or issues found; retest to ensure stability in long runs
