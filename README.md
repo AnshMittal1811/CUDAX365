@@ -2036,3 +2036,10 @@ Day 300: Grand 24h Stress & Benchmark: Run the entire pipeline for 24 hours stra
 Day 301: Satellite Imagery Segmentation Project Begins - Prepare dataset of satellite images (optical and SAR) with building outlines (e.g., SpaceNet or OpenEarthMap-SAR)
 
 Day 302: Pretrain a Masked Autoencoder (MAE) on the satellite images (self-supervised) to learn representations
+
+Day 303:Fine-tune a segmentation model (e.g., U-Net or SegFormer) using the MAE encoder on building outlines; aim for high Dice coefficient 
+
+Day 304:Incorporate SAR channel data alongside optical images in training; observe if segmentation accuracy (Dice) improves (expect ~10% $\uparrow$) 
+
+Day 305:Evaluate the model on a test region; if possible, overlay predicted outlines on imagery to visually check results 
+
