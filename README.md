@@ -3666,155 +3666,355 @@ Run (from the folder):
 ./run_stress_8h.sh 8
 ```
 
-Day 201:
-Build a custom convolution kernel in Triton 2.2 using new `asm` macros; verify PTX matches expectations 
+Day 201: Triton asm conv + PTX dump
+Folder: 201_triton_asm_conv
+Run (from the folder):
+```bash
+./run_triton_asm_conv.sh
+```
 
-Day 202:
-Add a group synchronization test with PTX mbarrier (new in 8.0); experiment with producer-consumer in one kernel 
+Day 202: PTX mbarrier sync test
+Folder: 202_ptx_mbarrier_sync
+Run (from the folder):
+```bash
+./run_mbarrier.sh
+```
 
-Day 203:
-Evaluate how the mbarrier affects compute/latency pipeline in a microbenchmark
- 
-Day 204:
-Integrate the INT4 GNN + PDE + NeRF inference into one pipeline (multi-model inference); ensure fits in 16 GB
+Day 203: mbarrier microbenchmark
+Folder: 203_mbarrier_benchmark
+Run (from the folder):
+```bash
+./run_mbarrier_bench.sh
+```
 
-Day 205:
-Measure VRAM residency of each model when running concurrently (use nvidia-smi continuously)
+Day 204: INT4 GNN + PDE + NeRF pipeline
+Folder: 204_int4_gnn_pde_nerf
+Run (from the folder):
+```bash
+./run_pipeline.sh
+```
 
-Day 206:
-Use the CUDA Memory Pool API (`cudaMemPool_t`) to manage allocations and reduce fragmentation 
+Day 205: VRAM residency logging
+Folder: 205_vram_residency
+Run (from the folder):
+```bash
+./log_vram.sh
+```
 
-Day 207:
-Observe if memory fragmentation is reduced by using a custom memory pool (log memory usage over time)
+Day 206: CUDA mempool demo
+Folder: 206_cuda_mempool
+Run (from the folder):
+```bash
+./run_mempool.sh
+```
 
-Day 208:
-Add dynamic parallelism for adaptive mesh refinement: launch sub-kernels for fine grid only where needed
+Day 207: Mempool fragmentation test
+Folder: 207_mempool_fragmentation
+Run (from the folder):
+```bash
+./run_fragmentation.sh
+```
 
-Day 209:
-Compare the overhead of nested kernel launches vs. doing same work on host (time a step with vs. without adaptivity)
+Day 208: Dynamic parallel AMR
+Folder: 208_dynpar_amr
+Run (from the folder):
+```bash
+./run_dynpar_amr.sh
+```
 
-Day 210:
-Write notes on nested kernel occupancy and limitations (for documentation) 
+Day 209: Dynpar overhead compare
+Folder: 209_dynpar_overhead
+Run (from the folder):
+```bash
+./run_dynpar_overhead.sh
+```
 
-Day 211:
-Train a depth-aware NeRF (with DepthFusion technique) to incorporate LiDAR-like depth supervision
+Day 210: Dynpar occupancy notes
+Folder: 210_dynpar_notes
+Run (from the folder):
+```bash
+./run_dynpar_notes.sh
+```
 
-Day 212:
-Use pseudo-LiDAR depth maps as additional input to NeRF training (fusion of image+depth)
+Day 211: Depth-aware NeRF mock training
+Folder: 211_depth_aware_nerf
+Run (from the folder):
+```bash
+./run_depth_nerf.sh
+```
 
-Day 213:
-Write a PTX gather kernel to fuse depth information into NeRF’s radiance field update 
+Day 212: Pseudo-LiDAR fusion
+Folder: 212_pseudo_lidar_fusion
+Run (from the folder):
+```bash
+./run_pseudo_lidar.sh
+```
 
-Day 214:
-Compare PSNR of rendered views with depth supervision vs. without; see improvement
+Day 213: PTX depth gather kernel
+Folder: 213_ptx_depth_gather
+Run (from the folder):
+```bash
+./run_depth_gather.sh
+```
 
-Day 215:
-Let the RL agent use the depth error (difference between predicted vs. true depth) as a penalty in reward; fine-tune agent
+Day 214: PSNR compare with depth
+Folder: 214_psnr_depth_compare
+Run (from the folder):
+```bash
+./run_psnr_compare.sh
+```
 
-Day 216:
-Update to TensorRT-LLM v1.1; use new fused MHA kernels for LLM inference; measure throughput gain
+Day 215: RL depth penalty rewards
+Folder: 215_rl_depth_penalty
+Run (from the folder):
+```bash
+./run_depth_penalty.sh
+```
 
-Day 217:
-Dump the new TensorRT fused kernel SASS; look for `HFMA2.MMA` (`Hopper FP8 FMA`) usage 
+Day 216: TRT-LLM v1.1 check + run
+Folder: 216_trtllm_v11
+Run (from the folder):
+```bash
+./run_trtllm_v11.sh
+```
 
-Day 218:
-Evaluate prompt latency with TRT-LLM v1.1 vs. v1.0 on a 13B model; log any improvement
+Day 217: TRT-LLM SASS dump
+Folder: 217_trtllm_sass
+Run (from the folder):
+```bash
+./dump_trtllm_sass.sh
+```
 
-Day 219:
-Add retrieval-augmentation to LLM inference using FAISS (vector DB) for MHD documents
+Day 218: TRT-LLM latency compare
+Folder: 218_trtllm_latency
+Run (from the folder):
+```bash
+./run_trtllm_latency.sh
+```
 
-Day 220:
-Measure answer recall/accuracy with RAG vs. without (using a test set of questions)
+Day 219: RAG with FAISS-style mock
+Folder: 219_rag_faiss
+Run (from the folder):
+```bash
+./run_rag.sh
+```
 
-Day 221:
-Launch multiple GPU streams with copy engine saturation test: e.g., 4 streams each doing copies and compute
+Day 220: RAG accuracy eval
+Folder: 220_rag_accuracy
+Run (from the folder):
+```bash
+./run_rag_accuracy.sh
+```
 
-Day 222:
-Use cudaMemcpyAsync and `cudaGraphAddMemcpyNode` to schedule async transfers in a CUDA Graph
+Day 221: Copy engine saturation test
+Folder: 221_copy_engine_saturation
+Run (from the folder):
+```bash
+./run_copy_saturation.sh
+```
 
-Day 223:
-Use Nsight Systems to trace copy vs. compute overlap; verify copy engine utilization is near 100%
+Day 222: CUDA Graph memcpy node
+Folder: 222_cuda_graph_memcpy
+Run (from the folder):
+```bash
+./run_graph_memcpy.sh
+```
 
-Day 224:
-Tune the chunk sizes of memcpy to maximize overlap and throughput (empirically find sweet spot)
+Day 223: Nsight copy/compute overlap
+Folder: 223_nsys_copy_overlap
+Run (from the folder):
+```bash
+./profile_copy_overlap.sh
+```
 
-Day 225:
-Try the cuDNN Frontend API to auto-build a fused `conv+bias+activation`; compare to hand-written version 
+Day 224: Memcpy chunk tuning
+Folder: 224_memcpy_chunk_tuning
+Run (from the folder):
+```bash
+./run_chunk_copy.sh
+```
 
-Day 226:
-Inspect the PTX from the cuDNN-generated fused kernel vs. our manual one; see differences
+Day 225: cuDNN frontend fusion mock
+Folder: 225_cudnn_frontend_fusion
+Run (from the folder):
+```bash
+./run_cudnn_fusion.sh
+```
 
-Day 227:
-Insert an inline PTX activation (e.g., HMMA with RELU in epilogue) to the custom conv to mimic cuDNN epilogue fusion
+Day 226: cuDNN vs manual PTX compare
+Folder: 226_cudnn_ptx_compare
+Run (from the folder):
+```bash
+./compare_cudnn_ptx.sh
+```
 
-Day 228:
-Compare the speed of the kernel with manual epilogue vs. separate activation call; log improvement
+Day 227: Inline PTX activation conv
+Folder: 227_inline_ptx_activation
+Run (from the folder):
+```bash
+./run_inline_activation.sh
+```
 
-Day 229:
-Apply QAT INT8 to the conv (simulate training quantized); ensure Tensor Cores (DP4A) are used by checking PTX
+Day 228: Epilogue speed comparison
+Folder: 228_epilogue_speed_compare
+Run (from the folder):
+```bash
+./run_epilogue_bench.sh
+```
 
-Day 230:
-Evaluate the accuracy of the INT8 model vs. FP32 on a validation set; ensure drop is within acceptable range
+Day 229: QAT INT8 + DP4A check
+Folder: 229_qat_int8_conv
+Run (from the folder):
+```bash
+./run_qat_int8.sh
+```
 
-Day 231:
-Install CUDA 13.2 Beta if available; look at any new PTX features (maybe PTX 5.2)
+Day 230: INT8 accuracy eval
+Folder: 230_int8_accuracy_eval
+Run (from the folder):
+```bash
+./run_int8_accuracy.sh
+```
 
-Day 232:
-Recompile key kernels under CUDA 13.2; note the PTX version and any changes in SASS
+Day 231: CUDA 13.2 beta check
+Folder: 231_cuda_132_beta
+Run (from the folder):
+```bash
+./check_cuda_132.sh
+```
 
-Day 233:
-Read up on the new Tensor Memory Accelerator (TMA) in Hopper; understand how it can improve memory copy
+Day 232: CUDA 13.2 recompile PTX
+Folder: 232_cuda_132_recompile
+Run (from the folder):
+```bash
+./run_recompile.sh
+```
 
-Day 234:
-Prototype using cp.async.bulk PTX (if supported) for large bulk copy operations in a kernel
+Day 233: TMA notes
+Folder: 233_tma_notes
+Run (from the folder):
+```bash
+./run_tma_notes.sh
+```
 
-Day 235:
-Compare traditional global memory copy vs. TMA approach (simulate if hardware not available)
+Day 234: cp.async.bulk prototype
+Folder: 234_cp_async_bulk
+Run (from the folder):
+```bash
+./run_cp_async_bulk.sh
+```
 
-Day 236:
-Implement Fourier feature look-ups (embedding) via TMA in a kernel, if possible; measure L2 hit reduction
+Day 235: TMA copy compare
+Folder: 235_tma_copy_compare
+Run (from the folder):
+```bash
+./run_tma_compare.sh
+```
 
-Day 237:
-Measure if using TMA for memory brings L2 hit rate down (meaning less thrashing); use Nsight metrics 
+Day 236: TMA Fourier lookup
+Folder: 236_tma_fourier_lookup
+Run (from the folder):
+```bash
+./run_tma_fourier.sh
+```
 
-Day 238:
-Add an FP8 dropout kernel with inline PTX (random bitmask applied to FP8 tensor) in training; test stability
+Day 237: TMA L2 metrics
+Folder: 237_tma_l2_metrics
+Run (from the folder):
+```bash
+./profile_tma_l2.sh
+```
 
-Day 239:
-Check training stability/accuracy when using FP8 with dropout vs. FP16; log any divergence issues
+Day 238: FP8 dropout PTX
+Folder: 238_fp8_dropout_ptx
+Run (from the folder):
+```bash
+./run_fp8_dropout.sh
+```
 
-Day 240:
-Take a snapshot of the entire project repository; ensure all code/notebooks are saved (e.g., commit to Git) 
+Day 239: FP8 stability logs
+Folder: 239_fp8_stability
+Run (from the folder):
+```bash
+./run_fp8_stability.sh
+```
 
-Day 241:
-Dive deep into instruction scheduling: use Nsight’s instruction timeline view for a kernel to mark latency per instruction group
+Day 240: Repo snapshot
+Folder: 240_repo_snapshot
+Run (from the folder):
+```bash
+./snapshot_repo.sh
+```
 
-Day 242:
-Annotate the timeline with pipeline stages (memory vs ALU) for better understanding of bottlenecks 
+Day 241: Nsight instruction timeline
+Folder: 241_nsight_instruction_timeline
+Run (from the folder):
+```bash
+./profile_instruction_timeline.sh
+```
 
-Day 243:
-Try reordering instructions in a kernel (e.g., move load instructions earlier) to hide latency; re-profile IPC
+Day 242: Timeline annotations
+Folder: 242_timeline_annotation
+Run (from the folder):
+```bash
+./run_timeline_annotation.sh
+```
 
-Day 244:
-Measure IPC (instructions per cycle) difference after reordering; verify if warp stall count reduced 
+Day 243: Reorder latency kernel
+Folder: 243_reorder_latency_kernel
+Run (from the folder):
+```bash
+./run_reorder_latency.sh
+```
 
-Day 245:
-Study register file bank conflicts from an NVIDIA doc; plan an experiment to intentionally cause bank conflicts 
+Day 244: IPC compare after reorder
+Folder: 244_ipc_reorder_compare
+Run (from the folder):
+```bash
+./measure_ipc.sh
+```
 
-Day 246:
-Modify a kernel to force register bank conflict (if possible) and see if Nsight reports increased stall or lower occupancy
+Day 245: Register bank conflict notes
+Folder: 245_reg_bank_conflict_notes
+Run (from the folder):
+```bash
+./run_reg_bank_notes.sh
+```
 
-Day 247:
-Use `__syncwarp()` (new warp sync) versus `bar.sync` to synchronize within warp; measure any difference in overhead
+Day 246: Register bank conflict test
+Folder: 246_reg_bank_conflict_test
+Run (from the folder):
+```bash
+./run_reg_bank_test.sh
+```
 
-Day 248:
-Use C++17 parallel STL with `<execution>` (NVC++ stdpar) to offload a simple loop to GPU; compare PTX vs. explicit CUDA
+Day 247: syncwarp vs bar.sync
+Folder: 247_syncwarp_vs_barsync
+Run (from the folder):
+```bash
+./run_syncwarp_compare.sh
+```
 
-Day 249:
-Compare the PTX from stdpar compiled code to our earlier hand-written kernel; see if optimizations differ 
+Day 248: stdpar offload sample
+Folder: 248_stdpar_offload
+Run (from the folder):
+```bash
+./build_stdpar.sh
+```
 
-Day 250:
-Run a full-system 24-hour soak test on the pipeline; log GPU temperatures, clock speeds, and any errors
+Day 249: stdpar PTX compare
+Folder: 249_stdpar_ptx_compare
+Run (from the folder):
+```bash
+./compare_stdpar_ptx.sh
+```
+
+Day 250: 24h soak test
+Folder: 250_soak_test_24h
+Run (from the folder):
+```bash
+./run_soak_24h.sh 24
+```
 
 Day 251:
 Install the preview of cuTe (Tensor Extensions) if available; port one convolution to cuTe; compare PTX
