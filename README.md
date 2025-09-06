@@ -2043,3 +2043,14 @@ Day 304:Incorporate SAR channel data alongside optical images in training; obser
 
 Day 305:Evaluate the model on a test region; if possible, overlay predicted outlines on imagery to visually check results 
 
+Day 306: Parse news articles (text/images) for mentions of new buildings (simulate with sample data); use a language model to extract location info
+
+Day 307: Use a Retrieval-Augmented Generation (RAG) approach with an LLM (e.g., Llama 2) to add newly mentioned buildings into the existing map database
+
+Day 308: Real-Time QEC Decoder Project Begins - Set up NVIDIA CUDA Quantum (CUDA-Q) environment; run a basic hybrid quantum-classical example
+
+Day 309: Simulate a small quantum error correcting code (e.g., 3-qubit bit-flip code) using cuQuantum; generate error syndromes
+
+Day 310: Implement a baseline CPU decoder (e.g., brute force or simple lookup) for the code; measure its latency per round
+
+Day 311: Train a small Transformer or GNN-based decoder on simulated syndrome error data; use PyTorch on GPU for training
