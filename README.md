@@ -2054,3 +2054,7 @@ Day 309: Simulate a small quantum error correcting code (e.g., 3-qubit bit-flip 
 Day 310: Implement a baseline CPU decoder (e.g., brute force or simple lookup) for the code; measure its latency per round
 
 Day 311: Train a small Transformer or GNN-based decoder on simulated syndrome error data; use PyTorch on GPU for training
+
+Day 312: Deploy the learned decoder model on GPU (inference); compare its latency to CPU baseline (expect ~2-3x speedup)
+
+Day 313: Integrate the GPU decoder into a loop simulating real-time error correction cycles; ensure it keeps up with the error rate (e.g., <1 ms per round)
