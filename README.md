@@ -2058,3 +2058,8 @@ Day 311: Train a small Transformer or GNN-based decoder on simulated syndrome er
 Day 312: Deploy the learned decoder model on GPU (inference); compare its latency to CPU baseline (expect ~2-3x speedup)
 
 Day 313: Integrate the GPU decoder into a loop simulating real-time error correction cycles; ensure it keeps up with the error rate (e.g., <1 ms per round)
+
+Day 314: Read the Ring Attention paper (for near-infinite context LLMs); understand how it distributes attention across GPUs
+
+Day 315: Simulate Ring Attention on a single GPU by splitting a long sequence into blocks; write code to process blocks sequentially (mimicking multi-GPU)
+
