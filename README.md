@@ -2063,3 +2063,14 @@ Day 314: Read the Ring Attention paper (for near-infinite context LLMs); underst
 
 Day 315: Simulate Ring Attention on a single GPU by splitting a long sequence into blocks; write code to process blocks sequentially (mimicking multi-GPU)
 
+Day 316: Measure memory usage and time for processing a long sequence with our blockwise approach vs. naive full attention ($O(N^2)$); extrapolate benefits
+
+Day 317: Read about Striped Attention (alternative to Ring); compare their approaches (contiguous vs. interleaved token partitioning)
+
+Day 318: Consider how to implement Striped Attention on one GPU (alternating tokens); code a simple prototype and compare computational load per step
+
+Day 319: Triton Kernel Optimization - Write a Triton kernel for INT4 matrix multiplication (simulate dequantization + matmul as in GPTQ)
+
+Day 320: Optimize the Triton INT4 kernel: coalesce memory accesses, use appropriate tile sizes, unroll loops; aim to surpass initial throughput by 2-3x
+
+Day 321: Profile the optimized Triton kernel with Nsight Compute; ensure higher occupancy and less warp stall (compare metrics before vs. after)
