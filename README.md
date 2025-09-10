@@ -2074,3 +2074,5 @@ Day 319: Triton Kernel Optimization - Write a Triton kernel for INT4 matrix mult
 Day 320: Optimize the Triton INT4 kernel: coalesce memory accesses, use appropriate tile sizes, unroll loops; aim to surpass initial throughput by 2-3x
 
 Day 321: Profile the optimized Triton kernel with Nsight Compute; ensure higher occupancy and less warp stall (compare metrics before vs. after)
+
+Day 322: FastVideo Project Exploration - Read FastVideo's architecture overview (modular video diffusion pipeline, optimizations like sparse attention)
