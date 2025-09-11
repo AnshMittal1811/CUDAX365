@@ -2076,3 +2076,10 @@ Day 320: Optimize the Triton INT4 kernel: coalesce memory accesses, use appropri
 Day 321: Profile the optimized Triton kernel with Nsight Compute; ensure higher occupancy and less warp stall (compare metrics before vs. after)
 
 Day 322: FastVideo Project Exploration - Read FastVideo's architecture overview (modular video diffusion pipeline, optimizations like sparse attention)
+
+Day 323: Run a FastVideo provided example (video generation with Wan2.1 model) on a short prompt; measure generation speed (frames/sec)
+
+Day 324: Examine FastVideo's optimized attention (e.g., Sliding Tile Attention); read the corresponding paper to grasp how it works
+
+Day 325: Dive into FastVideo code (e.g., fastvideo/attention/): find a Triton or CUDA kernel implementation for attention; note any unique tricks
+
