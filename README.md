@@ -2083,3 +2083,4 @@ Day 324: Examine FastVideo's optimized attention (e.g., Sliding Tile Attention);
 
 Day 325: Dive into FastVideo code (e.g., fastvideo/attention/): find a Triton or CUDA kernel implementation for attention; note any unique tricks
 
+Day 326: Apple Metal GPU Programming - (if Mac accessible) Read Apple Metal compute shader documentation; understand kernel execution model
