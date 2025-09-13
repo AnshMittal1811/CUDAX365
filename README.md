@@ -2084,3 +2084,8 @@ Day 324: Examine FastVideo's optimized attention (e.g., Sliding Tile Attention);
 Day 325: Dive into FastVideo code (e.g., fastvideo/attention/): find a Triton or CUDA kernel implementation for attention; note any unique tricks
 
 Day 326: Apple Metal GPU Programming - (if Mac accessible) Read Apple Metal compute shader documentation; understand kernel execution model
+
+Day 327: Write a simple Metal compute kernel (e.g., vector add) and run on an Apple Silicon GPU (or simply write and compile if no device); verify correct result
+
+Day 328: TensorRT Deployment - Write a C++ (or Python) program using TensorRT APIs to load a small ONNX model and run inference; measure latency
+
