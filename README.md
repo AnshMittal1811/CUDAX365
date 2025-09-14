@@ -2089,3 +2089,9 @@ Day 327: Write a simple Metal compute kernel (e.g., vector add) and run on an Ap
 
 Day 328: TensorRT Deployment - Write a C++ (or Python) program using TensorRT APIs to load a small ONNX model and run inference; measure latency
 
+Day 329: Implement a custom TensorRT plugin layer (e.g., a non-standard activation); integrate it into an engine and test that it works and improves performance
+
+Day 330: (Optional) Build PyTorch from source and run a simple test to ensure familiarity with its internals; or attempt a small modification (like print in an op) to see build process
+
+Day 331: AMD GPU Insight - Read about AMD's Composable Kernel (CK) library in MIOpen (how templated kernels achieve performance)
+
