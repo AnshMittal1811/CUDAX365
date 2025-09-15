@@ -2095,3 +2095,7 @@ Day 330: (Optional) Build PyTorch from source and run a simple test to ensure fa
 
 Day 331: AMD GPU Insight - Read about AMD's Composable Kernel (CK) library in MIOpen (how templated kernels achieve performance)
 
+Day 332: If an AMD GPU is available (or using ROCm on CPU), try to compile and run a small kernel with the Composable Kernel library (e.g., a GEMM); otherwise, analyze provided CK examples for structure
+
+Day 333: Implement structured sparsity (NVIDIA Ampere 2:4) in a layer: prune a dense weight matrix to 50% 2:4 sparse, then use cuSPARSELt to execute a sparse GEMM; compare speed to dense GEMM
+
