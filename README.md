@@ -2099,3 +2099,6 @@ Day 332: If an AMD GPU is available (or using ROCm on CPU), try to compile and r
 
 Day 333: Implement structured sparsity (NVIDIA Ampere 2:4) in a layer: prune a dense weight matrix to 50% 2:4 sparse, then use cuSPARSELt to execute a sparse GEMM; compare speed to dense GEMM
 
+Day 334: Try Apache TVM: use it to compile a simple model (e.g., ResNet-18 or a single layer) for CUDA; run the model and compare inference speed to PyTorch's native run
+
+Day 335: Compare multi-framework performance: take a small model and benchmark it under PyTorch (eager and torch.compile), TensorRT, and TVM; summarize latency and throughput for each
