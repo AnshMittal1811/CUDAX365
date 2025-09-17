@@ -2102,3 +2102,5 @@ Day 333: Implement structured sparsity (NVIDIA Ampere 2:4) in a layer: prune a d
 Day 334: Try Apache TVM: use it to compile a simple model (e.g., ResNet-18 or a single layer) for CUDA; run the model and compare inference speed to PyTorch's native run
 
 Day 335: Compare multi-framework performance: take a small model and benchmark it under PyTorch (eager and torch.compile), TensorRT, and TVM; summarize latency and throughput for each
+
+Day 336: Determine the break-even point for GPU vs. CPU: run a simple operation (like a small matrix multiply or sum) with varying sizes on GPU and CPU to find when GPU becomes faster despite launch overhead
