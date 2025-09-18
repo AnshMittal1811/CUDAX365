@@ -2104,3 +2104,7 @@ Day 334: Try Apache TVM: use it to compile a simple model (e.g., ResNet-18 or a 
 Day 335: Compare multi-framework performance: take a small model and benchmark it under PyTorch (eager and torch.compile), TensorRT, and TVM; summarize latency and throughput for each
 
 Day 336: Determine the break-even point for GPU vs. CPU: run a simple operation (like a small matrix multiply or sum) with varying sizes on GPU and CPU to find when GPU becomes faster despite launch overhead
+
+Day 337: Investigate Python overhead: measure the cost of launching many small CUDA kernels vs. doing the equivalent work in one larger kernel (e.g., summing an array in chunks vs. whole); use events or timers to quantify overhead
+
+Day 338: Experiment with Mirage (GPU kernel superoptimizer): define a simple attention computation in Mirage and generate an optimized kernel; compare its performance to our Triton or PyTorch kernel for the same operation
