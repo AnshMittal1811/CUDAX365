@@ -2108,3 +2108,6 @@ Day 336: Determine the break-even point for GPU vs. CPU: run a simple operation 
 Day 337: Investigate Python overhead: measure the cost of launching many small CUDA kernels vs. doing the equivalent work in one larger kernel (e.g., summing an array in chunks vs. whole); use events or timers to quantify overhead
 
 Day 338: Experiment with Mirage (GPU kernel superoptimizer): define a simple attention computation in Mirage and generate an optimized kernel; compare its performance to our Triton or PyTorch kernel for the same operation
+
+Day 339: Test JAX on GPU: implement a small model (or use a JAX example) and compare its performance to PyTorch (with/without `torch.compile`) on the same task; observe differences in compilation time and speed
+
