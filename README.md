@@ -2114,3 +2114,5 @@ Day 339: Test JAX on GPU: implement a small model (or use a JAX example) and com
 Day 340: Measure how batch size affects throughput: take an inference task (like SegFormer or ResNet) and benchmark inference latency for batch = 1, 2, 4, 8, ...; plot throughput (images/sec) vs. batch to find optimal range
 
 Day 341: Measure how sequence length affects LLM throughput: use a model (like GPT-2 or Llama) to generate with context lengths 512, 1024, 2048, etc.; record tokens/sec vs. sequence length to illustrate $O(N^2)$ effect 
+
+Day 342: Demonstrate effect of KV caching: generate text with an LLM twice - once with caching (only new tokens attended) and once without (recompute attention on full sequence each step); measure the speed difference per token
