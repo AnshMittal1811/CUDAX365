@@ -2116,3 +2116,7 @@ Day 340: Measure how batch size affects throughput: take an inference task (like
 Day 341: Measure how sequence length affects LLM throughput: use a model (like GPT-2 or Llama) to generate with context lengths 512, 1024, 2048, etc.; record tokens/sec vs. sequence length to illustrate $O(N^2)$ effect 
 
 Day 342: Demonstrate effect of KV caching: generate text with an LLM twice - once with caching (only new tokens attended) and once without (recompute attention on full sequence each step); measure the speed difference per token
+
+Day 343: Simulate concurrent inference: launch two processes (or threads) each running an inference (e.g., two different models or same model with different inputs) on the GPU; observe if total throughput increases (utilizing idle periods)
+
+Day 344: Enable CUDA MPS and repeat the concurrent inference test; measure latency and throughput when MPS is coordinating multiple contexts vs. without MPS (time-slicing)
