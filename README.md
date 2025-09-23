@@ -2120,3 +2120,9 @@ Day 342: Demonstrate effect of KV caching: generate text with an LLM twice - onc
 Day 343: Simulate concurrent inference: launch two processes (or threads) each running an inference (e.g., two different models or same model with different inputs) on the GPU; observe if total throughput increases (utilizing idle periods)
 
 Day 344: Enable CUDA MPS and repeat the concurrent inference test; measure latency and throughput when MPS is coordinating multiple contexts vs. without MPS (time-slicing)
+
+Day 345: Test mixed precision vs. full precision: run a representative inference (e.g., ResNet or transformer) in FP32, FP16, and INT8 (using quantized model) and measure latency for each; confirm Tensor Cores usage via profiling for FP16/INT8
+
+Day 346: Use NVIDIA DALI to accelerate data preprocessing: replace a CPU data loader (for image augmentation or video frames) with a DALI pipeline on GPU; measure end-to-end training or inference speed improvement
+
+Day 347: Plot and analyze results: generate a graph of LLM tokens/sec vs. context length (from day 341 data) to visualize the scaling problem; ensure the plot clearly shows how longer context reduces throughput
