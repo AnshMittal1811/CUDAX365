@@ -2126,3 +2126,5 @@ Day 345: Test mixed precision vs. full precision: run a representative inference
 Day 346: Use NVIDIA DALI to accelerate data preprocessing: replace a CPU data loader (for image augmentation or video frames) with a DALI pipeline on GPU; measure end-to-end training or inference speed improvement
 
 Day 347: Plot and analyze results: generate a graph of LLM tokens/sec vs. context length (from day 341 data) to visualize the scaling problem; ensure the plot clearly shows how longer context reduces throughput
+
+Day 348: Plot batch size vs. throughput using data from day 340; identify where diminishing returns set in for batching on the GPU
