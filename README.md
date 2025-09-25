@@ -2128,3 +2128,5 @@ Day 346: Use NVIDIA DALI to accelerate data preprocessing: replace a CPU data lo
 Day 347: Plot and analyze results: generate a graph of LLM tokens/sec vs. context length (from day 341 data) to visualize the scaling problem; ensure the plot clearly shows how longer context reduces throughput
 
 Day 348: Plot batch size vs. throughput using data from day 340; identify where diminishing returns set in for batching on the GPU
+
+Day 349: Plot FP32 vs FP16 vs INT8 latency from day 345 to illustrate speedup from lower precision; annotate any accuracy differences observed
