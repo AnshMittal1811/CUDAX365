@@ -2130,3 +2130,7 @@ Day 347: Plot and analyze results: generate a graph of LLM tokens/sec vs. contex
 Day 348: Plot batch size vs. throughput using data from day 340; identify where diminishing returns set in for batching on the GPU
 
 Day 349: Plot FP32 vs FP16 vs INT8 latency from day 345 to illustrate speedup from lower precision; annotate any accuracy differences observed
+
+Day 350: Visualize segmentation output: take a sample satellite image and overlay the model's building outline predictions in color; save this as an image to verify qualitative results
+
+Day 351: Export the trained satellite segmentation model for deployment: use torch.export to get a stable graph, convert to ONNX, and run it through TensorRT; compare inference speed on a test image vs. PyTorch
