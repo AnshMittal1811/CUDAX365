@@ -2134,3 +2134,5 @@ Day 349: Plot FP32 vs FP16 vs INT8 latency from day 345 to illustrate speedup fr
 Day 350: Visualize segmentation output: take a sample satellite image and overlay the model's building outline predictions in color; save this as an image to verify qualitative results
 
 Day 351: Export the trained satellite segmentation model for deployment: use torch.export to get a stable graph, convert to ONNX, and run it through TensorRT; compare inference speed on a test image vs. PyTorch
+
+Day 352: Deploy the QEC decoder model: if it's small enough, convert it to TensorRT or a custom CUDA kernel (since it might be just MLP/attention); ensure it runs within the required latency per cycle
