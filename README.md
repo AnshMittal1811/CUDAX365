@@ -2147,3 +2147,4 @@ Day 356: Explore any new release or tool announced recently (e.g., a new version
 
 Day 357: Final code refactoring: clean up and refactor the codebase for readability, modularity, and prepare it for possible public release (if applicable)
 
+Day 358: Run an end-to-end test of the refactored code to ensure everything still works and is reproducible from scratch (scripts, README, etc.)
