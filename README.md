@@ -612,11 +612,94 @@ Pre-Work GEMM Kernels (How to write them? Code Along)
 ```
 
 Day 9:
+Side-by-side cuBLAS vs WMMA benchmark comparison on tiny GEMMs, then profile regs & SM occupancy
+
+```bash 
+> nvcc -O3 -std=c++17 -arch=sm_89 -lineinfo -Xptxas -v gemm_compare.cu -lcublas -o gemm_compare
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z16wmma_gemm_kernelPK6__halfS1_Pfiii' for 'sm_89'
+ptxas info    : Function properties for _Z16wmma_gemm_kernelPK6__halfS1_Pfiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 40 registers, used 0 barriers, 388 bytes cmem[0]
+ptxas info    : Compile time = 85.172 ms
+
+> ./gemm_compare
+[WMMA] 128x128x128: 1.908736 ms (200 iters)  ~ 0.439 TFLOP/s
+[cuBLAS] 128x128x128: 1.753088 ms (200 iters)  ~ 0.479 TFLOP/s
+Samples  Cwmma[0]=89.125   Ccublas[0]=94.125
+
+> ./gemm_compare 64 64 64
+[WMMA] 64x64x64: 1.650688 ms (200 iters)  ~ 0.064 TFLOP/s
+[cuBLAS] 64x64x64: 5.917600 ms (200 iters)  ~ 0.018 TFLOP/s
+Samples  Cwmma[0]=46.250   Ccublas[0]=46.875
+
+> ./gemm_compare 32 32 32
+[WMMA] 32x32x32: 0.994304 ms (200 iters)  ~ 0.013 TFLOP/s
+[cuBLAS] 32x32x32: 1.332160 ms (200 iters)  ~ 0.010 TFLOP/s
+Samples  Cwmma[0]=24.750   Ccublas[0]=23.375
+
+> ncu --set full --kernel-name ::wmma_gemm_kernel ./gemm_compare 128 128 128
+==PROF== Connected to process 780960 (/mnt/c/Users/anshm/250DaysStraight/009_gemm_compare/gemm_compare)
+[WMMA] 128x128x128: 5.109024 ms (200 iters)  ~ 0.164 TFLOP/s
+[cuBLAS] 128x128x128: 5.468256 ms (200 iters)  ~ 0.153 TFLOP/s
+Samples  Cwmma[0]=89.125   Ccublas[0]=94.125
+==PROF== Disconnected from process 780960
+==WARNING== No kernels were profiled.
+Available Kernels:
+1. Kernel2
+2. wmma_gemm_kernel
+
+> ncu --set full \
+    --target-processes all \
+    --kernel-name ::wmma_gemm_kernel \
+    --launch-skip 20 --launch-count 5 \
+    ./gemm_compare 128 128 128
+==PROF== Connected to process 782066 (/mnt/c/Users/anshm/250DaysStraight/009_gemm_compare/gemm_compare)
+[WMMA] 128x128x128: 3.720192 ms (200 iters)  ~ 0.225 TFLOP/s
+[cuBLAS] 128x128x128: 6.237184 ms (200 iters)  ~ 0.134 TFLOP/s
+Samples  Cwmma[0]=89.125   Ccublas[0]=94.125
+==PROF== Disconnected from process 782066
+==WARNING== No kernels were profiled.
+Available Kernels:
+1. Kernel2
+2. wmma_gemm_kernel
+
+> ncu --metrics \
+sm__warps_active.avg.pct_of_peak_sustained_active,\
+smsp__sass_registers_per_thread_alloc.avg,\
+sm__pipe_tensor_active.avg.pct_of_peak_sustained_active,\
+sm__inst_executed_pipe_tensor_op_hmma.sum \
+--kernel-name ::wmma_gemm_kernel \
+./gemm_compare 128 128 128
+==PROF== Connected to process 782240 (/mnt/c/Users/anshm/250DaysStraight/009_gemm_compare/gemm_compare)
+[WMMA] 128x128x128: 3.784704 ms (200 iters)  ~ 0.222 TFLOP/s
+[cuBLAS] 128x128x128: 3.912704 ms (200 iters)  ~ 0.214 TFLOP/s
+Samples  Cwmma[0]=89.125   Ccublas[0]=94.125
+==PROF== Disconnected from process 782240
+==WARNING== No kernels were profiled.
+Available Kernels:
+1. Kernel2
+2. wmma_gemm_kernel
+
+> cuobjdump --dump-sass ./gemm_compare | grep -i -E "HMMA|MMA|LDMATRIX" -n
+21:             Function : _Z16wmma_gemm_kernelPK6__halfS1_Pfiii
+203:        /*05a0*/                   HMMA.16816.F32 R20, R4, R12, R20 ;             /* 0x0000000c0414723c */
+215:        /*0600*/                   HMMA.16816.F32 R4, R4, R14, R8 ;               /* 0x0000000e0404723c */
+257:        /*0750*/                   HMMA.16816.F32 R20, R16.reuse, R24, R20 ;      /* 0x000000181014723c */
+263:        /*0780*/                   HMMA.16816.F32 R16, R16, R12, R4 ;             /* 0x0000000c1010723c */
+307:        /*08e0*/                   HMMA.16816.F32 R20, R12.reuse, R24, R20 ;      /* 0x000000180c14723c */
+309:        /*08f0*/                   HMMA.16816.F32 R16, R12, R28, R16 ;            /* 0x0000001c0c10723c */
+313:        /*0910*/                   HMMA.16816.F32 R20, R8.reuse, R6, R20 ;        /* 0x000000060814723c */
+315:        /*0920*/                   HMMA.16816.F32 R8, R8, R4, R16 ;               /* 0x000000040808723c */
+407:        /*0c00*/                   HMMA.16816.F32 R20, R4.reuse, R14, R20 ;       /* 0x0000000e0414723c */
+409:        /*0c10*/                   HMMA.16816.F32 R8, R4, R34, R8 ;               /* 0x000000220408723c */
+```
 
 
 Day 10:
-Try extending your PDE solver with a small dynamic parallel kernel call.
-Reference: NVIDIA Developer Blog - Dynamic Parallelism
+Start a 2-D explicit Magneto-Hydrodynamics (MHD) solver (ρ, u, B fields) in CUDA C
+
+
 
 ---
 Block 3 (Days 11–15)
