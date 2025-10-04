@@ -2156,3 +2156,6 @@ Day 360: Engage in a code review or self-review: examine critical sections (PTX 
 Day 361: Prepare for deployment or next steps: if this project were to continue, outline a plan for turning it into a real product or research paper (e.g., what pieces need further development)
 
 Day 362: Knowledge sharing: write a blog post or internal wiki article detailing the journey, the technical challenges overcome, and key learnings for colleagues or the community
+
+Day 363: Presentation day: present the results of the projects to peers or mentors, including demos of the running pipeline (segmentation, simulation, RL, LLM responding) and Q&A
+
