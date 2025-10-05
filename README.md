@@ -2159,3 +2159,5 @@ Day 362: Knowledge sharing: write a blog post or internal wiki article detailing
 
 Day 363: Presentation day: present the results of the projects to peers or mentors, including demos of the running pipeline (segmentation, simulation, RL, LLM responding) and Q&A
 
+Day 364: Revise CUDA, Triton, RTX, ML frameworks, etc
+
