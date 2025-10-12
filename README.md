@@ -62,77 +62,117 @@ make -j8
 ./bin/x86_64/linux/release/bandwidthTest
 ```
 
-Day 3:
-Write a minimal CUDA vector addition program from scratch (C/C++).
-Practice with nvcc compiler and cmake.
-Reference: CUDA C Programming Guide
-
-```cpp
-#include <iostream>
-#include <cuda_runtime.h>
-
-__global__ void vectorAdd(const float* A, const float* B, float* C, int N) {
-    int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx < N) {
-        C[idx] = A[idx] + B[idx];
-    }
-}
-
-int main() {
-    int N = 1 << 20; // 1 million elements
-    size_t size = N * sizeof(float);
-
-    // Host allocations
-    float *hA = (float*)malloc(size);
-    float *hB = (float*)malloc(size);
-    float *hC = (float*)malloc(size);
-
-    // Initialize input data
-    for(int i=0; i<N; i++){
-        hA[i] = 1.0f;
-        hB[i] = 2.0f;
-    }
-
-    // Device allocations
-    float *dA, *dB, *dC;
-    cudaMalloc((void**)&dA, size);
-    cudaMalloc((void**)&dB, size);
-    cudaMalloc((void**)&dC, size);
-
-    // Copy data to device
-    cudaMemcpy(dA, hA, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(dB, hB, size, cudaMemcpyHostToDevice);
-
-    // Launch kernel
-    int threadsPerBlock = 256;
-    int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
-    vectorAdd<<<blocks, threadsPerBlock>>>(dA, dB, dC, N);
-    cudaDeviceSynchronize();
-
-    // Copy results back to host
-    cudaMemcpy(hC, dC, size, cudaMemcpyDeviceToHost);
-
-    // Check correctness (simple check)
-    std::cout << "hC[0] = " << hC[0] << " (should be 3.0)" << std::endl;
-
-    // Free device
-    cudaFree(dA);
-    cudaFree(dB);
-    cudaFree(dC);
-
-    // Free host
-    free(hA);
-    free(hB);
-    free(hC);
-
-    return 0;
-}
-```
-
+Response for DeviceQuery
 ```bash
-nvcc -o vector_add vector_add.cu
-./vector_add
+(base) anmittal@AnshPredator:/mnt/c/Users/anshm/250DaysStraight/002_Basic_CUDA_Samples/cuda-samples-12.8/Samples/1_Utilities/deviceQuery$ ./build/deviceQuery
+./build/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "NVIDIA GeForce RTX 4090 Laptop GPU"
+  CUDA Driver Version / Runtime Version          12.5 / 12.8
+  CUDA Capability Major/Minor version number:    8.9
+  Total amount of global memory:                 16376 MBytes (17170956288 bytes)
+  (076) Multiprocessors, (128) CUDA Cores/MP:    9728 CUDA Cores
+  GPU Max Clock rate:                            1590 MHz (1.59 GHz)
+  Memory Clock rate:                             9001 Mhz
+  Memory Bus Width:                              256-bit
+  L2 Cache Size:                                 67108864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total shared memory per multiprocessor:        102400 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1536
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device supports Managed Memory:                Yes
+  Device supports Compute Preemption:            Yes
+  Supports Cooperative Kernel Launch:            Yes
+  Supports MultiDevice Co-op Kernel Launch:      No
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 12.5, CUDA Runtime Version = 12.8, NumDevs = 1
+Result = PASS
 ```
+
+Response for Bandwidth Test
+```bash
+(base) anmittal@AnshPredator:/mnt/c/Users/anshm/250DaysStraight/002_Basic_CUDA_Samples/cuda-samples-12.8/Samples/1_Utilities/bandwidthTest$ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=89
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- The CUDA compiler identification is NVIDIA 12.8.61
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting CUDA compiler ABI info
+-- Detecting CUDA compiler ABI info - done
+-- Check for working CUDA compiler: /usr/local/cuda/bin/nvcc - skipped
+-- Detecting CUDA compile features
+-- Detecting CUDA compile features - done
+-- Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include (found version "12.8.61") 
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done (39.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: /mnt/c/Users/anshm/250DaysStraight/002_Basic_CUDA_Samples/cuda-samples-12.8/Samples/1_Utilities/bandwidthTest/build
+(base) anmittal@AnshPredator:/mnt/c/Users/anshm/250DaysStraight/002_Basic_CUDA_Samples/cuda-samples-12.8/Samples/1_Utilities/bandwidthTest$ cmake --build build --target  bandwidthTest  -j
+[3/3] Linking CUDA executable bandwidthTest
+(base) anmittal@AnshPredator:/mnt/c/Users/anshm/250DaysStraight/002_Basic_CUDA_Samples/cuda-samples-12.8/Samples/1_Utilities/bandwidthTest$ ./build/bandwidthTest 
+[CUDA Bandwidth Test] - Starting...
+Running on...
+
+ Device 0: NVIDIA GeForce RTX 4090 Laptop GPU
+ Quick Mode
+
+ Host to Device Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)        Bandwidth(GB/s)
+   32000000                     12.2
+
+ Device to Host Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)        Bandwidth(GB/s)
+   32000000                     9.9
+
+ Device to Device Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)        Bandwidth(GB/s)
+   32000000                     1363.1
+
+Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+```
+
+
+Day 3:
+
 
 Day 4:
 Dive into HPC libraries: install and test cuBLAS and cuRAND with small matrix multiply and random number generation examples.
