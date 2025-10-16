@@ -172,7 +172,110 @@ NOTE: The CUDA Samples are not meant for performance measurements. Results may v
 
 
 Day 3:
+Work with PTX for Vector Addition and see what happens under the hood:
 
+Commands used: 
+```bash
+cd ~/cuda-samples-12.8/Samples/0_Introduction/vectorAdd
+nvcc -std=c++11 -I ../../../Common \
+     -arch=compute_89 -code=compute_89 \
+     -O0 -Xptxas -O0 \
+     -ptx vectorAdd.cu -o ../../../../../03_vector_add_pts/vectorAdd.ptx
+
+grep -n "ld\.global" vectorAdd.ptx
+less vectorAdd.ptx
+```
+
+```less
+//
+
+.version 8.7                      // PTX ISA version
+.target sm_89                     // target GPU architecture (Ada, RTX 4090 laptop)               
+.address_size 64                  // 64-bit pointers
+
+        // .globl       _Z9vectorAddPKfS0_Pfi
+
+.visible .entry _Z9vectorAddPKfS0_Pfi(
+        .param .u64 _Z9vectorAddPKfS0_Pfi_param_0,   // A (const float*)
+        .param .u64 _Z9vectorAddPKfS0_Pfi_param_1,   // B (const float*)
+        .param .u64 _Z9vectorAddPKfS0_Pfi_param_2,   // C (float*)
+        .param .u32 _Z9vectorAddPKfS0_Pfi_param_3    // N (int)
+)
+{
+        .reg .pred      %p<2>;     // predicate (boolean) registers
+        .reg .f32       %f<5>;     // 32-bit integer regs
+        .reg .b32       %r<6>;     // 32-bit integer regs
+        .reg .b64       %rd<11>;   // 64-bit integer regs (addresses/offsets)
+        ld.param.u64    %rd1, [_Z9vectorAddPKfS0_Pfi_param_0];   // A
+        ld.param.u64    %rd2, [_Z9vectorAddPKfS0_Pfi_param_1];   // B
+        ld.param.u64    %rd3, [_Z9vectorAddPKfS0_Pfi_param_2];   // C
+        ld.param.u32    %r2, [_Z9vectorAddPKfS0_Pfi_param_3];    // N
+        mov.u32         %r3, %ntid.x;   // blockDim.x
+        mov.u32         %r4, %ctaid.x;  // blockIdx.x
+        mov.u32         %r5, %tid.x;    // threadIdx.x
+        mad.lo.s32      %r1, %r3, %r4, %r5;   // r1 = blockDim.x*blockIdx.x + threadIdx.x
+        setp.ge.s32     %p1, %r1, %r2;        // p1 = (i >= N)
+        @%p1 bra        $L__BB0_2;            // if p1, branch to end
+
+        cvta.to.global.u64      %rd4, %rd1;   // convert A from generic to global addr
+        mul.wide.s32    %rd5, %r1, 4;         // byte offset = i * sizeof(float)
+        add.s64         %rd6, %rd4, %rd5;     // &A[i]
+        cvta.to.global.u64      %rd7, %rd2;   // B base
+        add.s64         %rd8, %rd7, %rd5;     // &B[i]
+        ld.global.f32   %f1, [%rd8];          // f1 = B[i]
+        ld.global.f32   %f2, [%rd6];          // f2 = A[i]
+        add.f32         %f3, %f2, %f1;        // f3 = A[i] + B[i]
+        add.f32         %f4, %f3, 0f00000000; // f4 = f3 + 0.0f (no-op; see note)
+        cvta.to.global.u64      %rd9, %rd3;   // C base
+        add.s64         %rd10, %rd9, %rd5;    // &C[i]
+        st.global.f32   [%rd10], %f4;         // C[i] = f4
+
+$L__BB0_2:
+        ret;
+
+}
+```
+Here, the following description helped me understand what is happening under the hood:
+* _Z9vectorAddPKfS0_Pfi is the C++-mangled name of vectorAdd(const float*, const float*, float*, int).
+* Kernel args live in a param space; you first load them into registers
+* PTX uses virtual registers; the JIT will map them to physical registers
+* `%ntid.x`, `%ctaid.x`, `%tid.x` are special registers for the launch geometry.
+* `@%p1` is predicate-guarded branch — classic GPU style control flow.
+* `cvta.to.global` normalizes a pointer to the global address space (important with unified addressing).
+* `mul.wide.s32` does 32-->64-bit multiply for a 64-bit offset.
+* That `add.f32 ... + 0.0f` is a harmless compiler artifact (e.g., SSA/value placement or to inhibit certain opt passes). It doesn’t change the result and often disappears with different flags.
+* PTX does exactly this: Loads args --> computes i --> checks `i<N` --> computes addresses --> loads `A[i], B[i]` --> adds --> stores to `C[i]`.
+
+For SASS understanding, I did the following:
+```bash
+# From: /mnt/c/Users/anshm/250DaysStraight
+ROOT="/mnt/c/Users/anshm/250DaysStraight/002_Basic_CUDA_Samples/cuda-samples-12.8"
+SRC="$ROOT/Samples/0_Introduction/vectorAdd/vectorAdd.cu"
+INC="$ROOT/Common"
+OUTDIR="/mnt/c/Users/anshm/250DaysStraight/003_vector_add_ptx"
+OUT="$OUTDIR/vectorAdd.ptx"
+
+mkdir -p "$OUTDIR"
+nvcc -std=c++11 -I "$INC" \
+     -arch=compute_89 -code=compute_89 \
+     -O0 -Xptxas -O0 \
+     -ptx "$SRC" -o "$OUT"
+
+ls -lh "$OUT"
+grep -n "ld\.global" "$OUT" || true
+less "$OUT"
+
+nvcc -std=c++11 -I "$INC" -arch=sm_89 -lineinfo -Xptxas -v \
+     "$SRC" -o "$OUTDIR/vectorAdd_sm89"
+
+cuobjdump --dump-sass "$OUTDIR/vectorAdd_sm89" > "$OUTDIR/vectorAdd.sass"
+sed -n '1,120p' "$OUTDIR/vectorAdd.sass"
+
+nvcc -std=c++11 -I "$INC" -arch=sm_89 -Xptxas -dlcm=ca "$SRC" -o "$OUTDIR/vectorAdd_ca"
+nvcc -std=c++11 -I "$INC" -arch=sm_89 -Xptxas -dlcm=cg "$SRC" -o "$OUTDIR/vectorAdd_cg"
+cuobjdump --dump-sass "$OUTDIR/vectorAdd_ca" > "$OUTDIR/ca.sass"
+cuobjdump --dump-sass "$OUTDIR/vectorAdd_cg" > "$OUTDIR/cg.sass"
+```
 
 Day 4:
 Dive into HPC libraries: install and test cuBLAS and cuRAND with small matrix multiply and random number generation examples.
