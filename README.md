@@ -4016,132 +4016,425 @@ Run (from the folder):
 ./run_soak_24h.sh 24
 ```
 
-Day 251:
-Install the preview of cuTe (Tensor Extensions) if available; port one convolution to cuTe; compare PTX
+Day 251: cuTe conv preview + PTX dump
+Folder: 251_cute_conv
+Run (from the folder):
+```bash
+./run_cute_conv.sh
+```
 
-Day 252:
-Compare the PTX or performance of the cuTe convolution vs. CUTLASS baseline; note differences
+Day 252: cuTe vs baseline PTX compare
+Folder: 252_cute_vs_cutlass
+Run (from the folder):
+```bash
+./run_compare.sh
+```
 
-Day 253:
-Add an RLHF reward model kernel in PTX to the pipeline (simulate inference of a small reward model); test integration
+Day 253: RLHF reward model kernel (PTX)
+Folder: 253_rlhf_reward_ptx
+Run (from the folder):
+```bash
+./run_reward_kernel.sh
+```
 
-Day 254:
-Train the RLHF policy for 2 epochs on TinyLlama outputs; monitor VRAM usage and throughput
+Day 254: RLHF policy train (2 epochs)
+Folder: 254_rlhf_policy_train
+Run (from the folder):
+```bash
+./run_rlhf_train.sh
+```
 
-Day 255:
-Integrate the RLHF-tuned policy into the RL agent in the environment; test agent performance improvement
+Day 255: RLHF policy integration
+Folder: 255_rlhf_integration
+Run (from the folder):
+```bash
+./run_rlhf_integration.sh
+```
 
-Day 256:
-Use Nsight Systems for a holistic view of GPU, CPU, I/O across the pipeline after RLHF integration
+Day 256: Nsight Systems after RLHF
+Folder: 256_nsys_post_rlhf
+Run (from the folder):
+```bash
+./profile_rlhf_nsys.sh
+```
 
-Day 257:
-Adjust thread priorities of encoding vs. rendering threads (e.g., use `chrt` on Linux) to optimize pipeline flow
+Day 257: Thread priority tuning
+Folder: 257_thread_priority
+Run (from the folder):
+```bash
+./run_thread_priority.sh
+```
 
-Day 258: Re-tune the GPU power limit for sustained performance (lower if thermal throttling); log sustained clocks
+Day 258: Power limit retune
+Folder: 258_power_limit_tuning
+Run (from the folder):
+```bash
+./set_power_limit.sh
+```
 
-Day 259: After 30 minutes at new power limit, evaluate if GPU clocks remain stable vs. before (log analysis) 
+Day 259: Power limit analysis
+Folder: 259_power_limit_analysis
+Run (from the folder):
+```bash
+./run_power_analysis.sh
+```
 
-Day 260: Evaluate long-run stability: no memory leaks, and performance does not degrade over 30 min+ runs 
+Day 260: 30-minute stability run
+Folder: 260_long_run_stability
+Run (from the folder):
+```bash
+./run_stability_30m.sh 30
+```
 
-Day 261: Test CUDA-Aware MPI (OpenMPI) inside WSL: send/recv GPU buffers directly; measure latency vs. CPU buffer 
+Day 261: CUDA-aware MPI send/recv
+Folder: 261_cuda_aware_mpi
+Run (from the folder):
+```bash
+./run_mpi_cuda_aware.sh
+```
 
-Day 262: Use MPI to split the PDE domain across 2 processes (on one GPU via time-slicing); measure overhead of communication
+Day 262: MPI PDE domain split
+Folder: 262_mpi_domain_split
+Run (from the folder):
+```bash
+./run_mpi_domain.sh
+```
 
-Day 263: Compare direct GPU-to-GPU P2P copy vs. staging through host for these MPI messages (simulate using cudaMemcpy) 
+Day 263: GPU copy vs host staging
+Folder: 263_mpi_copy_compare
+Run (from the folder):
+```bash
+./run_p2p_compare.sh
+```
 
-Day 264: Implement a novel FP6 quantization (NetQRE) for LLM weights; integrate into TinyLlama and test perplexity 
+Day 264: FP6 NetQRE quantization
+Folder: 264_fp6_netqre
+Run (from the folder):
+```bash
+./run_fp6_quant.sh
+```
 
-Day 265: Inspect PTX for FP6 operations or how it emulates (likely using INT8 with scale); see if any new instructions 
+Day 265: FP6 PTX inspection
+Folder: 265_fp6_ptx_inspect
+Run (from the folder):
+```bash
+./run_fp6_ptx.sh
+```
 
-Day 266: Evaluate the accuracy of FP6 quantized model vs. FP8 and FP4; see if it offers a middle ground in quality 
+Day 266: FP6 vs FP8 vs FP4 accuracy
+Folder: 266_fp6_accuracy_eval
+Run (from the folder):
+```bash
+./run_fp_format_eval.sh
+```
 
-Day 267: Experiment with offloading the LLM KV-cache to disk when GPU memory is exceeded (using paging or streaming) 
+Day 267: KV cache paging mock
+Folder: 267_kv_cache_paging
+Run (from the folder):
+```bash
+./run_kv_cache.sh
+```
 
-Day 268: Measure hit/miss rates and latency impact of disk-paged KV cache (simulate by artificially small cache on GPU) 
+Day 268: KV cache hit/miss stats
+Folder: 268_kv_cache_stats
+Run (from the folder):
+```bash
+./run_kv_cache_stats.sh
+```
 
-Day 269: Tune NVENC encoder preset (quality vs. speed) to find best balance for live streaming the output; test latency impact 
+Day 269: NVENC preset tuning
+Folder: 269_nvenc_preset_tuning
+Run (from the folder):
+```bash
+./run_nvenc_presets.sh
+```
 
-Day 270: Plot the latency vs. quality trade-off for different NVENC presets or bitrates; identify optimal point 
+Day 270: NVENC tradeoff plot
+Folder: 270_nvenc_tradeoff
+Run (from the folder):
+```bash
+./run_nvenc_tradeoff.sh
+```
 
-Day 271: Build a stdpar version of the PDE solver (C++ parallel STL); compile with NVC++ and run on GPU 
+Day 271: stdpar PDE solver
+Folder: 271_stdpar_pde_solver
+Run (from the folder):
+```bash
+./build_stdpar_pde.sh
+```
 
-Day 272: Inspect the generated PTX from stdpar PDE vs. our original CUDA PDE; ensure it vectorized loads properly 
+Day 272: stdpar PTX compare
+Folder: 272_stdpar_ptx_compare
+Run (from the folder):
+```bash
+./compare_stdpar_pde_ptx.sh
+```
 
-Day 273: Compare runtime of stdpar solver vs. hand-optimized CUDA solver; measure difference in GFLOP/s 
+Day 273: stdpar vs CUDA runtime
+Folder: 273_stdpar_vs_cuda_perf
+Run (from the folder):
+```bash
+./run_stdpar_vs_cuda.sh
+```
 
-Day 274: Add cp.async multi-stage copies for boundary halo exchange in PDE (overlap communication in shared mem) 
+Day 274: cp.async halo exchange
+Folder: 274_cp_async_halo
+Run (from the folder):
+```bash
+./run_cp_async_halo.sh
+```
 
-Day 275: Use mbarrier and async.commit_group to coordinate the multi-stage copy (Hopper feature); test on sm_90 if possible
+Day 275: mbarrier async copy
+Folder: 275_mbarrier_async_copy
+Run (from the folder):
+```bash
+./run_mbarrier_async.sh
+```
 
-Day 276: Validate that results remain the same with the new asynchronous copy scheme (bitwise compare outputs) 
+Day 276: async copy validation
+Folder: 276_async_copy_validate
+Run (from the folder):
+```bash
+./run_validate.sh
+```
 
-Day 277: Integrate a mixed-precision strategy (FP8 for some layers, FP16 for others) in conv layers of the ML models; test if training converges 
+Day 277: mixed precision conv
+Folder: 277_mixed_precision_conv
+Run (from the folder):
+```bash
+./run_mixed_precision.sh
+```
 
-Day 278: Check PTX of mixed precision kernels to see both FP16 and FP8 ops; confirm scheduler alternates them effectively 
+Day 278: mixed precision PTX
+Folder: 278_mixed_precision_ptx
+Run (from the folder):
+```bash
+./run_mixed_precision_ptx.sh
+```
 
-Day 279: Evaluate throughput improvement with mixed precision vs. pure FP16; chart the differences 
+Day 279: mixed precision throughput
+Folder: 279_mixed_precision_throughput
+Run (from the folder):
+```bash
+./run_throughput_compare.sh
+```
 
-Day 280: Push the entire project code to a public GitHub repository (if possible); ensure no proprietary data 
+Day 280: GitHub publish prep
+Folder: 280_github_publish
+Run (from the folder):
+```bash
+./prepare_github_push.sh
+```
 
-Day 281: Install Triton 3.0 Alpha (if available); port one of our custom Triton kernels to it; examine changes/new scheduler 
+Day 281: Triton 3.0 port
+Folder: 281_triton3_port
+Run (from the folder):
+```bash
+./run_triton3.sh
+```
 
-Day 282: Measure performance of the Triton 3.0 kernel vs. Triton 2.x version; note any improvements or regressions 
+Day 282: Triton 3.0 performance compare
+Folder: 282_triton3_perf
+Run (from the folder):
+```bash
+./run_triton_perf.sh
+```
 
-Day 283: Implement a block-sparse attention or transformer with block-sparse kernels (e.g., using Sparse GPT code) 
+Day 283: Block-sparse attention
+Folder: 283_block_sparse_attention
+Run (from the folder):
+```bash
+./run_block_sparse.sh
+```
 
-Day 284: Use CUTLASS or PyTorch SPMM to accelerate the block-sparse attention; examine SASS (should use optimized sparse Tensor Core) 
+Day 284: Sparse SPMM baseline
+Folder: 284_sparse_spmm_sass
+Run (from the folder):
+```bash
+./run_sparse_spmm.sh
+```
 
-Day 285: Evaluate memory savings and speed of block-sparse model vs. dense baseline; log results 
+Day 285: Sparse memory/speed metrics
+Folder: 285_sparse_speed_mem
+Run (from the folder):
+```bash
+./run_sparse_metrics.sh
+```
 
-Day 286: Add a curriculum learning schedule to the RL training (start easy, progressively harder tasks) 
+Day 286: Curriculum RL schedule
+Folder: 286_curriculum_rl
+Run (from the folder):
+```bash
+./run_curriculum.sh
+```
 
-Day 287: Code a custom reward shaping kernel in PTX (to combine multiple reward signals); integrate into training loop 
+Day 287: Reward shaping PTX
+Folder: 287_reward_shaping_ptx
+Run (from the folder):
+```bash
+./run_reward_shaping.sh
+```
 
-Day 288: Monitor the learning curve with curriculum and shaped rewards vs. original; verify faster convergence 
+Day 288: Curriculum learning curve
+Folder: 288_curriculum_learning_curve
+Run (from the folder):
+```bash
+./run_learning_curve.sh
+```
 
-Day 289: Perform a 6-hour pipeline stress test after all optimizations; track VRAM usage to catch leaks (loop nvidia-smi) 
+Day 289: 6-hour stress test
+Folder: 289_stress_test_6h
+Run (from the folder):
+```bash
+./run_stress_6h.sh 6
+```
 
-Day 290: Fix any memory leaks or issues found; retest to ensure stability in long runs
+Day 290: Leak fix notes
+Folder: 290_fix_leaks
+Run (from the folder):
+```bash
+./run_leak_notes.sh
+```
 
-Day 291: Connect an AutoGPT or LLM agent to the pipeline for auto-tuning: let it propose hyperparameters based on logs 
+Day 291: Auto-tune agent proposals
+Folder: 291_autogpt_tuner
+Run (from the folder):
+```bash
+./run_auto_tune.sh
+```
 
-Day 292: Have the agent generate candidate configurations; evaluate PDE error or reward for each; let it iterate 
+Day 292: Agent config evaluation
+Folder: 292_agent_configs
+Run (from the folder):
+```bash
+./run_agent_configs.sh
+```
 
-Day 293: Compare kernels or parameters chosen by the AI agent vs. our manual best; analyze any novel strategies it found 
+Day 293: Agent vs manual compare
+Folder: 293_agent_compare
+Run (from the folder):
+```bash
+./run_agent_compare.sh
+```
 
-Day 294: Integrate a citation extraction NLP (e.g., CITEX) to scan new papers (like magnetohydrodynamics) for relevant formulas/ideas 
+Day 294: CITEX extraction mock
+Folder: 294_citex_extract
+Run (from the folder):
+```bash
+./run_citex_extract.sh
+```
 
-Day 295: Quantize the CITEX model to 4-bit and deploy it with TGI for quick Q&A on new papers (like an AI researcher assistant) 
+Day 295: CITEX 4-bit + TGI mock
+Folder: 295_citex_tgi_quant
+Run (from the folder):
+```bash
+./run_citex_tgi.sh
+```
 
-Day 296: Full-Day Integration Test: Run a 12-hour continuous test with all modules (PDE+NeRF+RL+LLM+CV) active; monitor and log everything 
+Day 296: 12-hour integration test
+Folder: 296_integration_test_12h
+Run (from the folder):
+```bash
+./run_integration_12h.sh 12
+```
 
-Day 297: Use Nsight Systems to capture a full timeline (.qdrep) of the 12h run; save for analysis 
+Day 297: Nsight 12h timeline
+Folder: 297_nsys_12h_timeline
+Run (from the folder):
+```bash
+./profile_12h_nsys.sh
+```
 
-Day 298: Summarize overall throughput: GFLOP/s for simulation, FPS for rendering, tokens/s for LLM, etc., from the run logs 
+Day 298: Throughput summary
+Folder: 298_overall_throughput_summary
+Run (from the folder):
+```bash
+./run_throughput_summary.sh
+```
 
-Day 299: Perform system maintenance: clean temporary files, verify drivers, possibly reinstall NVIDIA driver to refresh state 
+Day 299: System maintenance
+Folder: 299_system_maintenance
+Run (from the folder):
+```bash
+./system_maintenance.sh
+```
 
-Day 300: Grand 24h Stress & Benchmark: Run the entire pipeline for 24 hours straight; log any failures, final performance metrics, and archive results
+Day 300: 24-hour benchmark
+Folder: 300_grand_24h_benchmark
+Run (from the folder):
+```bash
+./run_grand_24h.sh 24
+```
 
-Day 301: Satellite Imagery Segmentation Project Begins - Prepare dataset of satellite images (optical and SAR) with building outlines (e.g., SpaceNet or OpenEarthMap-SAR)
+Day 301: Satellite dataset prep
+Folder: 301_satellite_dataset
+Run (from the folder):
+```bash
+./run_satellite_dataset.sh
+```
 
-Day 302: Pretrain a Masked Autoencoder (MAE) on the satellite images (self-supervised) to learn representations
+Day 302: MAE pretrain
+Folder: 302_mae_pretrain
+Run (from the folder):
+```bash
+./run_mae_pretrain.sh
+```
 
-Day 303:Fine-tune a segmentation model (e.g., U-Net or SegFormer) using the MAE encoder on building outlines; aim for high Dice coefficient 
+Day 303: Segmentation fine-tune
+Folder: 303_segmentation_finetune
+Run (from the folder):
+```bash
+./run_finetune.sh
+```
 
-Day 304:Incorporate SAR channel data alongside optical images in training; observe if segmentation accuracy (Dice) improves (expect ~10% $\uparrow$) 
+Day 304: SAR fusion training
+Folder: 304_sar_fusion
+Run (from the folder):
+```bash
+./run_sar_fusion.sh
+```
 
-Day 305:Evaluate the model on a test region; if possible, overlay predicted outlines on imagery to visually check results 
+Day 305: Segmentation eval
+Folder: 305_segmentation_eval
+Run (from the folder):
+```bash
+./run_seg_eval.sh
+```
 
-Day 306: Parse news articles (text/images) for mentions of new buildings (simulate with sample data); use a language model to extract location info
+Day 306: News parse + locations
+Folder: 306_news_parse
+Run (from the folder):
+```bash
+./run_news_parse.sh
+```
 
-Day 307: Use a Retrieval-Augmented Generation (RAG) approach with an LLM (e.g., Llama 2) to add newly mentioned buildings into the existing map database
+Day 307: RAG map update
+Folder: 307_rag_map_update
+Run (from the folder):
+```bash
+./run_map_update.sh
+```
 
-Day 308: Real-Time QEC Decoder Project Begins - Set up NVIDIA CUDA Quantum (CUDA-Q) environment; run a basic hybrid quantum-classical example
+Day 308: CUDA-Q setup
+Folder: 308_cudaq_setup
+Run (from the folder):
+```bash
+./run_cudaq_setup.sh
+```
 
-Day 309: Simulate a small quantum error correcting code (e.g., 3-qubit bit-flip code) using cuQuantum; generate error syndromes
+Day 309: QEC simulation
+Folder: 309_qec_simulation
+Run (from the folder):
+```bash
+./run_qec_sim.sh
+```
 
-Day 310: Implement a baseline CPU decoder (e.g., brute force or simple lookup) for the code; measure its latency per round
+Day 310: CPU decoder baseline
+Folder: 310_cpu_decoder
+Run (from the folder):
+```bash
+./run_cpu_decoder.sh
+```
 
 Day 311: Train a small Transformer or GNN-based decoder on simulated syndrome error data; use PyTorch on GPU for training
 
