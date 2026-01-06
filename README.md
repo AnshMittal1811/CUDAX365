@@ -1254,6 +1254,18 @@ python animate_poisson.py --pattern "frames/phi_*.npy" --mode surface --title "p
 ```
 After using `-c` flag, we get an object file and instead may need to relink using `nvcc mhd_poisson_tiled -lcufft -o mhd_poisson_tiled.exe` or use `nvcc -O3 -arch=sm_89 -lineinfo -Xptxas -v mhd2d_adv.cu -lcufft -o mhd_poisson_tiled` to relink.
 
+Animation + Final Frame:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="012_cufft_poisson/poisson_anim.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day12_poisson_anim.png" alt="Day 12 final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
+
 
 
 Day 13:
@@ -1310,6 +1322,18 @@ ptxas info    : Function properties for _Z17fft32x32_warp_ptxPK6float2PS_i
 ptxas info    : Used 27 registers, used 1 barriers, 8448 bytes smem, 372 bytes cmem[0]
 ptxas info    : Compile time = 5.909 ms
 ```
+
+Animation + Final Frame:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="013_fft_ptx_butterfly/fft_mag.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day13_fft_mag.png" alt="Day 13 final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
 
 Day 14:
 Switch MHD solver to FP16 + Tensor Cores; verify HMMA instructions in PTX
@@ -1449,6 +1473,42 @@ Saved animation to mhd_rho_phi.mp4 using 60 frames.
         /*02f0*/                   HMMA.16816.F32 R12, R4.reuse, R22, RZ ;              /* 0x00000016040c723c */
         /*0300*/                   HMMA.16816.F32 R4, R4, R24, RZ ;                     /* 0x000000180404723c */
 ```
+
+Animation + Final Frames:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 8px 0; vertical-align: top;">
+      <video src="014_mhd_fp16_tensorcore/mhd_rho_phi.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0 0 8px 0; vertical-align: top;">
+      <img src="media/day14_mhd_rho_phi.png" alt="Day 14 rho/phi final frame (128x128)" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+  <tr>
+    <td style="border: none; padding: 0 12px 8px 0; vertical-align: top;">
+      <video src="014_mhd_fp16_tensorcore/mhd_rho_phi_192.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0 0 8px 0; vertical-align: top;">
+      <img src="media/day14_mhd_rho_phi_192.png" alt="Day 14 rho/phi final frame (192x192)" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+  <tr>
+    <td style="border: none; padding: 0 12px 8px 0; vertical-align: top;">
+      <video src="014_mhd_fp16_tensorcore/mhd_rho_phi_3d.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0 0 8px 0; vertical-align: top;">
+      <img src="media/day14_mhd_rho_phi_3d.png" alt="Day 14 rho/phi 3D final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="014_mhd_fp16_tensorcore/mhd_rho_phi_3d_strong.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day14_mhd_rho_phi_3d_strong.png" alt="Day 14 rho/phi 3D strong final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
 
 Day 14.5:
 Goal:
@@ -1613,6 +1673,26 @@ Step  119/ 120  dt=3.966e-04  rho[min,max]=[0.7900, 1.6553]
         /*02f0*/                   HMMA.16816.F32 R12, R4.reuse, R22, RZ ;               /* 0x00000016040c723c */
         /*0300*/                   HMMA.16816.F32 R4, R4, R24, RZ ;                      /* 0x000000180404723c */
 ```
+
+Animation + Final Frames:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 8px 0; vertical-align: top;">
+      <video src="014_5_advanced_mhd_fp16_tensorcore/mhd_combined_3d.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0 0 8px 0; vertical-align: top;">
+      <img src="media/day14_5_mhd_combined_3d.png" alt="Day 14.5 combined 3D final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="014_5_advanced_mhd_fp16_tensorcore/mhd_side_by_side.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day14_5_mhd_side_by_side.png" alt="Day 14.5 side-by-side final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
 
 Day 15:
 Inline approximate reciprocal (`rcp.approx.f32`) PTX in the flux loop to replace division 
@@ -1886,6 +1966,26 @@ nvcc -lcublas -lcurand -o cublas_curand_example cublas_curand_example.cu
 ./cublas_curand_example
 ```
 
+Animation + Final Frames:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 8px 0; vertical-align: top;">
+      <video src="015_inline_approx_reciprocal_ptx_flux_loop/mhd_rcp_compare.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0 0 8px 0; vertical-align: top;">
+      <img src="media/day15_mhd_rcp_compare.png" alt="Day 15 exact vs rcp.approx final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="015_inline_approx_reciprocal_ptx_flux_loop/mhd_rcp_delta.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day15_mhd_rcp_delta.png" alt="Day 15 delta heatmap final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
+
 Day 16:
 Put the full time-step in a CUDA Graph; run 1000 iterations in one graph launch
 - Capture the full time-step in a CUDA Graph and run 1000 iterations in one graph launch.
@@ -2007,6 +2107,18 @@ ptxas info    : Compile time = 21.057 ms
 
 
 ```
+
+Animation + Final Frame:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="016_full_cuda_graph/mhd_graph_combined_3d.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day16_mhd_graph_combined_3d.png" alt="Day 16 CUDA Graph combined 3D final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
 
 Day 17: Add dynamic parallelism: launch a sub-grid refinement kernel from within the solver
 - Launch a refine kernel from inside the solver when rho gradients exceed a threshold.
@@ -2132,6 +2244,48 @@ Saved animation to dynpar_earth_compare_3d.mp4 using 120 frames.
 Notes:
 - Set refine_thresh < 0 to disable the dynamic kernel launch.
 
+
+Animation + Final Frames:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 8px 0; vertical-align: top;">
+      <video src="017_dynpar_mhd/dynpar_compare.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0 0 8px 0; vertical-align: top;">
+      <img src="media/day17_dynpar_compare.png" alt="Day 17 dynpar compare final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="017_dynpar_mhd/dynpar_earth_compare_3d.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day17_dynpar_earth_compare_3d.png" alt="Day 17 Earth compare 3D final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
+
+Day 17.5: Stellar black hole accretion flow
+Folder: 017_5_stellar_blackhole_flow
+Animation + Final Frames:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 8px 0; vertical-align: top;">
+      <video src="017_5_stellar_blackhole_flow/blackhole_flow_3d.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0 0 8px 0; vertical-align: top;">
+      <img src="media/day17_5_blackhole_flow_3d.png" alt="Day 17.5 stellar black hole flow final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="017_5_stellar_blackhole_flow/blackhole_flow_3d_stellar_cold_hot.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day17_5_blackhole_flow_3d_stellar_cold_hot.png" alt="Day 17.5 stellar cold/hot split final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
 
 Day 18: Use Nsight Compute to check occupancy & warp usage; tune block size for best occupancy
 Run Nsight Compute across multiple block sizes (run from 018_ncu_occupancy):
@@ -2331,6 +2485,20 @@ Notes:
 - The script builds three variants of the Day 17 kernel and runs `ncu --set full`.
 - Adjust block sizes by editing `run_ncu.sh`.
 
+Day 18.5: Binary black hole accretion flow
+Folder: 018_5_binary_bh_accretion
+Animation + Final Frame:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="018_5_binary_bh_accretion/binary_bh_3d.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day18_5_binary_bh_3d.png" alt="Day 18.5 binary BH final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
+
 Day 19: Install PyTorch 2.2 and test torch.compile on a model; dump generated PTX
 
 Install (CUDA 12.1 wheels are fine on 12.x drivers):
@@ -2347,6 +2515,20 @@ find torchinductor_cache -name "*.ptx" | head -n 5
 
 Notes:
 - PTX files land in `torchinductor_cache/` because TORCHINDUCTOR_CACHE_DIR is set in the script.
+
+Day 19.5: Multi black hole accretion flow
+Folder: 019_5_multi_bh_accretion
+Animation + Final Frame:
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding: 0 12px 0 0; vertical-align: top;">
+      <video src="019_5_multi_bh_accretion/multi_bh_accretion.mp4" controls loop muted playsinline style="width: 360px; height: 360px; object-fit: contain;"></video>
+    </td>
+    <td style="border: none; padding: 0; vertical-align: top;">
+      <img src="media/day19_5_multi_bh_accretion.png" alt="Day 19.5 multi BH final frame" style="width: 360px; height: 360px; object-fit: contain;">
+    </td>
+  </tr>
+</table>
 
 Day 20: Try TorchRL on CartPole environment; examine an example Triton kernel PTX
 
