@@ -1,0 +1,25 @@
+# WSL CUDA Driver/Runtime Check
+
+CUDA_HOME=/usr/local/cuda-12.8
+NVCC=/usr/local/cuda-12.8/bin/nvcc
+CUOBJDUMP=/usr/local/cuda-12.8/bin/cuobjdump
+ARCH=sm_89
+NATIVE_ARCH=sm_89
+TORCH_CUDA_ARCH_LIST=8.9
+Failed to initialize NVML: GPU access blocked by the operating system
+Failed to properly shut down NVML: GPU access blocked by the operating system
+
+Build cuda_12.8.r12.8/compiler.35404655_0
+
+WSL libcuda:
+	libcudart.so.12 (libc6,x86-64) => /usr/local/cuda/targets/x86_64-linux/lib/libcudart.so.12
+	libcudart.so (libc6,x86-64) => /usr/local/cuda/targets/x86_64-linux/lib/libcudart.so
+	libcudadebugger.so.1 (libc6,x86-64) => /usr/lib/wsl/lib/libcudadebugger.so.1
+	libcuda.so.1 (libc6,x86-64) => /usr/lib/wsl/lib/libcuda.so.1
+
+/proc/driver/nvidia/version unavailable; this is common in WSL2.
+
+If CUDA programs fail with "CUDA driver version is insufficient for CUDA runtime version" in WSL2,
+fix the Windows host NVIDIA driver first. Do not install a Linux NVIDIA kernel driver inside WSL.
+For CUDA 12.8, install a current NVIDIA Windows driver that supports CUDA 12.8, restart Windows,
+then re-open WSL and rerun this check.

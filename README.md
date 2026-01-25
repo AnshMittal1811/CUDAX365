@@ -2582,12 +2582,25 @@ grep -n "atom.global.add.u64" mhd_atomic_reward.ptx
 Day 24:
 Read the NVIDIA Hopper (SM90) whitepaper; compare theoretical scheduling model
 
-Day 25: Compile for sm_90 and use cuobjdump to compare SASS vs. sm_86
+Day 25: RTX 4090 Laptop native sm_89 SASS comparison with cuobjdump
 Folder: 025_sm90_cuobjdump
 Run (from the folder):
 ```bash
+chmod +x compare_sass.sh
 ./compare_sass.sh
 ```
+Blob:
+- Retargeted the day from Hopper-only `sm_90` to this laptop's Ada GPU target,
+  `sm_89`, for NVIDIA GeForce RTX 4090 Laptop GPU.
+- Builds a native `sm_89` executable, emits `sm_86` and `sm_89` cubins, dumps
+  SASS with `cuobjdump`, and writes compact diffs under `build/`.
+- Optionally compiles an `sm_90` cubin for offline SASS inspection only; the
+  script does not try to run SM90 code on the RTX 4090 Laptop GPU.
+- Runtime output is saved to `build/run_sm_89.txt`; if the OS blocks GPU access,
+  compile/disassembly results are still produced and the failure is recorded.
+- Local run on 2026-06-19 completed compile + `cuobjdump` with CUDA 12.8 and
+  wrote SASS for `sm_86`, `sm_89`, and `sm_90`. Runtime execution did not launch
+  because the active driver is older than the CUDA runtime in this shell.
 
 Day 26: Install cuTensor; test a small tensor contraction vs. WMMA kernel
 Folder: 026_cutensor_wmma
@@ -4727,3 +4740,24 @@ Day 363: Presentation day: present the results of the projects to peers or mento
 Day 364: Revise CUDA, Triton, RTX, ML frameworks, etc
 
 Day 365: 
+
+## RTX 4090 Laptop GPU Day 25+ Execution Notes
+
+This repo was updated from Day 25 onward for the RTX 4090 Laptop GPU in this laptop. The shared environment helper is `scripts/cuda_mobile_env.sh`, which defaults CUDA builds to Ada compute capability `sm_89`, `TORCH_CUDA_ARCH_LIST=8.9`, and CUDA 12.8 paths under `/usr/local/cuda-12.8`.
+
+The Day 25-365 sweep was run on June 19, 2026 with `DAY_RUN_TIMEOUT_SECONDS=1800 ./scripts/run_day25_plus.py`. It attempted 324 runnable scripts and wrote committed logs under `run_outputs/day25_plus/`.
+
+- Passed: 84
+- Failed: 239
+- Runner errors: 1
+- Detailed run matrix: `run_outputs/day25_plus/summary.md`
+- Machine-readable summary: `run_outputs/day25_plus/summary.csv`
+- CUDA/WSL driver check: `run_outputs_cuda_driver_check.txt`
+
+The WSL shell can compile CUDA 12.8 code, but the current runtime reports `GPU access blocked by the operating system` through NVML. Scripts that only compile, inspect PTX/SASS, or generate notes can pass here; scripts that require live CUDA runtime execution, Nsight access, TensorRT/cuTensor/cuDNN/cuSPARSE installs, Vulkan/OpenGL display access, or long benchmark hardware access may fail until the Windows host NVIDIA driver exposes the RTX 4090 Laptop GPU cleanly to WSL.
+
+Important RTX 4090 Laptop changes:
+
+- Day 25 cuobjdump comparison now treats `sm_89` as the native target and keeps `sm_86`/`sm_90` as comparison targets.
+- Hopper-oriented FP8, TMA, and mbarrier scripts source the shared helper and use explicit architecture gates so Ada-compatible compile/analysis paths still run.
+- The runner captures stdout/stderr per script instead of stopping at the first failure, which makes the repo usable as a reproducibility notebook even when optional SDKs are missing.

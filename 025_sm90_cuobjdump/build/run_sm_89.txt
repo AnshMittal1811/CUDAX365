@@ -1,0 +1,2 @@
+CUDA error at sm90_compare.cu:21: CUDA driver version is insufficient for CUDA runtime version
+Runtime execution failed; compile and SASS dump still completed.
