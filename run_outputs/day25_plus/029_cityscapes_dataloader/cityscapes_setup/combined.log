@@ -1,0 +1,12 @@
+script=029_cityscapes_dataloader/cityscapes_setup.sh
+started_utc=2026-06-19T23:44:34.630944+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+Cityscapes not found at /home/anmittal/datasets/cityscapes
+Download from https://www.cityscapes-dataset.com and extract into /home/anmittal/datasets/cityscapes
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=0.003

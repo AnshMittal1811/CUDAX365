@@ -1,0 +1,27 @@
+script=025_sm90_cuobjdump/compare_sass.sh
+started_utc=2026-06-19T23:44:28.814747+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+Using NVCC=/usr/local/cuda-12.8/bin/nvcc
+Using CUOBJDUMP=/usr/local/cuda-12.8/bin/cuobjdump
+Native RTX 4090 Laptop target: sm_89
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z5saxpyPKfS0_Pffi' for 'sm_89'
+ptxas info    : Function properties for _Z5saxpyPKfS0_Pffi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 384 bytes cmem[0]
+ptxas info    : Compile time = 3.870 ms
+CUDA error at sm90_compare.cu:21: CUDA driver version is insufficient for CUDA runtime version
+Runtime execution failed; compile and SASS dump still completed.
+Wrote:
+  build/sass_sm_86.txt
+  build/sass_sm_89.txt
+  build/sass_sm_90.txt
+  build/sass_diff_sm_86_vs_sm_89.txt
+  build/sass_diff_sm_89_vs_sm_90.txt
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=2.241
