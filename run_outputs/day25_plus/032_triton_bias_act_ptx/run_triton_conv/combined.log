@@ -1,0 +1,11 @@
+script=032_triton_bias_act_ptx/run_triton_conv.sh
+started_utc=2026-06-19T23:44:34.716616+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_triton_conv.sh: line 3: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.091
