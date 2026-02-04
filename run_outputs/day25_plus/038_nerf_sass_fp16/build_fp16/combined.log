@@ -1,0 +1,18 @@
+script=038_nerf_sass_fp16/build_fp16.sh
+started_utc=2026-06-19T23:44:35.542912+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+CMake Warning:
+  Ignoring extra path from command line:
+
+   ".."
+
+
+CMake Error: The source directory "/home/anmittal/projects/250DaysStraight/038_nerf_sass_fp16/instant-ngp" does not appear to contain CMakeLists.txt.
+Specify --help for usage, or press the help button on the CMake GUI.
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=0.072
