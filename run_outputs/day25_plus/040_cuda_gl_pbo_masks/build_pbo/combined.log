@@ -1,0 +1,14 @@
+script=040_cuda_gl_pbo_masks/build_pbo.sh
+started_utc=2026-06-19T23:44:35.634427+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+cuda_gl_pbo.cu:4:10: fatal error: GL/glew.h: No such file or directory
+    4 | #include <GL/glew.h>
+      |          ^~~~~~~~~~~
+compilation terminated.
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=0.056

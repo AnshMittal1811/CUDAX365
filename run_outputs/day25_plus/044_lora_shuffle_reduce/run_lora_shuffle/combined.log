@@ -1,0 +1,16 @@
+script=044_lora_shuffle_reduce/run_lora_shuffle.sh
+started_utc=2026-06-19T23:44:35.731543+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+ptxas /tmp/tmpxft_0000018e_00000000-6_lora_shuffle_reduce.ptx, line 53; error   : Instruction 'shfl' without '.sync' is not supported on .target sm_70 and higher from PTX ISA version 6.4
+ptxas /tmp/tmpxft_0000018e_00000000-6_lora_shuffle_reduce.ptx, line 60; error   : Instruction 'shfl' without '.sync' is not supported on .target sm_70 and higher from PTX ISA version 6.4
+ptxas /tmp/tmpxft_0000018e_00000000-6_lora_shuffle_reduce.ptx, line 67; error   : Instruction 'shfl' without '.sync' is not supported on .target sm_70 and higher from PTX ISA version 6.4
+ptxas /tmp/tmpxft_0000018e_00000000-6_lora_shuffle_reduce.ptx, line 74; error   : Instruction 'shfl' without '.sync' is not supported on .target sm_70 and higher from PTX ISA version 6.4
+ptxas /tmp/tmpxft_0000018e_00000000-6_lora_shuffle_reduce.ptx, line 81; error   : Instruction 'shfl' without '.sync' is not supported on .target sm_70 and higher from PTX ISA version 6.4
+ptxas fatal   : Ptx assembly aborted due to errors
+
+--- result ---
+status=failed
+exit_code=255
+duration_seconds=0.336
