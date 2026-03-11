@@ -1,0 +1,11 @@
+script=071_hopper_fp8_dp8a/run_dp8a.sh
+started_utc=2026-06-19T23:44:38.770146+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+dp4a kernel done
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.494

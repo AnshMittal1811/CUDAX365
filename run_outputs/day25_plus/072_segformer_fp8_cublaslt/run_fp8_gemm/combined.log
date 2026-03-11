@@ -1,0 +1,17 @@
+script=072_segformer_fp8_cublaslt/run_fp8_gemm.sh
+started_utc=2026-06-19T23:44:39.264581+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+fp8_gemm_cublaslt.cu(22): warning #177-D: variable "opT" was declared but never referenced
+      cublasOperation_t opT = CUBLAS_OP_T;
+                        ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+CUDA error fp8_gemm_cublaslt.cu:15: CUDA driver version is insufficient for CUDA runtime version
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=1.467
