@@ -1,0 +1,40 @@
+script=076_curand_sobol/run_sobol.sh
+started_utc=2026-06-19T23:44:41.232209+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+curand_sobol.cu(7): error: no instance of overloaded function "curand_init" matches the argument list
+            argument types are: (unsigned long long, int, int, curandStateScrambledSobol64 *)
+      curand_init(seed, i, 0, &states[i]);
+      ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(1491): note #3326-D: function "curand_init(unsigned long long *, unsigned long long, unsigned long long, curandStateScrambledSobol64_t *)" does not match because argument #1 does not match parameter
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(curandDirectionVectors64_t direction_vectors,
+                                                                                ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(1463): note #3322-D: number of parameters of function "curand_init(unsigned long long *, unsigned long long, curandStateSobol64_t *)" does not match the call
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(curandDirectionVectors64_t direction_vectors,
+                                                                                ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(1399): note #3326-D: function "curand_init(unsigned int *, unsigned int, unsigned int, curandStateScrambledSobol32_t *)" does not match because argument #1 does not match parameter
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(curandDirectionVectors32_t direction_vectors,
+                                                                                ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(1372): note #3322-D: number of parameters of function "curand_init(unsigned int *, unsigned int, curandStateSobol32_t *)" does not match the call
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(curandDirectionVectors32_t direction_vectors,
+                                                                                ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(1274): note #3326-D: function "curand_init(unsigned long long, unsigned long long, unsigned long long, curandStateMRG32k3a_t *)" does not match because argument #4 does not match parameter
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(unsigned long long seed,
+                                                                                ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(1022): note #3326-D: function "curand_init(unsigned long long, unsigned long long, unsigned long long, curandStatePhilox4_32_10_t *)" does not match because argument #4 does not match parameter
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(unsigned long long seed,
+                                                                                ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(845): note #3326-D: function "curand_init(unsigned long long, unsigned long long, unsigned long long, curandStateXORWOW_t *)" does not match because argument #4 does not match parameter
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(unsigned long long seed,
+                                                                                ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/curand_kernel.h(546): note #3326-D: function "curand_init(unsigned long long, unsigned long long, unsigned long long, curandStateTest_t *)" does not match because argument #4 does not match parameter
+  static __inline__ __attribute__((always_inline)) __attribute__((device)) void curand_init(unsigned long long seed,
+                                                                                ^
+
+1 error detected in the compilation of "curand_sobol.cu".
+
+--- result ---
+status=failed
+exit_code=2
+duration_seconds=0.342
