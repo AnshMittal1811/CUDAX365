@@ -1,0 +1,11 @@
+script=087_openacc_vs_cuda/compare_openacc_cuda.sh
+started_utc=2026-06-19T23:44:41.935836+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+compare_openacc_cuda.sh: line 3: nvc++: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.019
