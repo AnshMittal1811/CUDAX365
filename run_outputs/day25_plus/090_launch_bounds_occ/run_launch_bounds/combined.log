@@ -1,0 +1,11 @@
+script=090_launch_bounds_occ/run_launch_bounds.sh
+started_utc=2026-06-19T23:44:44.367075+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+max active blocks per SM: 0
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.502
