@@ -1,0 +1,11 @@
+script=096_docker_stack/build_docker.sh
+started_utc=2026-06-19T23:44:45.890740+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+build_docker.sh: line 3: docker: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.014
