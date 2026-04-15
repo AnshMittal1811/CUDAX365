@@ -1,0 +1,16 @@
+script=108_cutlass_fp8_gnn/build_cutlass_fp8.sh
+started_utc=2026-06-19T23:44:52.542094+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+Cloning into '/home/anmittal/projects/250DaysStraight/108_cutlass_fp8_gnn/cutlass'...
+ssh: Could not resolve hostname github.com: Temporary failure in name resolution
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+--- result ---
+status=failed
+exit_code=128
+duration_seconds=0.008

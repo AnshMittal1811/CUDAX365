@@ -1,0 +1,11 @@
+script=106_ptx_globaltimer/run_globaltimer.sh
+started_utc=2026-06-19T23:44:51.491099+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+t0=134642363546304 t1=134642363546304 delta=0
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.523
