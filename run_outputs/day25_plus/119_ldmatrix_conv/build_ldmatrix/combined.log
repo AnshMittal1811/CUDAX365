@@ -1,0 +1,11 @@
+script=119_ldmatrix_conv/build_ldmatrix.sh
+started_utc=2026-06-19T23:44:53.503739+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+51:	.file	1 "/home/anmittal/projects/250DaysStraight/119_ldmatrix_conv/ldmatrix_conv.cu"
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.272
