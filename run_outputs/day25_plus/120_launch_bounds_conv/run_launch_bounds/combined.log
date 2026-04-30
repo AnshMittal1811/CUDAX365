@@ -1,0 +1,17 @@
+script=120_launch_bounds_conv/run_launch_bounds.sh
+started_utc=2026-06-19T23:44:53.776571+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z6conv1dPKfPfi' for 'sm_89'
+ptxas info    : Function properties for _Z6conv1dPKfPfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 12 registers, used 0 barriers, 372 bytes cmem[0]
+ptxas info    : Compile time = 1.053 ms
+conv done
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.470

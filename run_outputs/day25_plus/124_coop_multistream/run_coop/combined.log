@@ -1,0 +1,11 @@
+script=124_coop_multistream/run_coop.sh
+started_utc=2026-06-19T23:44:55.208174+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+coop kernels done
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.481
