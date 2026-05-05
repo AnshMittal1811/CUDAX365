@@ -1,0 +1,40 @@
+script=125_nerf_cache_metrics/profile_cache.sh
+started_utc=2026-06-19T23:44:55.689646+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+nerf_sampling.cu(4): error: texture is not a template
+  texture<float, 0x03, cudaReadModeElementType> tex3d;
+  ^
+
+nerf_sampling.cu(12): error: no instance of overloaded function "tex3D" matches the argument list
+            argument types are: (<error-type>, float, float, float)
+      out[i] = tex3D(tex3d, u, v, w);
+               ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/texture_indirect_functions.h(198): note #3322-D: number of parameters of function template "tex3D<T>(cudaTextureObject_t, float, float, float, bool *)" does not match the call
+  static __attribute__((device)) T tex3D(cudaTextureObject_t texObject, float x, float y, float z, bool* isResident)
+                                   ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/texture_indirect_functions.h(189): note #3322-D: number of parameters of function template "tex3D(T *, cudaTextureObject_t, float, float, float, bool *)" does not match the call
+  static __attribute__((device)) typename __nv_itex_trait<T>::type tex3D(T *ptr, cudaTextureObject_t obj, float x, float y, float z,
+                                                                   ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/texture_indirect_functions.h(180): note #3327-D: candidate function template "tex3D<T>(cudaTextureObject_t, float, float, float)" failed deduction
+  static __attribute__((device)) T tex3D(cudaTextureObject_t texObject, float x, float y, float z)
+                                   ^
+/usr/local/cuda-12.8/bin/../targets/x86_64-linux/include/texture_indirect_functions.h(174): note #3322-D: number of parameters of function template "tex3D(T *, cudaTextureObject_t, float, float, float)" does not match the call
+  static __attribute__((device)) typename __nv_itex_trait<T>::type tex3D(T *ptr, cudaTextureObject_t obj, float x, float y, float z)
+                                                                   ^
+
+nerf_sampling.cu(35): error: identifier "cudaBindTextureToArray" is undefined
+      cudaBindTextureToArray(tex3d, arr, desc);
+      ^
+
+nerf_sampling.cu(43): error: identifier "cudaUnbindTexture" is undefined
+      cudaUnbindTexture(tex3d);
+      ^
+
+4 errors detected in the compilation of "nerf_sampling.cu".
+
+--- result ---
+status=failed
+exit_code=2
+duration_seconds=0.161
