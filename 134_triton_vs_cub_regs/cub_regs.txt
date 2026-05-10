@@ -1,0 +1,21 @@
+ptxas info    : 39 bytes gmem, 312 bytes cmem[4]
+ptxas info    : Compiling entry function '_ZN3cub17CUB_200700_890_NS28DeviceReduceSingleTileKernelINS0_18DeviceReducePolicyIfjN4cuda3std3__44plusIvEEE9Policy600EPfSA_iS7_ffNS5_10__identityEEEvT0_T1_T2_T3_T4_T6_' for 'sm_89'
+ptxas info    : Function properties for _ZN3cub17CUB_200700_890_NS28DeviceReduceSingleTileKernelINS0_18DeviceReducePolicyIfjN4cuda3std3__44plusIvEEE9Policy600EPfSA_iS7_ffNS5_10__identityEEEvT0_T1_T2_T3_T4_T6_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 39 registers, used 1 barriers, 44 bytes smem, 381 bytes cmem[0]
+ptxas info    : Compile time = 19.289 ms
+ptxas info    : Compiling entry function '_ZN3cub17CUB_200700_890_NS18DeviceReduceKernelINS0_18DeviceReducePolicyIfjN4cuda3std3__44plusIvEEE9Policy600EPfjS7_fNS5_10__identityEEEvT0_PT3_T1_NS0_13GridEvenShareISF_EET2_T4_' for 'sm_89'
+ptxas info    : Function properties for _ZN3cub17CUB_200700_890_NS18DeviceReduceKernelINS0_18DeviceReducePolicyIfjN4cuda3std3__44plusIvEEE9Policy600EPfjS7_fNS5_10__identityEEEvT0_PT3_T1_NS0_13GridEvenShareISF_EET2_T4_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 44 bytes smem, 414 bytes cmem[0]
+ptxas info    : Compile time = 23.806 ms
+ptxas info    : Compiling entry function '_ZN3cub17CUB_200700_890_NS28DeviceReduceSingleTileKernelINS0_18DeviceReducePolicyIfjN4cuda3std3__44plusIvEEE9Policy600EPfSA_jS7_ffNS5_10__identityEEEvT0_T1_T2_T3_T4_T6_' for 'sm_89'
+ptxas info    : Function properties for _ZN3cub17CUB_200700_890_NS28DeviceReduceSingleTileKernelINS0_18DeviceReducePolicyIfjN4cuda3std3__44plusIvEEE9Policy600EPfSA_jS7_ffNS5_10__identityEEEvT0_T1_T2_T3_T4_T6_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 34 registers, used 1 barriers, 44 bytes smem, 381 bytes cmem[0]
+ptxas info    : Compile time = 19.435 ms
+ptxas info    : Compiling entry function '_ZN3cub17CUB_200700_890_NS11EmptyKernelIvEEvv' for 'sm_89'
+ptxas info    : Function properties for _ZN3cub17CUB_200700_890_NS11EmptyKernelIvEEvv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 4 registers, used 0 barriers, 352 bytes cmem[0]
+ptxas info    : Compile time = 0.356 ms
