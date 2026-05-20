@@ -29,6 +29,7 @@ def main():
         results[metric] = find_metric_value(REPORT, metric)
 
     notes = [
+        "RTX 4090 Laptop targets Ada sm_89; treat SM90/Hopper notes as comparison material unless running on Hopper.",
         "Hopper (SM90) uses a wider warp scheduling pipeline and supports concurrent issue paths.",
         "Warp occupancy should be interpreted alongside issue utilization and memory stall metrics.",
         "Higher occupancy does not guarantee higher performance if the kernel is memory bound.",
@@ -36,7 +37,7 @@ def main():
     ]
 
     with open(OUT, "w", encoding="utf-8") as f:
-        f.write("# SM90 microcode scheduling notes\n\n")
+        f.write("# SM89/SM90 microcode scheduling notes\n\n")
         f.write("## Measured occupancy (from ncu_report.csv)\n\n")
         for metric, value in results.items():
             f.write(f"- {metric}: {value if value is not None else 'N/A'}\n")
