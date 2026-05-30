@@ -1,0 +1,35 @@
+script=152_ptx_xorshift_warp/run_xorshift.sh
+started_utc=2026-06-19T23:45:09.533623+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+xorshift_ptx.cu(15): error: identifier "uint32_t" is undefined
+  __attribute__((device)) __inline__ __attribute__((always_inline)) uint32_t xorshift32_ptx(uint32_t x) {
+                                                                    ^
+
+xorshift_ptx.cu(15): error: identifier "uint32_t" is undefined
+  __attribute__((device)) __inline__ __attribute__((always_inline)) uint32_t xorshift32_ptx(uint32_t x) {
+                                                                                            ^
+
+xorshift_ptx.cu(16): error: identifier "uint32_t" is undefined
+      uint32_t t;
+      ^
+
+xorshift_ptx.cu(26): error: identifier "uint32_t" is undefined
+  __attribute__((global)) void xorshift_kernel(float *out, int n, uint32_t seed) {
+                                                                  ^
+
+xorshift_ptx.cu(31): error: identifier "uint32_t" is undefined
+      uint32_t x = seed ^ static_cast<uint32_t>(idx * 747796405u + 2891336453u);
+      ^
+
+xorshift_ptx.cu(31): error: identifier "uint32_t" is undefined
+      uint32_t x = seed ^ static_cast<uint32_t>(idx * 747796405u + 2891336453u);
+                                      ^
+
+6 errors detected in the compilation of "xorshift_ptx.cu".
+
+--- result ---
+status=failed
+exit_code=2
+duration_seconds=0.188
