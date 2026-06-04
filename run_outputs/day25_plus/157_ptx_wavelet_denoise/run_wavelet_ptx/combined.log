@@ -1,0 +1,13 @@
+script=157_ptx_wavelet_denoise/run_wavelet_ptx.sh
+started_utc=2026-06-19T23:45:09.763992+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+ptxas /tmp/tmpxft_0000081a_00000000-6_wavelet_ptx.ptx, line 67; error   : Illegal argument to unary minus
+ptxas /tmp/tmpxft_0000081a_00000000-6_wavelet_ptx.ptx, line 67; error   : Operand negation not allowed for instruction 'add'
+ptxas fatal   : Ptx assembly aborted due to errors
+
+--- result ---
+status=failed
+exit_code=255
+duration_seconds=0.400
