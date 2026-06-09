@@ -1,0 +1,11 @@
+script=160_denoise_quality_compare/run_quality_compare.sh
+started_utc=2026-06-19T23:45:10.687667+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_quality_compare.sh: line 5: ./run_denoise_timing.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=126
+duration_seconds=0.003

@@ -1,0 +1,11 @@
+script=162_gnn_inductor_ptx/find_ptx.sh
+started_utc=2026-06-19T23:45:10.701595+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+TorchInductor cache not found: ./torchinductor_cache
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=0.001
