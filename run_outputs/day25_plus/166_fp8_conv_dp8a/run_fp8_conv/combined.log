@@ -1,0 +1,35 @@
+script=166_fp8_conv_dp8a/run_fp8_conv.sh
+started_utc=2026-06-19T23:45:10.717658+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+fp8_conv_dp8a.cu(38): error: identifier "half" is undefined
+  __attribute__((global)) void conv_fp16(const half *in, const half *kernel, float *out, int w, int h) {
+                                               ^
+
+fp8_conv_dp8a.cu(38): error: identifier "half" is undefined
+  __attribute__((global)) void conv_fp16(const half *in, const half *kernel, float *out, int w, int h) {
+                                                               ^
+
+fp8_conv_dp8a.cu(52): error: identifier "__half2float" is undefined
+              sum += __half2float(in[in_idx]) * __half2float(kernel[k_idx]);
+                     ^
+
+fp8_conv_dp8a.cu(75): error: identifier "half" is undefined
+      half *d_in16 = nullptr;
+      ^
+
+fp8_conv_dp8a.cu(75): error: identifier "d_in16" is undefined
+      half *d_in16 = nullptr;
+            ^
+
+fp8_conv_dp8a.cu(76): error: identifier "d_k16" is undefined
+      half *d_k16 = nullptr;
+            ^
+
+6 errors detected in the compilation of "fp8_conv_dp8a.cu".
+
+--- result ---
+status=failed
+exit_code=2
+duration_seconds=0.150
