@@ -1,0 +1,11 @@
+script=180_speed_report/run_speed_report.sh
+started_utc=2026-06-19T23:45:15.137229+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_speed_report.sh: line 4: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.017
