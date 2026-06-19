@@ -1,0 +1,11 @@
+script=295_citex_tgi_quant/run_citex_tgi.sh
+started_utc=2026-06-19T23:45:35.787393+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_citex_tgi.sh: line 4: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.015
