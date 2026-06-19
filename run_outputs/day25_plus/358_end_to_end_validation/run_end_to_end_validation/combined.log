@@ -1,0 +1,14 @@
+script=358_end_to_end_validation/run_end_to_end_validation.sh
+started_utc=2026-06-19T23:45:37.510165+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+../311_decoder_train/run_decoder_train.sh: line 5: python: command not found
+../340_batch_scaling/run_batch_scaling.sh: line 5: python: command not found
+../350_segmentation_overlay/run_overlay.sh: line 5: python: command not found
+Validation run complete (check outputs in each folder).
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.132

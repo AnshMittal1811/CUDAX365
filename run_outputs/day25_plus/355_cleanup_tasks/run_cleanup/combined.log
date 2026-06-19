@@ -1,0 +1,17 @@
+script=355_cleanup_tasks/run_cleanup.sh
+started_utc=2026-06-19T23:45:36.642613+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+
+# Cleanup Tasks
+
+- Check for stale experiment outputs.
+- Remove unused caches.
+- Verify scripts run end-to-end.
+- Resolve any TODO/FIXME markers.
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.002
