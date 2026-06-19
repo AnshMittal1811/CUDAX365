@@ -1,0 +1,18 @@
+script=354_project_presentation/run_presentation_prep.sh
+started_utc=2026-06-19T23:45:36.640425+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+
+# 365-Day Project Presentation Outline
+
+- Motivation and goals
+- Key modules: MHD solver, NeRF rendering, RL, LLM
+- Performance highlights and speedups
+- Lessons learned and future work
+- Live demo checklist
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.002
