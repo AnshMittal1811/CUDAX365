@@ -1,0 +1,2 @@
+45:	ld.global.u8 	%rs1, [%rd5];
+50:	st.global.u8 	[%rd7], %rs1;
