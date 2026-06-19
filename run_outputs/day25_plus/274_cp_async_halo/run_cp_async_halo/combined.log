@@ -1,0 +1,15 @@
+script=274_cp_async_halo/run_cp_async_halo.sh
+started_utc=2026-06-19T23:45:33.029815+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+cp_async_halo.cu(13): error: asm operand type size(8) does not match type/size implied by constraint 'r'
+      asm volatile("cp.async.cg.shared.global [%0], [%1], %2;" :: "r"(sh + threadIdx.x), "l"(in + idx), "n"(4));
+                                                                  ^
+
+1 error detected in the compilation of "cp_async_halo.cu".
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=0.309

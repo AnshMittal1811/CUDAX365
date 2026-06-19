@@ -1,0 +1,11 @@
+script=271_stdpar_pde_solver/build_stdpar_pde.sh
+started_utc=2026-06-19T23:45:32.330690+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+nvc++ not found
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=0.013

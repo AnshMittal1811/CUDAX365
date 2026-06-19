@@ -1,0 +1,11 @@
+script=273_stdpar_vs_cuda_perf/run_stdpar_vs_cuda.sh
+started_utc=2026-06-19T23:45:32.518300+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+cuda_pde_ms=0.0000
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.511
