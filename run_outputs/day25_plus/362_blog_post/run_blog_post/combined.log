@@ -1,0 +1,21 @@
+script=362_blog_post/run_blog_post.sh
+started_utc=2026-06-19T23:45:37.740663+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+
+# 365 Days of GPU Systems: A Journey
+
+This post summarizes the challenges and breakthroughs from building a full-stack GPU pipeline
+spanning simulation, rendering, ML, and systems profiling.
+
+Highlights:
+- PTX and SASS deep dives
+- CUDA Graphs and kernel fusion
+- Mixed precision and sparsity
+- End-to-end pipeline benchmarks
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.002

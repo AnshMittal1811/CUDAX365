@@ -1,0 +1,18 @@
+script=363_demo_day/run_demo_checklist.sh
+started_utc=2026-06-19T23:45:37.743342+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+
+# Demo Day Checklist
+
+- Run core pipeline demo
+- Verify segmentation overlay
+- Show RL loop metrics
+- Display LLM response latency
+- Capture Q&A notes
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.002
