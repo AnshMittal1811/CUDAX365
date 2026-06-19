@@ -1,0 +1,11 @@
+script=250_soak_test_24h/run_soak_24h.sh
+started_utc=2026-06-19T23:45:30.189053+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_soak_24h.sh: line 8: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.014
