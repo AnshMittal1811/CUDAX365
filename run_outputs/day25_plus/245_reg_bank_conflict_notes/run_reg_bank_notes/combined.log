@@ -1,0 +1,16 @@
+script=245_reg_bank_conflict_notes/run_reg_bank_notes.sh
+started_utc=2026-06-19T23:45:28.542467+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+# Register Bank Conflict Notes
+
+- Register file is partitioned into banks; conflict occurs when multiple operands hit same bank.
+- Conflicts can increase instruction latency or reduce throughput.
+- Use compiler reports and Nsight metrics to detect stalls due to register bank conflicts.
+- Mitigate by reordering instructions or adjusting register usage patterns.
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.002
