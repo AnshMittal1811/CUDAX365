@@ -1,0 +1,11 @@
+script=205_vram_residency/log_vram.sh
+started_utc=2026-06-19T23:45:18.186779+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+log_vram.sh: line 9: ./run_pipeline.sh: Permission denied
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.002

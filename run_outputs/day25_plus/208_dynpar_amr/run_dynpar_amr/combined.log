@@ -1,0 +1,11 @@
+script=208_dynpar_amr/run_dynpar_amr.sh
+started_utc=2026-06-19T23:45:19.310870+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+dynpar amr done
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.527
