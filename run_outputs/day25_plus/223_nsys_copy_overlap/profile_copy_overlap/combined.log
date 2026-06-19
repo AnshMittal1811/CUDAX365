@@ -1,0 +1,11 @@
+script=223_nsys_copy_overlap/profile_copy_overlap.sh
+started_utc=2026-06-19T23:45:21.914976+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+profile_copy_overlap.sh: line 9: ./run_copy_saturation.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=126
+duration_seconds=0.001
