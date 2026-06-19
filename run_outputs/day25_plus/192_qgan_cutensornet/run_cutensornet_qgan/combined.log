@@ -1,0 +1,11 @@
+script=192_qgan_cutensornet/run_cutensornet_qgan.sh
+started_utc=2026-06-19T23:45:15.278983+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_cutensornet_qgan.sh: line 5: ./run_qgan.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=126
+duration_seconds=0.001
