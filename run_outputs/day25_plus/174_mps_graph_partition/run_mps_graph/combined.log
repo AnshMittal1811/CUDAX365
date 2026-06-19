@@ -1,0 +1,13 @@
+script=174_mps_graph_partition/run_mps_graph.sh
+started_utc=2026-06-19T23:45:13.538155+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+MPS control not found; running two processes without MPS
+graph_worker done
+graph_worker done
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.498
