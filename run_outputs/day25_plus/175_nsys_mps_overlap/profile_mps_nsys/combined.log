@@ -1,0 +1,12 @@
+script=175_nsys_mps_overlap/profile_mps_nsys.sh
+started_utc=2026-06-19T23:45:14.036647+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+profile_mps_nsys.sh: line 10: $!: unbound variable
+profile_mps_nsys.sh: line 9: ./run_mps_graph.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=1
+duration_seconds=0.001

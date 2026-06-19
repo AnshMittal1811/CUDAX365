@@ -1,0 +1,11 @@
+script=179_l2_hit_overlap/profile_l2.sh
+started_utc=2026-06-19T23:45:15.135473+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+profile_l2.sh: line 9: ./run_async_copy.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=126
+duration_seconds=0.001

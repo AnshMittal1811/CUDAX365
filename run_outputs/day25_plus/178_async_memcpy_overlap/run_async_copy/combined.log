@@ -1,0 +1,12 @@
+script=178_async_memcpy_overlap/run_async_copy.sh
+started_utc=2026-06-19T23:45:14.615457+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_async_copy.sh: line 8:  2388 Segmentation fault      (core dumped) ./async_memcpy "$N"
+      2389 Done                    | tee async_copy_results.txt
+
+--- result ---
+status=failed
+exit_code=139
+duration_seconds=0.520
