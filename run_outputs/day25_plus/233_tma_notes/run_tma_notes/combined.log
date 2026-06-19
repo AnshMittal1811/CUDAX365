@@ -1,0 +1,17 @@
+script=233_tma_notes/run_tma_notes.sh
+started_utc=2026-06-19T23:45:25.212878+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+# Hopper TMA Notes
+
+- TMA provides bulk tensor memory copy operations from global to shared memory.
+- Designed to reduce copy overhead and improve SM utilization.
+- Supports multicast and layout transformations for tile transfers.
+- Requires SM90 and compiler support for cp.async.bulk operations.
+- Consider aligning tiles to cache lines and use barrier synchronization.
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.002

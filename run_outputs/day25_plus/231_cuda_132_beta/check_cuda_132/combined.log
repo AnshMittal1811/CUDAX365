@@ -1,0 +1,19 @@
+script=231_cuda_132_beta/check_cuda_132.sh
+started_utc=2026-06-19T23:45:24.275592+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Wed_Jan_15_19:20:09_PST_2025
+Cuda compilation tools, release 12.8, V12.8.61
+Build cuda_12.8.r12.8/compiler.35404655_0
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: developer.nvidia.com
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.006
