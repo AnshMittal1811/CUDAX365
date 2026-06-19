@@ -1,0 +1,11 @@
+script=187_segformer_fp4_trt/run_fp4_quantize.sh
+started_utc=2026-06-19T23:45:15.224121+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_fp4_quantize.sh: line 4: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.018

@@ -1,0 +1,11 @@
+script=189_segformer_fp4_accuracy/run_accuracy.sh
+started_utc=2026-06-19T23:45:15.257354+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_accuracy.sh: line 5: ./run_fp4_quantize.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=126
+duration_seconds=0.001
