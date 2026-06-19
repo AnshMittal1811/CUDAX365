@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ARCH=${ARCH:-sm_90}
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/cuda_mobile_env.sh"
+ARCH=${ARCH:-sm_89}
 
-nvcc -O3 -lineinfo -arch="$ARCH" tma_fourier.cu -o tma_fourier
+"$NVCC" -O3 -lineinfo -arch="$ARCH" tma_fourier.cu -o tma_fourier
 ./tma_fourier 1024
