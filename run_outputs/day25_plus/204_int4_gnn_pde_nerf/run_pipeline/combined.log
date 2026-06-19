@@ -1,0 +1,11 @@
+script=204_int4_gnn_pde_nerf/run_pipeline.sh
+started_utc=2026-06-19T23:45:18.174960+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_pipeline.sh: line 4: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.011
