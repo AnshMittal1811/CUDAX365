@@ -1,0 +1,49 @@
+script=238_fp8_dropout_ptx/run_fp8_dropout.sh
+started_utc=2026-06-19T23:45:26.738222+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+fp8_dropout.cu(6): error: identifier "uint32_t" is undefined
+  __attribute__((device)) __inline__ __attribute__((always_inline)) uint32_t xorshift32(uint32_t x) {
+                                                                    ^
+
+fp8_dropout.cu(6): error: identifier "uint32_t" is undefined
+  __attribute__((device)) __inline__ __attribute__((always_inline)) uint32_t xorshift32(uint32_t x) {
+                                                                                        ^
+
+fp8_dropout.cu(13): warning #1835-D: attribute "__global__" does not apply here
+  __attribute__((global)) void fp8_dropout(uint8_t *data, int n, float drop_prob, uint32_t seed) {
+                 ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+fp8_dropout.cu(13): error: incomplete type "void" is not allowed
+  __attribute__((global)) void fp8_dropout(uint8_t *data, int n, float drop_prob, uint32_t seed) {
+                               ^
+
+fp8_dropout.cu(13): error: identifier "uint8_t" is undefined
+  __attribute__((global)) void fp8_dropout(uint8_t *data, int n, float drop_prob, uint32_t seed) {
+                                           ^
+
+fp8_dropout.cu(13): error: identifier "data" is undefined
+  __attribute__((global)) void fp8_dropout(uint8_t *data, int n, float drop_prob, uint32_t seed) {
+                                                    ^
+
+fp8_dropout.cu(13): error: type name is not allowed
+  __attribute__((global)) void fp8_dropout(uint8_t *data, int n, float drop_prob, uint32_t seed) {
+                                                          ^
+
+fp8_dropout.cu(13): error: expected a ")"
+  __attribute__((global)) void fp8_dropout(uint8_t *data, int n, float drop_prob, uint32_t seed) {
+                                                              ^
+
+fp8_dropout.cu(13): error: expected a ";"
+  __attribute__((global)) void fp8_dropout(uint8_t *data, int n, float drop_prob, uint32_t seed) {
+                                                                                                 ^
+
+8 errors detected in the compilation of "fp8_dropout.cu".
+
+--- result ---
+status=failed
+exit_code=2
+duration_seconds=0.158

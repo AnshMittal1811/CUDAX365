@@ -1,0 +1,11 @@
+script=237_tma_l2_metrics/profile_tma_l2.sh
+started_utc=2026-06-19T23:45:26.736572+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+profile_tma_l2.sh: line 9: ./run_tma_fourier.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=126
+duration_seconds=0.001
