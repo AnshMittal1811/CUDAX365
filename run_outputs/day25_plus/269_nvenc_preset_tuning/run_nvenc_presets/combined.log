@@ -1,0 +1,11 @@
+script=269_nvenc_preset_tuning/run_nvenc_presets.sh
+started_utc=2026-06-19T23:45:32.308946+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_nvenc_presets.sh: line 4: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.019

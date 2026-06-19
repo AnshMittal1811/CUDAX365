@@ -1,0 +1,11 @@
+script=266_fp6_accuracy_eval/run_fp_format_eval.sh
+started_utc=2026-06-19T23:45:32.278108+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_fp_format_eval.sh: line 4: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.015
