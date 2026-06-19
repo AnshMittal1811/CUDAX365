@@ -1,0 +1,11 @@
+script=288_curriculum_learning_curve/run_learning_curve.sh
+started_utc=2026-06-19T23:45:35.597904+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_learning_curve.sh: line 4: python: command not found
+
+--- result ---
+status=failed
+exit_code=127
+duration_seconds=0.079
