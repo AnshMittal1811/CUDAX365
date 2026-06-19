@@ -1,0 +1,11 @@
+script=227_inline_ptx_activation/run_inline_activation.sh
+started_utc=2026-06-19T23:45:21.944048+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+inline activation done
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.568

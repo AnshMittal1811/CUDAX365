@@ -1,0 +1,11 @@
+script=228_epilogue_speed_compare/run_epilogue_bench.sh
+started_utc=2026-06-19T23:45:22.512971+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+fused_ms=0.0000 separate_ms=0.0000
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=1.241

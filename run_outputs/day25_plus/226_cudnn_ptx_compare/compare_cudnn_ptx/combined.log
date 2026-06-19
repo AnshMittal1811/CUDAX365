@@ -1,0 +1,11 @@
+script=226_cudnn_ptx_compare/compare_cudnn_ptx.sh
+started_utc=2026-06-19T23:45:21.942441+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+Saved manual_activation.ptx.txt
+
+--- result ---
+status=passed
+exit_code=0
+duration_seconds=0.001
