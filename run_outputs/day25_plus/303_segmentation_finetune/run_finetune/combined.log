@@ -1,0 +1,11 @@
+script=303_segmentation_finetune/run_finetune.sh
+started_utc=2026-06-19T23:45:36.003082+00:00
+timeout_seconds=1800
+ARCH=sm_89
+--- output ---
+run_finetune.sh: line 5: ./run_satellite_dataset.sh: Permission denied
+
+--- result ---
+status=failed
+exit_code=126
+duration_seconds=0.001
