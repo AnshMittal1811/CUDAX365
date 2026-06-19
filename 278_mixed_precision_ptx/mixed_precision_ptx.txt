@@ -1,0 +1,12 @@
+13:	// .globl	_Z12mixed_kernelPK6__halfPKaPS_i
+15:.visible .entry _Z12mixed_kernelPK6__halfPKaPS_i(
+16:	.param .u64 _Z12mixed_kernelPK6__halfPKaPS_i_param_0,
+17:	.param .u64 _Z12mixed_kernelPK6__halfPKaPS_i_param_1,
+18:	.param .u64 _Z12mixed_kernelPK6__halfPKaPS_i_param_2,
+19:	.param .u32 _Z12mixed_kernelPK6__halfPKaPS_i_param_3
+30:	ld.param.u64 	%rd1, [_Z12mixed_kernelPK6__halfPKaPS_i_param_0];
+31:	ld.param.u64 	%rd2, [_Z12mixed_kernelPK6__halfPKaPS_i_param_1];
+32:	ld.param.u64 	%rd3, [_Z12mixed_kernelPK6__halfPKaPS_i_param_2];
+33:	ld.param.u32 	%r2, [_Z12mixed_kernelPK6__halfPKaPS_i_param_3];
+61:	{  cvt.rn.f16.f32 %rs1, %f1;}
+67:	{add.f16 %rs2,%rs3,%rs1;
